@@ -1,0 +1,18 @@
+{
+  "investigation_focus": {
+    "value": "DOJ-OGR documents from Epstein case",
+    "timestamp": "2025-11-21T11:33:07.932372"
+  },
+  "document_count": {
+    "value": "6,083 total documents",
+    "timestamp": "2025-11-21T11:33:07.932544"
+  },
+  "image_count": {
+    "value": "3,173 scanned images",
+    "timestamp": "2025-11-21T11:33:07.932614"
+  },
+  "ocr_status": {
+    "value": "In progress - ~8% complete",
+    "timestamp": "2025-11-21T11:33:07.932730"
+  }
+}

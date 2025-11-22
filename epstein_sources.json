@@ -1,0 +1,450 @@
+{
+  "project_metadata": {
+    "title": "Epstein Document Repository Sources",
+    "purpose": "Comprehensive list of legitimate public sources for Epstein court documents and investigative files",
+    "created": "2025-11-20",
+    "total_estimated_pages": "50000+",
+    "data_format_notes": "Mix of PDFs, court documents, emails, financial records, schedules"
+  },
+
+  "download_priority": {
+    "high_priority": [
+      "internet_archive_943_pages",
+      "house_oversight_33295_pages",
+      "house_oversight_20000_estate"
+    ],
+    "medium_priority": [
+      "documentcloud_repository",
+      "doj_february_2025",
+      "guardian_direct_pdf"
+    ],
+    "supplementary": [
+      "404_media_archive",
+      "alternative_internet_archive"
+    ]
+  },
+
+  "sources": [
+    {
+      "id": "doj_february_2025",
+      "category": "official_government",
+      "name": "U.S. Department of Justice - February 2025 Release",
+      "release_date": "2025-02-27",
+      "authority": "Attorney General Pamela Bondi / FBI",
+      "page_count": "200+",
+      "url": "https://www.justice.gov/opa/pr/attorney-general-pamela-bondi-releases-first-phase-declassified-epstein-files",
+      "download_urls": {
+        "main_page": "https://www.justice.gov/opa/pr/attorney-general-pamela-bondi-releases-first-phase-declassified-epstein-files",
+        "ag_letter": "https://www.justice.gov/ag/media/1391331/dl?inline",
+        "note": "Individual document links available on main page"
+      },
+      "contents": [
+        "Evidence List",
+        "Flight Logs (Parts 1-6 from U.S. v. Maxwell)",
+        "Contact Book (Redacted)",
+        "Masseuse List (Redacted)"
+      ],
+      "file_format": "PDF",
+      "access_method": "Direct download from DOJ website",
+      "notes": "First phase release; additional documents pending review"
+    },
+
+    {
+      "id": "house_oversight_33295_pages",
+      "category": "official_government",
+      "name": "House Oversight Committee - DOJ Records Release",
+      "release_date": "2025-09-02",
+      "authority": "House Committee on Oversight and Government Reform",
+      "page_count": 33295,
+      "url": "https://oversight.house.gov/release/oversight-committee-releases-epstein-records-provided-by-the-department-of-justice/",
+      "download_urls": {
+        "main_release": "https://oversight.house.gov/release/oversight-committee-releases-epstein-records-provided-by-the-department-of-justice/",
+        "note": "Direct download links provided on release page"
+      },
+      "contents": [
+        "DOJ investigative records",
+        "Court filings",
+        "Financial documents",
+        "Correspondence"
+      ],
+      "file_format": "PDF",
+      "access_method": "Congressional website direct download",
+      "notes": "Obtained via Chairman Comer's subpoena to DOJ"
+    },
+
+    {
+      "id": "house_oversight_20000_estate",
+      "category": "official_government",
+      "name": "House Oversight Committee - Estate Documents",
+      "release_date": "2025-11-12",
+      "authority": "House Committee on Oversight and Government Reform",
+      "page_count": 20000,
+      "url": "https://oversight.house.gov/release/oversight-committee-releases-additional-epstein-estate-documents/",
+      "download_urls": {
+        "primary": "https://oversight.house.gov/release/oversight-committee-releases-additional-epstein-estate-documents/",
+        "backup": "Available on release page",
+        "note": "Two download locations provided (primary and backup)"
+      },
+      "contents": [
+        "Emails from Epstein",
+        "Text messages",
+        "Daily schedules and calendars",
+        "Court records",
+        "Financial documents",
+        "Personal correspondence"
+      ],
+      "file_format": "PDF/Mixed",
+      "access_method": "Congressional website with backup mirror",
+      "notes": "Includes correspondence mentioning Trump, Bannon, Chomsky, Summers, and others",
+      "highlights": [
+        "Michael Wolff 2015 email about Trump strategy",
+        "2011-2019 correspondence with political figures",
+        "Schedule references to Elon Musk, Peter Thiel, Steve Bannon"
+      ]
+    },
+
+    {
+      "id": "internet_archive_943_pages",
+      "category": "archived_court_documents",
+      "name": "Internet Archive - January 2024 Unsealed Documents",
+      "release_date": "2024-01-03",
+      "authority": "U.S. District Court, Southern District of New York",
+      "page_count": 943,
+      "case": "Giuffre v. Maxwell, Case 1:15-cv-07433-LAP Document 1320",
+      "url": "https://archive.org/details/final-epstein-documents",
+      "download_urls": {
+        "archive_page": "https://archive.org/details/final-epstein-documents",
+        "direct_pdf": "https://archive.org/download/final-epstein-documents/final-epstein-documents.pdf",
+        "guardian_source": "https://uploads.guim.co.uk/2024/01/04/Final_Epstein_documents.pdf",
+        "zip_archive": "https://archive.org/download/final-epstein-documents/final-epstein-documents.zip"
+      },
+      "contents": [
+        "Court depositions",
+        "Witness testimony",
+        "Names of 150+ associates",
+        "Recruitment practice details",
+        "Civil lawsuit records"
+      ],
+      "file_format": "PDF",
+      "file_size": "502.6MB",
+      "access_method": "Internet Archive direct download",
+      "notes": "Most comprehensive single-file collection from January 2024 unsealing",
+      "includes_ocr": true
+    },
+
+    {
+      "id": "alternative_internet_archive",
+      "category": "archived_court_documents",
+      "name": "Internet Archive - Alternative Collection",
+      "release_date": "2024-01-04",
+      "page_count": "Multiple documents",
+      "url": "https://archive.org/details/j-epstein-files",
+      "download_urls": {
+        "archive_page": "https://archive.org/details/j-epstein-files",
+        "bulk_download": "https://archive.org/download/j-epstein-files/"
+      },
+      "file_format": "PDF",
+      "file_size": "376.0MB",
+      "access_method": "Internet Archive bulk download",
+      "notes": "Alternative mirror with multiple document files"
+    },
+
+    {
+      "id": "complete_943_collection",
+      "category": "archived_court_documents",
+      "name": "Internet Archive - Complete 943-Page Collection",
+      "release_date": "2024-01-03",
+      "page_count": 943,
+      "url": "https://archive.org/details/1324-epstein-documents-943-pages_202401",
+      "download_urls": {
+        "archive_page": "https://archive.org/details/1324-epstein-documents-943-pages_202401",
+        "direct_download": "https://archive.org/download/1324-epstein-documents-943-pages_202401/"
+      },
+      "contents": [
+        "All 943 unsealed pages from January 3, 2024 release"
+      ],
+      "file_format": "PDF",
+      "access_method": "Internet Archive direct download",
+      "contributed_by": "Aysha Bagchi (USA Today)"
+    },
+
+    {
+      "id": "documentcloud_repository",
+      "category": "searchable_repository",
+      "name": "DocumentCloud Epstein Documents",
+      "page_count": 2024,
+      "url": "https://www.documentcloud.org/documents/6250471-Epstein-Docs/",
+      "download_urls": {
+        "viewer": "https://www.documentcloud.org/documents/6250471-Epstein-Docs/",
+        "download_option": "Available via DocumentCloud interface"
+      },
+      "contents": [
+        "Searchable court documents",
+        "Multiple case filings",
+        "Indexed and annotated documents"
+      ],
+      "file_format": "PDF with text layer",
+      "access_method": "DocumentCloud viewer with download option",
+      "features": [
+        "Full-text search",
+        "Page-level navigation",
+        "Annotation support",
+        "Direct PDF download"
+      ],
+      "notes": "Best for searchable, indexed access"
+    },
+
+    {
+      "id": "guardian_direct_pdf",
+      "category": "media_hosted",
+      "name": "The Guardian - Direct PDF Download",
+      "release_date": "2024-01-04",
+      "page_count": 943,
+      "url": "https://uploads.guim.co.uk/2024/01/04/Final_Epstein_documents.pdf",
+      "download_urls": {
+        "direct_pdf": "https://uploads.guim.co.uk/2024/01/04/Final_Epstein_documents.pdf"
+      },
+      "contents": [
+        "Complete January 2024 unsealing"
+      ],
+      "file_format": "PDF",
+      "access_method": "Direct HTTP download",
+      "notes": "Original source file hosted by The Guardian"
+    },
+
+    {
+      "id": "404_media_archive",
+      "category": "media_hosted",
+      "name": "404 Media Collection",
+      "release_date": "2024-01",
+      "url": "https://www.404media.co/download-the-jeffrey-epstein-documents/",
+      "download_urls": {
+        "article_page": "https://www.404media.co/download-the-jeffrey-epstein-documents/"
+      },
+      "contents": [
+        "ZIP archive of unsealed documents"
+      ],
+      "file_format": "ZIP containing PDFs",
+      "access_method": "Article page with download link",
+      "notes": "Archived collection with article context"
+    }
+  ],
+
+  "document_types_across_collections": {
+    "court_filings": [
+      "Depositions",
+      "Witness testimony",
+      "Civil lawsuit documents",
+      "Criminal case records",
+      "Motion filings"
+    ],
+    "financial_records": [
+      "Bank statements",
+      "Suspicious Activity Reports (SARs)",
+      "Transaction records",
+      "JPMorgan Chase documents",
+      "Estate financial documents"
+    ],
+    "communications": [
+      "Emails",
+      "Text messages",
+      "Letters",
+      "Schedules and calendars"
+    ],
+    "investigative_materials": [
+      "Flight logs",
+      "Contact books",
+      "Address books",
+      "Masseuse lists",
+      "Evidence inventories"
+    ],
+    "personal_documents": [
+      "Birthday book",
+      "Personal correspondence",
+      "Schedules",
+      "Meeting notes"
+    ]
+  },
+
+  "key_cases_and_origins": [
+    {
+      "case_name": "Giuffre v. Maxwell",
+      "case_number": "1:15-cv-07433-LAP",
+      "court": "U.S. District Court, Southern District of New York",
+      "type": "Defamation lawsuit (settled 2017)",
+      "unsealing_date": "2024-01-03",
+      "pages_released": 4553,
+      "judge": "Loretta Preska"
+    },
+    {
+      "case_name": "U.S. v. Jeffrey Epstein",
+      "case_number": "19 Cr. 490 (RMB)",
+      "court": "U.S. District Court, Southern District of New York",
+      "type": "Criminal case",
+      "status": "Terminated (death of defendant 2019)"
+    },
+    {
+      "case_name": "U.S. Virgin Islands v. JPMorgan Chase",
+      "type": "Civil lawsuit",
+      "focus": "Bank's role in Epstein transactions",
+      "documents_released": "100+ exhibits including SARs",
+      "settlement": "$75 million (2023)"
+    }
+  ],
+
+  "notable_entities_mentioned": {
+    "political_figures": [
+      "Donald Trump",
+      "Bill Clinton",
+      "Prince Andrew",
+      "Bill Richardson"
+    ],
+    "business_leaders": [
+      "Leslie Wexner",
+      "Elon Musk",
+      "Peter Thiel"
+    ],
+    "academics": [
+      "Larry Summers",
+      "Noam Chomsky",
+      "Stephen Hawking"
+    ],
+    "legal_professionals": [
+      "Alan Dershowitz"
+    ],
+    "political_operatives": [
+      "Steve Bannon"
+    ],
+    "note": "Mention in documents does NOT indicate wrongdoing or criminal activity"
+  },
+
+  "ethical_considerations": {
+    "victim_protection": "All releases redact victim identities",
+    "content_warnings": "Documents contain descriptions of sexual abuse of minors",
+    "context_importance": "Being named ≠ accusation of wrongdoing",
+    "trauma_informed_design": "Required for any platform displaying this material",
+    "journalistic_standards": "Verify claims, protect survivors, contextualize information"
+  },
+
+  "download_strategy": {
+    "phase_1": {
+      "description": "Core collections - Start here",
+      "sources": [
+        "internet_archive_943_pages",
+        "house_oversight_33295_pages",
+        "house_oversight_20000_estate"
+      ],
+      "estimated_size": "5+ GB",
+      "priority": "HIGH"
+    },
+    "phase_2": {
+      "description": "Supplementary and searchable",
+      "sources": [
+        "documentcloud_repository",
+        "doj_february_2025",
+        "guardian_direct_pdf"
+      ],
+      "estimated_size": "1-2 GB",
+      "priority": "MEDIUM"
+    },
+    "phase_3": {
+      "description": "Alternative mirrors and backups",
+      "sources": [
+        "404_media_archive",
+        "alternative_internet_archive",
+        "complete_943_collection"
+      ],
+      "estimated_size": "1+ GB",
+      "priority": "LOW"
+    }
+  },
+
+  "technical_requirements": {
+    "storage_estimate": "10-15 GB total",
+    "formats_to_handle": ["PDF", "ZIP", "HTML"],
+    "ocr_status": "Most documents already OCR'd",
+    "text_extraction": "Required for searchability",
+    "deduplication": "Many documents overlap between sources",
+    "organization_scheme": [
+      "By source",
+      "By date",
+      "By document type",
+      "By case/origin"
+    ]
+  },
+
+  "database_design_recommendations": {
+    "entity_extraction": [
+      "Person names",
+      "Organizations",
+      "Locations",
+      "Dates and timelines",
+      "Financial amounts",
+      "Flight information",
+      "Email addresses",
+      "Phone numbers"
+    ],
+    "relationship_mapping": [
+      "Person-to-person connections",
+      "Person-to-organization links",
+      "Timeline relationships",
+      "Financial transaction networks",
+      "Travel patterns"
+    ],
+    "document_metadata": [
+      "Source origin",
+      "Release date",
+      "Page count",
+      "Document type",
+      "Case association",
+      "Redaction status",
+      "OCR quality"
+    ],
+    "search_capabilities": [
+      "Full-text search",
+      "Entity-based search",
+      "Date range filtering",
+      "Document type filtering",
+      "Cross-reference detection"
+    ],
+    "visualization_needs": [
+      "Network graphs",
+      "Timeline views",
+      "Geographic mapping",
+      "Document clustering",
+      "Relationship visualization"
+    ]
+  },
+
+  "legal_and_compliance": {
+    "all_sources_public": true,
+    "copyright_status": "Public domain (government documents) / Fair use (court documents)",
+    "restrictions": "Victim identities must remain protected",
+    "appropriate_use": "Legitimate journalism, research, public interest",
+    "prohibited_use": "Harassment, doxxing, defamation",
+    "citation_required": true
+  },
+
+  "validation_checklist": {
+    "verify_downloads": true,
+    "check_file_integrity": true,
+    "confirm_page_counts": true,
+    "test_pdf_readability": true,
+    "verify_ocr_quality": true,
+    "identify_duplicates": true,
+    "catalog_unique_documents": true
+  },
+
+  "next_steps": [
+    "Download Phase 1 collections",
+    "Extract text from all PDFs",
+    "Build document inventory/catalog",
+    "Implement deduplication",
+    "Create master index",
+    "Design database schema",
+    "Implement entity extraction pipeline",
+    "Build relationship mapping system",
+    "Create search interface",
+    "Implement visualization tools"
+  ]
+}

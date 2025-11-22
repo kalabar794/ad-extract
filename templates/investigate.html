@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Investigation Dashboard - Epstein Archive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #1e3c72;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #d32f2f;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #d32f2f;
+            padding-bottom: 10px;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        button {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(211, 47, 47, 0.3);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #1e3c72;
+            font-weight: bold;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #d32f2f;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .results h3 {
+            color: #1e3c72;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .results pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .crime-list {
+            background: #ffebee;
+            border-left: 4px solid #d32f2f;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .crime-list li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .suspect-card {
+            background: #fff3e0;
+            border-left: 4px solid #ff6f00;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .suspect-card strong {
+            color: #d32f2f;
+            font-size: 1.1em;
+        }
+
+        .lead-item {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #1e3c72;
+            outline: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #1e3c72;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .severity-high {
+            background: #ffcdd2;
+            color: #b71c1c;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px 0;
+        }
+
+        .severity-medium {
+            background: #fff9c4;
+            color: #f57f17;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px 0;
+        }
+
+        .api-key-setup {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .api-key-setup h3 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .api-key-setup code {
+            background: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Main Dashboard</a>
+
+        <header>
+            <h1>🔍 AI-Powered Investigation Dashboard</h1>
+            <p class="subtitle">Using Artificial Intelligence to Uncover Crimes and Bring Justice to Victims</p>
+            <div class="warning">
+                <strong>⚠️ IMPORTANT:</strong> This tool uses Claude AI to analyze documents for evidence of crimes,
+                identify perpetrators, build relationship networks, and generate investigative leads.
+                Focus is on EVIDENCE and JUSTICE for victims, not gossip or speculation.
+            </div>
+        </header>
+
+        <div class="api-key-setup">
+            <h3>🔑 Quick Setup - You Have Claude Pro!</h3>
+            <p><strong>Step 1:</strong> Go to <a href="https://console.anthropic.com/settings/keys" target="_blank">https://console.anthropic.com/settings/keys</a></p>
+            <p><strong>Step 2:</strong> Click "Create Key" to generate an API key</p>
+            <p><strong>Step 3:</strong> Copy the key and run in terminal:</p>
+            <code>export ANTHROPIC_API_KEY='your-key-here'</code>
+            <p><strong>Step 4:</strong> Restart Flask app</p>
+            <p style="margin-top: 10px;"><em>Note: API usage is separate from Claude Pro. You get $5 free credit (~10-15 full reports). After that it's ~$0.30-0.60 per full report.</em></p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Generate Investigation Report -->
+            <div class="card">
+                <h2>📊 Generate Full Investigation Report</h2>
+                <p>AI analyzes all documents to produce a comprehensive report identifying:
+                    crimes, suspects, victims, evidence, criminal networks, and investigative leads.</p>
+                <button id="btn-report" onclick="generateReport()">Generate Investigation Report</button>
+                <div id="loading-report" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing documents... This may take 30-60 seconds...</p>
+                </div>
+            </div>
+
+            <!-- Analyze Document -->
+            <div class="card">
+                <h2>📄 Analyze Specific Document</h2>
+                <p>Deep AI analysis of a single document to identify crimes, victims, perpetrators, and evidence.</p>
+                <input type="number" id="doc-id" placeholder="Enter Document ID" min="1">
+                <button id="btn-analyze" onclick="analyzeDocument()">Analyze Document</button>
+                <div id="loading-analyze" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing document for criminal activity...</p>
+                </div>
+            </div>
+
+            <!-- Relationship Network -->
+            <div class="card">
+                <h2>🕸️ Relationship Network Analysis</h2>
+                <p>AI-powered analysis of relationships between entities to identify criminal networks,
+                    facilitators, and suspicious connections.</p>
+                <input type="text" id="entity-name" placeholder="Entity name (optional - leave blank for all)">
+                <button id="btn-network" onclick="analyzeNetwork()">Analyze Relationships</button>
+                <div id="loading-network" class="loading">
+                    <div class="spinner"></div>
+                    <p>Building relationship network...</p>
+                </div>
+            </div>
+
+            <!-- Suspicious Patterns -->
+            <div class="card">
+                <h2>🚨 Find Suspicious Patterns</h2>
+                <p>Automatically identifies documents with suspicious keywords and patterns that indicate
+                    criminal activity, cover-ups, or evidence requiring investigation.</p>
+                <button id="btn-patterns" onclick="findPatterns()">Scan for Suspicious Patterns</button>
+                <div id="loading-patterns" class="loading">
+                    <div class="spinner"></div>
+                    <p>Scanning documents for suspicious patterns...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Display -->
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        function showLoading(id) {
+            document.getElementById(`loading-${id}`).classList.add('active');
+            document.getElementById(`btn-${id}`).disabled = true;
+        }
+
+        function hideLoading(id) {
+            document.getElementById(`loading-${id}`).classList.remove('active');
+            document.getElementById(`btn-${id}`).disabled = false;
+        }
+
+        function showResults(html) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = html;
+            resultsDiv.classList.add('active');
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function generateReport() {
+            showLoading('report');
+
+            try {
+                const response = await fetch('/api/ai/investigation-report');
+                const data = await response.json();
+
+                if (data.error) {
+                    showResults(`<h3 style="color: #d32f2f;">Error</h3><p>${data.error}</p>${getApiKeyHelp()}`);
+                    hideLoading('report');
+                    return;
+                }
+
+                let html = '<h2 style="color: #1e3c72;">🔍 AI Investigation Report</h2>';
+
+                if (data.executive_summary) {
+                    html += `<h3>Executive Summary</h3><div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0;">${data.executive_summary}</div>`;
+                }
+
+                if (data.documented_crimes && data.documented_crimes.length > 0) {
+                    html += '<h3>⚠️ Documented Crimes</h3><ul class="crime-list">';
+                    data.documented_crimes.forEach(crime => {
+                        html += `<li>${crime}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                if (data.key_suspects && data.key_suspects.length > 0) {
+                    html += '<h3>👤 Key Suspects</h3>';
+                    data.key_suspects.forEach(suspect => {
+                        html += `<div class="suspect-card">
+                            <strong>${suspect.name || 'Unknown'}</strong><br>
+                            <strong>Role:</strong> ${suspect.role || 'N/A'}<br>
+                            <strong>Evidence:</strong> ${suspect.evidence || 'N/A'}
+                        </div>`;
+                    });
+                }
+
+                if (data.investigative_leads && data.investigative_leads.length > 0) {
+                    html += '<h3>🔎 Investigative Leads</h3>';
+                    data.investigative_leads.forEach(lead => {
+                        html += `<div class="lead-item">${lead}</div>`;
+                    });
+                }
+
+                if (data.recommended_actions && data.recommended_actions.length > 0) {
+                    html += '<h3>📋 Recommended Actions</h3><ul>';
+                    data.recommended_actions.forEach(action => {
+                        html += `<li>${action}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                if (data.justice_for_victims) {
+                    html += `<h3 style="color: #d32f2f;">⚖️ Justice for Victims</h3><div style="background: #ffebee; padding: 15px; border-radius: 8px; margin: 10px 0;">${data.justice_for_victims}</div>`;
+                }
+
+                html += '<h3>Full Report (JSON)</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+
+                showResults(html);
+            } catch (error) {
+                showResults(`<h3 style="color: #d32f2f;">Error</h3><p>${error.message}</p>`);
+            }
+
+            hideLoading('report');
+        }
+
+        async function analyzeDocument() {
+            const docId = document.getElementById('doc-id').value;
+
+            if (!docId) {
+                alert('Please enter a document ID');
+                return;
+            }
+
+            showLoading('analyze');
+
+            try {
+                const response = await fetch(`/api/ai/analyze-document/${docId}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.error) {
+                    showResults(`<h3 style="color: #d32f2f;">Error</h3><p>${data.error}</p>${getApiKeyHelp()}`);
+                    hideLoading('analyze');
+                    return;
+                }
+
+                let html = `<h2 style="color: #1e3c72;">📄 Document Analysis: ${data.document || `Document ${docId}`}</h2>`;
+
+                if (data.severity) {
+                    html += `<span class="severity-${data.severity}">Severity: ${data.severity.toUpperCase()}</span>`;
+                }
+
+                if (data.executive_summary) {
+                    html += `<h3>Summary</h3><p style="background: #f5f5f5; padding: 15px; border-radius: 8px;">${data.executive_summary}</p>`;
+                }
+
+                if (data.criminal_activity_found && data.criminal_activity_found.length > 0) {
+                    html += '<h3>⚠️ Criminal Activity Found</h3><ul class="crime-list">';
+                    data.criminal_activity_found.forEach(crime => {
+                        html += `<li>${crime}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                if (data.key_evidence && data.key_evidence.length > 0) {
+                    html += '<h3>📋 Key Evidence</h3><ul>';
+                    data.key_evidence.forEach(evidence => {
+                        html += `<li>${evidence}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                if (data.investigative_leads && data.investigative_leads.length > 0) {
+                    html += '<h3>🔎 Investigative Leads</h3>';
+                    data.investigative_leads.forEach(lead => {
+                        html += `<div class="lead-item">${lead}</div>`;
+                    });
+                }
+
+                html += '<h3>Full Analysis (JSON)</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+
+                showResults(html);
+            } catch (error) {
+                showResults(`<h3 style="color: #d32f2f;">Error</h3><p>${error.message}</p>`);
+            }
+
+            hideLoading('analyze');
+        }
+
+        async function analyzeNetwork() {
+            const entityName = document.getElementById('entity-name').value;
+
+            showLoading('network');
+
+            try {
+                let url = '/api/ai/relationship-network?min=5';
+                if (entityName) {
+                    url += `&entity=${encodeURIComponent(entityName)}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) {
+                    showResults(`<h3 style="color: #d32f2f;">Error</h3><p>${data.error}</p>${getApiKeyHelp()}`);
+                    hideLoading('network');
+                    return;
+                }
+
+                let html = '<h2 style="color: #1e3c72;">🕸️ Relationship Network Analysis</h2>';
+
+                if (data.executive_summary) {
+                    html += `<h3>Summary</h3><p style="background: #f5f5f5; padding: 15px; border-radius: 8px;">${data.executive_summary}</p>`;
+                }
+
+                if (data.key_players && data.key_players.length > 0) {
+                    html += '<h3>👥 Key Players in Criminal Network</h3><ul class="crime-list">';
+                    data.key_players.forEach(player => {
+                        html += `<li>${player}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                if (data.suspicious_connections && data.suspicious_connections.length > 0) {
+                    html += '<h3>🚨 Suspicious Connections</h3><ul>';
+                    data.suspicious_connections.forEach(conn => {
+                        html += `<li>${conn}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                if (data.relationships && data.relationships.length > 0) {
+                    html += `<h3>📊 Top Relationships (${data.relationships.length} total)</h3>`;
+                    html += '<pre>' + JSON.stringify(data.relationships.slice(0, 20), null, 2) + '</pre>';
+                }
+
+                html += '<h3>Full Analysis (JSON)</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+
+                showResults(html);
+            } catch (error) {
+                showResults(`<h3 style="color: #d32f2f;">Error</h3><p>${error.message}</p>`);
+            }
+
+            hideLoading('network');
+        }
+
+        async function findPatterns() {
+            showLoading('patterns');
+
+            try {
+                const response = await fetch('/api/ai/suspicious-patterns');
+                const data = await response.json();
+
+                if (data.error) {
+                    showResults(`<h3 style="color: #d32f2f;">Error</h3><p>${data.error}</p>`);
+                    hideLoading('patterns');
+                    return;
+                }
+
+                let html = '<h2 style="color: #1e3c72;">🚨 Suspicious Patterns Found</h2>';
+
+                html += `<p><strong>Total suspicious documents:</strong> ${data.total_suspicious || 0}</p>`;
+
+                if (data.documents && data.documents.length > 0) {
+                    html += '<h3>Documents Requiring Investigation</h3>';
+                    data.documents.forEach((doc, i) => {
+                        if (i < 20) {  // Show first 20
+                            html += `<div class="suspect-card">
+                                <strong>Document ID ${doc.doc_id}:</strong> ${doc.filename}<br>
+                                <strong>Suspicious Keywords:</strong> ${doc.keywords.join(', ')}<br>
+                                <strong>Excerpt:</strong> ${doc.excerpt.substring(0, 300)}...
+                            </div>`;
+                        }
+                    });
+                }
+
+                showResults(html);
+            } catch (error) {
+                showResults(`<h3 style="color: #d32f2f;">Error</h3><p>${error.message}</p>`);
+            }
+
+            hideLoading('patterns');
+        }
+
+        function getApiKeyHelp() {
+            return `<div class="api-key-setup" style="margin-top: 20px;">
+                <h3>⚠️ API Key Not Set</h3>
+                <p>See setup instructions at the top of this page.</p>
+            </div>`;
+        }
+    </script>
+</body>
+</html>

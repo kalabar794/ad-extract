@@ -1,0 +1,5566 @@
+{
+  "timestamp": "2025-11-21T08:08:39.475635",
+  "summary": {
+    "total": 17,
+    "passed": 13,
+    "failed": 4,
+    "pass_rate": 76.47058823529412
+  },
+  "results": [
+    {
+      "name": "CORE: Basic Statistics",
+      "status": "\u2713 PASS",
+      "data_count": 153112,
+      "details": {
+        "entities": 150202,
+        "images": 0,
+        "text_documents": 2910
+      },
+      "error": null
+    },
+    {
+      "name": "CORE: Document Retrieval",
+      "status": "\u2713 PASS",
+      "data_count": 2910,
+      "details": {
+        "sample": [
+          {
+            "filename": "DOJ_Epstein_Indictment.pdf",
+            "id": 2913,
+            "type": "txt",
+            "uploaded_date": "2025-11-20T21:28:31.090611"
+          },
+          {
+            "filename": "DOJ_Maxwell_Indictment.pdf",
+            "id": 2912,
+            "type": "txt",
+            "uploaded_date": "2025-11-20T21:28:31.066644"
+          },
+          {
+            "filename": "Newsweek_Epstein_Documents_Full.pdf",
+            "id": 2911,
+            "type": "txt",
+            "uploaded_date": "2025-11-20T21:28:30.864393"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "CORE: Entity Extraction",
+      "status": "\u2713 PASS",
+      "data_count": 150202,
+      "details": {
+        "top_entities": [
+          {
+            "id": 4,
+            "mentions": 4885,
+            "name": "Jeffrey Epstein",
+            "type": "person"
+          },
+          {
+            "id": 16131,
+            "mentions": 2196,
+            "name": "HOUSE",
+            "type": "organization"
+          },
+          {
+            "id": 26,
+            "mentions": 968,
+            "name": "Donald Trump",
+            "type": "person"
+          },
+          {
+            "id": 19,
+            "mentions": 672,
+            "name": "New York",
+            "type": "location"
+          },
+          {
+            "id": 14,
+            "mentions": 591,
+            "name": "Bill Clinton",
+            "type": "person"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "CORE: Network Graph",
+      "status": "\u2717 FAIL",
+      "data_count": 0,
+      "details": {},
+      "error": "HTTPConnectionPool(host='localhost', port=5001): Read timed out. (read timeout=10)"
+    },
+    {
+      "name": "CORE: Timeline",
+      "status": "\u2713 PASS",
+      "data_count": 93637,
+      "details": {
+        "sample_events": [
+          {
+            "context": null,
+            "date": "' 01",
+            "doc_id": 1518,
+            "filename": "HOUSE_OVERSIGHT_014118.txt"
+          },
+          {
+            "context": null,
+            "date": "' 1",
+            "doc_id": 391,
+            "filename": "HOUSE_OVERSIGHT_021434.txt"
+          },
+          {
+            "context": null,
+            "date": "' 1",
+            "doc_id": 1682,
+            "filename": "HOUSE_OVERSIGHT_018872.txt"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "CORE: Full-Text Search",
+      "status": "\u2713 PASS",
+      "data_count": 1110,
+      "details": {
+        "search_results": 1110
+      },
+      "error": null
+    },
+    {
+      "name": "CORE: Co-occurrence Analysis",
+      "status": "\u2713 PASS",
+      "data_count": 50,
+      "details": {
+        "cooccurrences": [
+          {
+            "count": 161,
+            "entity1": "Prince Andrew",
+            "entity2": "Jeffrey Epstein"
+          },
+          {
+            "count": 91,
+            "entity1": "Prince Andrew",
+            "entity2": "Ghislaine Maxwell"
+          },
+          {
+            "count": 127,
+            "entity1": "Prince Andrew",
+            "entity2": "Bill Clinton"
+          },
+          {
+            "count": 47,
+            "entity1": "Prince Andrew",
+            "entity2": "Donald Trump"
+          },
+          {
+            "count": 36,
+            "entity1": "Prince Andrew",
+            "entity2": "Jane Doe"
+          },
+          {
+            "count": 21,
+            "entity1": "Prince Andrew",
+            "entity2": "Michael"
+          },
+          {
+            "count": 38,
+            "entity1": "Prince Andrew",
+            "entity2": "Edwards"
+          },
+          {
+            "count": 17,
+            "entity1": "Prince Andrew",
+            "entity2": "Putin"
+          },
+          {
+            "count": 11,
+            "entity1": "Prince Andrew",
+            "entity2": "Hillary"
+          },
+          {
+            "count": 19,
+            "entity1": "Prince Andrew",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 25,
+            "entity1": "Prince Andrew",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 12,
+            "entity1": "Prince Andrew",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 17,
+            "entity1": "Prince Andrew",
+            "entity2": "Suite"
+          },
+          {
+            "count": 15,
+            "entity1": "Prince Andrew",
+            "entity2": "Bush"
+          },
+          {
+            "count": 24,
+            "entity1": "Prince Andrew",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 41,
+            "entity1": "Prince Andrew",
+            "entity2": "Bill"
+          },
+          {
+            "count": 16,
+            "entity1": "Prince Andrew",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 11,
+            "entity1": "Prince Andrew",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 31,
+            "entity1": "Prince Andrew",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 31,
+            "entity1": "Prince Andrew",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 15,
+            "entity1": "Prince Andrew",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 48,
+            "entity1": "Prince Andrew",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 31,
+            "entity1": "Prince Andrew",
+            "entity2": "Jane"
+          },
+          {
+            "count": 5,
+            "entity1": "Prince Andrew",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 16,
+            "entity1": "Prince Andrew",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 11,
+            "entity1": "Prince Andrew",
+            "entity2": "clinton"
+          },
+          {
+            "count": 8,
+            "entity1": "Prince Andrew",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 10,
+            "entity1": "Prince Andrew",
+            "entity2": "David"
+          },
+          {
+            "count": 10,
+            "entity1": "Prince Andrew",
+            "entity2": "Larry"
+          },
+          {
+            "count": 12,
+            "entity1": "Prince Andrew",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 9,
+            "entity1": "Prince Andrew",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 15,
+            "entity1": "Prince Andrew",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 137,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Ghislaine Maxwell"
+          },
+          {
+            "count": 380,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Bill Clinton"
+          },
+          {
+            "count": 630,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Donald Trump"
+          },
+          {
+            "count": 70,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Jane Doe"
+          },
+          {
+            "count": 65,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Michael"
+          },
+          {
+            "count": 79,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Edwards"
+          },
+          {
+            "count": 44,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Putin"
+          },
+          {
+            "count": 57,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Bannon"
+          },
+          {
+            "count": 48,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Donald"
+          },
+          {
+            "count": 40,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Hillary"
+          },
+          {
+            "count": 46,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 85,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 49,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 41,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Suite"
+          },
+          {
+            "count": 40,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Bush"
+          },
+          {
+            "count": 194,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 128,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Fri"
+          },
+          {
+            "count": 74,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Richard Kahn"
+          },
+          {
+            "count": 49,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Lawrence Krauss"
+          },
+          {
+            "count": 45,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Lawrence M. Krauss"
+          },
+          {
+            "count": 113,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Reid"
+          },
+          {
+            "count": 72,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Bill"
+          },
+          {
+            "count": 112,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Thomas Jr."
+          },
+          {
+            "count": 130,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 109,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 50,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 57,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 30,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 91,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 62,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Jane"
+          },
+          {
+            "count": 49,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 51,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 93,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 110,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "clinton"
+          },
+          {
+            "count": 89,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Richard Kahn \nSent"
+          },
+          {
+            "count": 102,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Richard Kahn \nHBRK Associates Inc."
+          },
+          {
+            "count": 25,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 50,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "David"
+          },
+          {
+            "count": 24,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 44,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Larry"
+          },
+          {
+            "count": 55,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 140,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 71,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Michael Wolff \nSent"
+          },
+          {
+            "count": 50,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 45,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 68,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Jeffrey E. \nSent"
+          },
+          {
+            "count": 47,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Kathy Ruemmler \nSent"
+          },
+          {
+            "count": 49,
+            "entity1": "Jeffrey Epstein",
+            "entity2": "Landon \nSent"
+          },
+          {
+            "count": 102,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Bill Clinton"
+          },
+          {
+            "count": 55,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Donald Trump"
+          },
+          {
+            "count": 45,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Jane Doe"
+          },
+          {
+            "count": 12,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Michael"
+          },
+          {
+            "count": 37,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Edwards"
+          },
+          {
+            "count": 6,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Putin"
+          },
+          {
+            "count": 7,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Hillary"
+          },
+          {
+            "count": 12,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 15,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 20,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Suite"
+          },
+          {
+            "count": 12,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Bush"
+          },
+          {
+            "count": 11,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 30,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Bill"
+          },
+          {
+            "count": 9,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 9,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 34,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 34,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 10,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 46,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 39,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Jane"
+          },
+          {
+            "count": 8,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 8,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 6,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Larry"
+          },
+          {
+            "count": 9,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 14,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 5,
+            "entity1": "Ghislaine Maxwell",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 121,
+            "entity1": "Bill Clinton",
+            "entity2": "Donald Trump"
+          },
+          {
+            "count": 46,
+            "entity1": "Bill Clinton",
+            "entity2": "Jane Doe"
+          },
+          {
+            "count": 27,
+            "entity1": "Bill Clinton",
+            "entity2": "Michael"
+          },
+          {
+            "count": 65,
+            "entity1": "Bill Clinton",
+            "entity2": "Edwards"
+          },
+          {
+            "count": 23,
+            "entity1": "Bill Clinton",
+            "entity2": "Putin"
+          },
+          {
+            "count": 6,
+            "entity1": "Bill Clinton",
+            "entity2": "Bannon"
+          },
+          {
+            "count": 6,
+            "entity1": "Bill Clinton",
+            "entity2": "Donald"
+          },
+          {
+            "count": 34,
+            "entity1": "Bill Clinton",
+            "entity2": "Hillary"
+          },
+          {
+            "count": 35,
+            "entity1": "Bill Clinton",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 37,
+            "entity1": "Bill Clinton",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 20,
+            "entity1": "Bill Clinton",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 31,
+            "entity1": "Bill Clinton",
+            "entity2": "Suite"
+          },
+          {
+            "count": 51,
+            "entity1": "Bill Clinton",
+            "entity2": "Bush"
+          },
+          {
+            "count": 76,
+            "entity1": "Bill Clinton",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 6,
+            "entity1": "Bill Clinton",
+            "entity2": "Fri"
+          },
+          {
+            "count": 5,
+            "entity1": "Bill Clinton",
+            "entity2": "Richard Kahn"
+          },
+          {
+            "count": 8,
+            "entity1": "Bill Clinton",
+            "entity2": "Reid"
+          },
+          {
+            "count": 76,
+            "entity1": "Bill Clinton",
+            "entity2": "Bill"
+          },
+          {
+            "count": 15,
+            "entity1": "Bill Clinton",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 21,
+            "entity1": "Bill Clinton",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 43,
+            "entity1": "Bill Clinton",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 48,
+            "entity1": "Bill Clinton",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 37,
+            "entity1": "Bill Clinton",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 74,
+            "entity1": "Bill Clinton",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 40,
+            "entity1": "Bill Clinton",
+            "entity2": "Jane"
+          },
+          {
+            "count": 19,
+            "entity1": "Bill Clinton",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 52,
+            "entity1": "Bill Clinton",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 20,
+            "entity1": "Bill Clinton",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 13,
+            "entity1": "Bill Clinton",
+            "entity2": "clinton"
+          },
+          {
+            "count": 6,
+            "entity1": "Bill Clinton",
+            "entity2": "Richard Kahn \nSent"
+          },
+          {
+            "count": 36,
+            "entity1": "Bill Clinton",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 20,
+            "entity1": "Bill Clinton",
+            "entity2": "David"
+          },
+          {
+            "count": 26,
+            "entity1": "Bill Clinton",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 18,
+            "entity1": "Bill Clinton",
+            "entity2": "Larry"
+          },
+          {
+            "count": 17,
+            "entity1": "Bill Clinton",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 16,
+            "entity1": "Bill Clinton",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 5,
+            "entity1": "Bill Clinton",
+            "entity2": "Michael Wolff \nSent"
+          },
+          {
+            "count": 28,
+            "entity1": "Bill Clinton",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 11,
+            "entity1": "Bill Clinton",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 8,
+            "entity1": "Bill Clinton",
+            "entity2": "Kathy Ruemmler \nSent"
+          },
+          {
+            "count": 35,
+            "entity1": "Donald Trump",
+            "entity2": "Jane Doe"
+          },
+          {
+            "count": 37,
+            "entity1": "Donald Trump",
+            "entity2": "Michael"
+          },
+          {
+            "count": 47,
+            "entity1": "Donald Trump",
+            "entity2": "Edwards"
+          },
+          {
+            "count": 32,
+            "entity1": "Donald Trump",
+            "entity2": "Putin"
+          },
+          {
+            "count": 44,
+            "entity1": "Donald Trump",
+            "entity2": "Bannon"
+          },
+          {
+            "count": 35,
+            "entity1": "Donald Trump",
+            "entity2": "Donald"
+          },
+          {
+            "count": 25,
+            "entity1": "Donald Trump",
+            "entity2": "Hillary"
+          },
+          {
+            "count": 14,
+            "entity1": "Donald Trump",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 17,
+            "entity1": "Donald Trump",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 50,
+            "entity1": "Donald Trump",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 20,
+            "entity1": "Donald Trump",
+            "entity2": "Suite"
+          },
+          {
+            "count": 26,
+            "entity1": "Donald Trump",
+            "entity2": "Bush"
+          },
+          {
+            "count": 55,
+            "entity1": "Donald Trump",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 36,
+            "entity1": "Donald Trump",
+            "entity2": "Fri"
+          },
+          {
+            "count": 31,
+            "entity1": "Donald Trump",
+            "entity2": "Richard Kahn"
+          },
+          {
+            "count": 15,
+            "entity1": "Donald Trump",
+            "entity2": "Lawrence Krauss"
+          },
+          {
+            "count": 14,
+            "entity1": "Donald Trump",
+            "entity2": "Lawrence M. Krauss"
+          },
+          {
+            "count": 23,
+            "entity1": "Donald Trump",
+            "entity2": "Reid"
+          },
+          {
+            "count": 23,
+            "entity1": "Donald Trump",
+            "entity2": "Bill"
+          },
+          {
+            "count": 34,
+            "entity1": "Donald Trump",
+            "entity2": "Thomas Jr."
+          },
+          {
+            "count": 39,
+            "entity1": "Donald Trump",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 39,
+            "entity1": "Donald Trump",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 23,
+            "entity1": "Donald Trump",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 25,
+            "entity1": "Donald Trump",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 19,
+            "entity1": "Donald Trump",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 50,
+            "entity1": "Donald Trump",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 33,
+            "entity1": "Donald Trump",
+            "entity2": "Jane"
+          },
+          {
+            "count": 45,
+            "entity1": "Donald Trump",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 63,
+            "entity1": "Donald Trump",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 54,
+            "entity1": "Donald Trump",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 36,
+            "entity1": "Donald Trump",
+            "entity2": "Richard Kahn \nSent"
+          },
+          {
+            "count": 39,
+            "entity1": "Donald Trump",
+            "entity2": "Richard Kahn \nHBRK Associates Inc."
+          },
+          {
+            "count": 17,
+            "entity1": "Donald Trump",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 35,
+            "entity1": "Donald Trump",
+            "entity2": "David"
+          },
+          {
+            "count": 16,
+            "entity1": "Donald Trump",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 9,
+            "entity1": "Donald Trump",
+            "entity2": "Larry"
+          },
+          {
+            "count": 19,
+            "entity1": "Donald Trump",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 66,
+            "entity1": "Donald Trump",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 30,
+            "entity1": "Donald Trump",
+            "entity2": "Michael Wolff \nSent"
+          },
+          {
+            "count": 32,
+            "entity1": "Donald Trump",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 12,
+            "entity1": "Donald Trump",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 10,
+            "entity1": "Donald Trump",
+            "entity2": "Jeffrey E. \nSent"
+          },
+          {
+            "count": 19,
+            "entity1": "Donald Trump",
+            "entity2": "Kathy Ruemmler \nSent"
+          },
+          {
+            "count": 15,
+            "entity1": "Donald Trump",
+            "entity2": "Landon \nSent"
+          },
+          {
+            "count": 10,
+            "entity1": "Jane Doe",
+            "entity2": "Michael"
+          },
+          {
+            "count": 28,
+            "entity1": "Jane Doe",
+            "entity2": "Edwards"
+          },
+          {
+            "count": 8,
+            "entity1": "Jane Doe",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 13,
+            "entity1": "Jane Doe",
+            "entity2": "Suite"
+          },
+          {
+            "count": 6,
+            "entity1": "Jane Doe",
+            "entity2": "Bush"
+          },
+          {
+            "count": 6,
+            "entity1": "Jane Doe",
+            "entity2": "Bill"
+          },
+          {
+            "count": 24,
+            "entity1": "Jane Doe",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 27,
+            "entity1": "Jane Doe",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 30,
+            "entity1": "Jane Doe",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 43,
+            "entity1": "Jane Doe",
+            "entity2": "Jane"
+          },
+          {
+            "count": 8,
+            "entity1": "Jane Doe",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 5,
+            "entity1": "Jane Doe",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 12,
+            "entity1": "Jane Doe",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 9,
+            "entity1": "Michael",
+            "entity2": "Edwards"
+          },
+          {
+            "count": 7,
+            "entity1": "Michael",
+            "entity2": "Putin"
+          },
+          {
+            "count": 6,
+            "entity1": "Michael",
+            "entity2": "Donald"
+          },
+          {
+            "count": 5,
+            "entity1": "Michael",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 5,
+            "entity1": "Michael",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 8,
+            "entity1": "Michael",
+            "entity2": "Suite"
+          },
+          {
+            "count": 10,
+            "entity1": "Michael",
+            "entity2": "Bush"
+          },
+          {
+            "count": 17,
+            "entity1": "Michael",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 12,
+            "entity1": "Michael",
+            "entity2": "Bill"
+          },
+          {
+            "count": 5,
+            "entity1": "Michael",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 7,
+            "entity1": "Michael",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 8,
+            "entity1": "Michael",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 5,
+            "entity1": "Michael",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 15,
+            "entity1": "Michael",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 13,
+            "entity1": "Michael",
+            "entity2": "Jane"
+          },
+          {
+            "count": 8,
+            "entity1": "Michael",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 10,
+            "entity1": "Michael",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 6,
+            "entity1": "Michael",
+            "entity2": "clinton"
+          },
+          {
+            "count": 6,
+            "entity1": "Michael",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 21,
+            "entity1": "Michael",
+            "entity2": "David"
+          },
+          {
+            "count": 6,
+            "entity1": "Michael",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 6,
+            "entity1": "Michael",
+            "entity2": "Larry"
+          },
+          {
+            "count": 6,
+            "entity1": "Michael",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 15,
+            "entity1": "Michael",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 6,
+            "entity1": "Michael",
+            "entity2": "Michael Wolff \nSent"
+          },
+          {
+            "count": 15,
+            "entity1": "Michael",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 8,
+            "entity1": "Michael",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 5,
+            "entity1": "Edwards",
+            "entity2": "Putin"
+          },
+          {
+            "count": 5,
+            "entity1": "Edwards",
+            "entity2": "Hillary"
+          },
+          {
+            "count": 11,
+            "entity1": "Edwards",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 10,
+            "entity1": "Edwards",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 5,
+            "entity1": "Edwards",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 15,
+            "entity1": "Edwards",
+            "entity2": "Suite"
+          },
+          {
+            "count": 15,
+            "entity1": "Edwards",
+            "entity2": "Bush"
+          },
+          {
+            "count": 13,
+            "entity1": "Edwards",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 10,
+            "entity1": "Edwards",
+            "entity2": "Bill"
+          },
+          {
+            "count": 10,
+            "entity1": "Edwards",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 23,
+            "entity1": "Edwards",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 24,
+            "entity1": "Edwards",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 7,
+            "entity1": "Edwards",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 32,
+            "entity1": "Edwards",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 31,
+            "entity1": "Edwards",
+            "entity2": "Jane"
+          },
+          {
+            "count": 6,
+            "entity1": "Edwards",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 5,
+            "entity1": "Edwards",
+            "entity2": "Larry"
+          },
+          {
+            "count": 5,
+            "entity1": "Edwards",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 11,
+            "entity1": "Edwards",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 8,
+            "entity1": "Edwards",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 13,
+            "entity1": "Putin",
+            "entity2": "Bannon"
+          },
+          {
+            "count": 11,
+            "entity1": "Putin",
+            "entity2": "Donald"
+          },
+          {
+            "count": 15,
+            "entity1": "Putin",
+            "entity2": "Hillary"
+          },
+          {
+            "count": 8,
+            "entity1": "Putin",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 17,
+            "entity1": "Putin",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 8,
+            "entity1": "Putin",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 13,
+            "entity1": "Putin",
+            "entity2": "Bush"
+          },
+          {
+            "count": 33,
+            "entity1": "Putin",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 13,
+            "entity1": "Putin",
+            "entity2": "Bill"
+          },
+          {
+            "count": 8,
+            "entity1": "Putin",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 7,
+            "entity1": "Putin",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 12,
+            "entity1": "Putin",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 5,
+            "entity1": "Putin",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 6,
+            "entity1": "Putin",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 18,
+            "entity1": "Putin",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 10,
+            "entity1": "Putin",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 5,
+            "entity1": "Putin",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 6,
+            "entity1": "Putin",
+            "entity2": "Larry"
+          },
+          {
+            "count": 12,
+            "entity1": "Putin",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 6,
+            "entity1": "Putin",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 6,
+            "entity1": "Putin",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 6,
+            "entity1": "Bannon",
+            "entity2": "Donald"
+          },
+          {
+            "count": 16,
+            "entity1": "Bannon",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 5,
+            "entity1": "Bannon",
+            "entity2": "Bush"
+          },
+          {
+            "count": 5,
+            "entity1": "Bannon",
+            "entity2": "Reid"
+          },
+          {
+            "count": 15,
+            "entity1": "Bannon",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 5,
+            "entity1": "Bannon",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 35,
+            "entity1": "Bannon",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 5,
+            "entity1": "Bannon",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 20,
+            "entity1": "Bannon",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 7,
+            "entity1": "Bannon",
+            "entity2": "Michael Wolff \nSent"
+          },
+          {
+            "count": 5,
+            "entity1": "Bannon",
+            "entity2": "Jeffrey E. \nSent"
+          },
+          {
+            "count": 5,
+            "entity1": "Donald",
+            "entity2": "Hillary"
+          },
+          {
+            "count": 6,
+            "entity1": "Donald",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 5,
+            "entity1": "Donald",
+            "entity2": "Bush"
+          },
+          {
+            "count": 8,
+            "entity1": "Donald",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 6,
+            "entity1": "Donald",
+            "entity2": "Fri"
+          },
+          {
+            "count": 7,
+            "entity1": "Donald",
+            "entity2": "Bill"
+          },
+          {
+            "count": 8,
+            "entity1": "Donald",
+            "entity2": "Thomas Jr."
+          },
+          {
+            "count": 8,
+            "entity1": "Donald",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 6,
+            "entity1": "Donald",
+            "entity2": "Jane"
+          },
+          {
+            "count": 6,
+            "entity1": "Donald",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 5,
+            "entity1": "Donald",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 12,
+            "entity1": "Donald",
+            "entity2": "David"
+          },
+          {
+            "count": 6,
+            "entity1": "Hillary",
+            "entity2": "Al Gore"
+          },
+          {
+            "count": 8,
+            "entity1": "Hillary",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 5,
+            "entity1": "Hillary",
+            "entity2": "Suite"
+          },
+          {
+            "count": 15,
+            "entity1": "Hillary",
+            "entity2": "Bush"
+          },
+          {
+            "count": 24,
+            "entity1": "Hillary",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 20,
+            "entity1": "Hillary",
+            "entity2": "Bill"
+          },
+          {
+            "count": 7,
+            "entity1": "Hillary",
+            "entity2": "Thomas Jr."
+          },
+          {
+            "count": 13,
+            "entity1": "Hillary",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 6,
+            "entity1": "Hillary",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 15,
+            "entity1": "Hillary",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 16,
+            "entity1": "Hillary",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 6,
+            "entity1": "Hillary",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 5,
+            "entity1": "Hillary",
+            "entity2": "David"
+          },
+          {
+            "count": 13,
+            "entity1": "Hillary",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 7,
+            "entity1": "Hillary",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 5,
+            "entity1": "Hillary",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 12,
+            "entity1": "Al Gore",
+            "entity2": "Larry Summers"
+          },
+          {
+            "count": 7,
+            "entity1": "Al Gore",
+            "entity2": "Twitter"
+          },
+          {
+            "count": 5,
+            "entity1": "Al Gore",
+            "entity2": "Suite"
+          },
+          {
+            "count": 14,
+            "entity1": "Al Gore",
+            "entity2": "Bush"
+          },
+          {
+            "count": 10,
+            "entity1": "Al Gore",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 6,
+            "entity1": "Al Gore",
+            "entity2": "Richard Kahn"
+          },
+          {
+            "count": 7,
+            "entity1": "Al Gore",
+            "entity2": "Bill"
+          },
+          {
+            "count": 10,
+            "entity1": "Al Gore",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 7,
+            "entity1": "Al Gore",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 5,
+            "entity1": "Al Gore",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 11,
+            "entity1": "Al Gore",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 9,
+            "entity1": "Al Gore",
+            "entity2": "Jane"
+          },
+          {
+            "count": 8,
+            "entity1": "Al Gore",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 11,
+            "entity1": "Larry Summers",
+            "entity2": "Bush"
+          },
+          {
+            "count": 29,
+            "entity1": "Larry Summers",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 12,
+            "entity1": "Larry Summers",
+            "entity2": "Bill"
+          },
+          {
+            "count": 8,
+            "entity1": "Larry Summers",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 9,
+            "entity1": "Larry Summers",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 5,
+            "entity1": "Larry Summers",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 5,
+            "entity1": "Larry Summers",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 10,
+            "entity1": "Larry Summers",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 15,
+            "entity1": "Larry Summers",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 7,
+            "entity1": "Larry Summers",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 9,
+            "entity1": "Larry Summers",
+            "entity2": "Larry"
+          },
+          {
+            "count": 12,
+            "entity1": "Larry Summers",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 11,
+            "entity1": "Twitter",
+            "entity2": "Bush"
+          },
+          {
+            "count": 28,
+            "entity1": "Twitter",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 7,
+            "entity1": "Twitter",
+            "entity2": "Bill"
+          },
+          {
+            "count": 5,
+            "entity1": "Twitter",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 5,
+            "entity1": "Twitter",
+            "entity2": "Jane"
+          },
+          {
+            "count": 17,
+            "entity1": "Twitter",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 9,
+            "entity1": "Twitter",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 17,
+            "entity1": "Twitter",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 9,
+            "entity1": "Twitter",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 11,
+            "entity1": "Twitter",
+            "entity2": "David"
+          },
+          {
+            "count": 12,
+            "entity1": "Twitter",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 6,
+            "entity1": "Suite",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 8,
+            "entity1": "Suite",
+            "entity2": "Bill"
+          },
+          {
+            "count": 18,
+            "entity1": "Suite",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 15,
+            "entity1": "Suite",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 23,
+            "entity1": "Suite",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 16,
+            "entity1": "Suite",
+            "entity2": "Jane"
+          },
+          {
+            "count": 6,
+            "entity1": "Suite",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 6,
+            "entity1": "Suite",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 9,
+            "entity1": "Suite",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 57,
+            "entity1": "Bush",
+            "entity2": "Barack Obama"
+          },
+          {
+            "count": 6,
+            "entity1": "Bush",
+            "entity2": "Reid"
+          },
+          {
+            "count": 12,
+            "entity1": "Bush",
+            "entity2": "Bill"
+          },
+          {
+            "count": 6,
+            "entity1": "Bush",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 8,
+            "entity1": "Bush",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 7,
+            "entity1": "Bush",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 20,
+            "entity1": "Bush",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 9,
+            "entity1": "Bush",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 8,
+            "entity1": "Bush",
+            "entity2": "Jane"
+          },
+          {
+            "count": 23,
+            "entity1": "Bush",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 7,
+            "entity1": "Bush",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 22,
+            "entity1": "Bush",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 18,
+            "entity1": "Bush",
+            "entity2": "David"
+          },
+          {
+            "count": 22,
+            "entity1": "Bush",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 8,
+            "entity1": "Bush",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 9,
+            "entity1": "Bush",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 8,
+            "entity1": "Barack Obama",
+            "entity2": "Fri"
+          },
+          {
+            "count": 11,
+            "entity1": "Barack Obama",
+            "entity2": "Lawrence Krauss"
+          },
+          {
+            "count": 9,
+            "entity1": "Barack Obama",
+            "entity2": "Lawrence M. Krauss"
+          },
+          {
+            "count": 10,
+            "entity1": "Barack Obama",
+            "entity2": "Reid"
+          },
+          {
+            "count": 31,
+            "entity1": "Barack Obama",
+            "entity2": "Bill"
+          },
+          {
+            "count": 9,
+            "entity1": "Barack Obama",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 20,
+            "entity1": "Barack Obama",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 30,
+            "entity1": "Barack Obama",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 13,
+            "entity1": "Barack Obama",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 5,
+            "entity1": "Barack Obama",
+            "entity2": "Jane"
+          },
+          {
+            "count": 6,
+            "entity1": "Barack Obama",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 49,
+            "entity1": "Barack Obama",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 16,
+            "entity1": "Barack Obama",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 38,
+            "entity1": "Barack Obama",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 23,
+            "entity1": "Barack Obama",
+            "entity2": "David"
+          },
+          {
+            "count": 22,
+            "entity1": "Barack Obama",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 20,
+            "entity1": "Barack Obama",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 11,
+            "entity1": "Barack Obama",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 12,
+            "entity1": "Barack Obama",
+            "entity2": "Kathy Ruemmler \nSent"
+          },
+          {
+            "count": 9,
+            "entity1": "Fri",
+            "entity2": "Reid"
+          },
+          {
+            "count": 12,
+            "entity1": "Fri",
+            "entity2": "Thomas Jr."
+          },
+          {
+            "count": 13,
+            "entity1": "Fri",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 12,
+            "entity1": "Fri",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 6,
+            "entity1": "Fri",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 12,
+            "entity1": "Fri",
+            "entity2": "clinton"
+          },
+          {
+            "count": 5,
+            "entity1": "Fri",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 5,
+            "entity1": "Fri",
+            "entity2": "Jeffrey E. \nSent"
+          },
+          {
+            "count": 14,
+            "entity1": "Richard Kahn",
+            "entity2": "Richard Kahn \nSent"
+          },
+          {
+            "count": 38,
+            "entity1": "Richard Kahn",
+            "entity2": "Richard Kahn \nHBRK Associates Inc."
+          },
+          {
+            "count": 42,
+            "entity1": "Lawrence Krauss",
+            "entity2": "Lawrence M. Krauss"
+          },
+          {
+            "count": 10,
+            "entity1": "Reid",
+            "entity2": "Kathy Ruemmler"
+          },
+          {
+            "count": 10,
+            "entity1": "Reid",
+            "entity2": "clinton"
+          },
+          {
+            "count": 42,
+            "entity1": "Reid",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 51,
+            "entity1": "Reid",
+            "entity2": "Jeffrey E. \nSent"
+          },
+          {
+            "count": 6,
+            "entity1": "Reid",
+            "entity2": "Kathy Ruemmler \nSent"
+          },
+          {
+            "count": 5,
+            "entity1": "Bill",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 9,
+            "entity1": "Bill",
+            "entity2": "Dershowitz"
+          },
+          {
+            "count": 8,
+            "entity1": "Bill",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 11,
+            "entity1": "Bill",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 16,
+            "entity1": "Bill",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 6,
+            "entity1": "Bill",
+            "entity2": "Jane"
+          },
+          {
+            "count": 18,
+            "entity1": "Bill",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 7,
+            "entity1": "Bill",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 8,
+            "entity1": "Bill",
+            "entity2": "David"
+          },
+          {
+            "count": 6,
+            "entity1": "Bill",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 6,
+            "entity1": "Bill",
+            "entity2": "Larry"
+          },
+          {
+            "count": 7,
+            "entity1": "Bill",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 8,
+            "entity1": "Bill",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 113,
+            "entity1": "Thomas Jr.",
+            "entity2": "Landon Thomas"
+          },
+          {
+            "count": 15,
+            "entity1": "Thomas Jr.",
+            "entity2": "clinton"
+          },
+          {
+            "count": 6,
+            "entity1": "Thomas Jr.",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 11,
+            "entity1": "Thomas Jr.",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 50,
+            "entity1": "Thomas Jr.",
+            "entity2": "Landon \nSent"
+          },
+          {
+            "count": 8,
+            "entity1": "Landon Thomas",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 15,
+            "entity1": "Landon Thomas",
+            "entity2": "clinton"
+          },
+          {
+            "count": 7,
+            "entity1": "Landon Thomas",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 8,
+            "entity1": "Landon Thomas",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 13,
+            "entity1": "Landon Thomas",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 50,
+            "entity1": "Landon Thomas",
+            "entity2": "Landon \nSent"
+          },
+          {
+            "count": 7,
+            "entity1": "Kathy Ruemmler",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 8,
+            "entity1": "Kathy Ruemmler",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 18,
+            "entity1": "Kathy Ruemmler",
+            "entity2": "clinton"
+          },
+          {
+            "count": 5,
+            "entity1": "Kathy Ruemmler",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 6,
+            "entity1": "Kathy Ruemmler",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 8,
+            "entity1": "Kathy Ruemmler",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 29,
+            "entity1": "Kathy Ruemmler",
+            "entity2": "Kathy Ruemmler \nSent"
+          },
+          {
+            "count": 27,
+            "entity1": "Dershowitz",
+            "entity2": "Jeffrey Epstein's"
+          },
+          {
+            "count": 9,
+            "entity1": "Dershowitz",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 42,
+            "entity1": "Dershowitz",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 24,
+            "entity1": "Dershowitz",
+            "entity2": "Jane"
+          },
+          {
+            "count": 8,
+            "entity1": "Dershowitz",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 7,
+            "entity1": "Dershowitz",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 6,
+            "entity1": "Dershowitz",
+            "entity2": "David"
+          },
+          {
+            "count": 11,
+            "entity1": "Dershowitz",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 7,
+            "entity1": "Jeffrey Epstein's",
+            "entity2": "Kennedy"
+          },
+          {
+            "count": 37,
+            "entity1": "Jeffrey Epstein's",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 29,
+            "entity1": "Jeffrey Epstein's",
+            "entity2": "Jane"
+          },
+          {
+            "count": 6,
+            "entity1": "Jeffrey Epstein's",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 5,
+            "entity1": "Jeffrey Epstein's",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 12,
+            "entity1": "Jeffrey Epstein's",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 6,
+            "entity1": "Jeffrey Epstein's",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 16,
+            "entity1": "Kennedy",
+            "entity2": "Alan Dershowitz"
+          },
+          {
+            "count": 13,
+            "entity1": "Kennedy",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 10,
+            "entity1": "Kennedy",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 8,
+            "entity1": "Kennedy",
+            "entity2": "David"
+          },
+          {
+            "count": 11,
+            "entity1": "Kennedy",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 8,
+            "entity1": "Kennedy",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 5,
+            "entity1": "Kennedy",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 30,
+            "entity1": "Alan Dershowitz",
+            "entity2": "Jane"
+          },
+          {
+            "count": 11,
+            "entity1": "Alan Dershowitz",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 13,
+            "entity1": "Alan Dershowitz",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 8,
+            "entity1": "Alan Dershowitz",
+            "entity2": "David"
+          },
+          {
+            "count": 5,
+            "entity1": "Alan Dershowitz",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 5,
+            "entity1": "Alan Dershowitz",
+            "entity2": "Larry"
+          },
+          {
+            "count": 8,
+            "entity1": "Alan Dershowitz",
+            "entity2": "Weingarten"
+          },
+          {
+            "count": 15,
+            "entity1": "Alan Dershowitz",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 7,
+            "entity1": "Jane",
+            "entity2": "Donald Trump's"
+          },
+          {
+            "count": 7,
+            "entity1": "Jane",
+            "entity2": "David"
+          },
+          {
+            "count": 12,
+            "entity1": "Jane",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 5,
+            "entity1": "Jane",
+            "entity2": "Darren Indyke"
+          },
+          {
+            "count": 16,
+            "entity1": "Donald Trump's",
+            "entity2": "Hillary Clinton"
+          },
+          {
+            "count": 23,
+            "entity1": "Donald Trump's",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 5,
+            "entity1": "Donald Trump's",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 13,
+            "entity1": "Donald Trump's",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 5,
+            "entity1": "Donald Trump's",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 14,
+            "entity1": "Hillary Clinton",
+            "entity2": "Steve Bannon"
+          },
+          {
+            "count": 22,
+            "entity1": "Hillary Clinton",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 12,
+            "entity1": "Hillary Clinton",
+            "entity2": "David"
+          },
+          {
+            "count": 12,
+            "entity1": "Hillary Clinton",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 13,
+            "entity1": "Hillary Clinton",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 5,
+            "entity1": "Steve Bannon",
+            "entity2": "George W. Bush"
+          },
+          {
+            "count": 8,
+            "entity1": "Steve Bannon",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 13,
+            "entity1": "Steve Bannon",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 7,
+            "entity1": "clinton",
+            "entity2": "David"
+          },
+          {
+            "count": 13,
+            "entity1": "clinton",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 5,
+            "entity1": "clinton",
+            "entity2": "Michael Wolff \nSent"
+          },
+          {
+            "count": 7,
+            "entity1": "clinton",
+            "entity2": "Kathy Ruemmler \nSent"
+          },
+          {
+            "count": 6,
+            "entity1": "clinton",
+            "entity2": "Landon \nSent"
+          },
+          {
+            "count": 70,
+            "entity1": "Richard Kahn \nSent",
+            "entity2": "Richard Kahn \nHBRK Associates Inc."
+          },
+          {
+            "count": 10,
+            "entity1": "George W. Bush",
+            "entity2": "David"
+          },
+          {
+            "count": 11,
+            "entity1": "George W. Bush",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 5,
+            "entity1": "George W. Bush",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 6,
+            "entity1": "David",
+            "entity2": "Reagan"
+          },
+          {
+            "count": 6,
+            "entity1": "David",
+            "entity2": "Michael Wolff"
+          },
+          {
+            "count": 8,
+            "entity1": "David",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 5,
+            "entity1": "Reagan",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 5,
+            "entity1": "Larry",
+            "entity2": "Jeff"
+          },
+          {
+            "count": 27,
+            "entity1": "Weingarten",
+            "entity2": "Jeffrey E. \nSent"
+          },
+          {
+            "count": 33,
+            "entity1": "Michael Wolff",
+            "entity2": "Michael Wolff \nSent"
+          }
+        ],
+        "entities": [
+          "Jeffrey Epstein",
+          "Donald Trump",
+          "Bill Clinton",
+          "Barack Obama",
+          "Ghislaine Maxwell",
+          "Prince Andrew",
+          "Michael Wolff",
+          "Fri",
+          "Landon Thomas",
+          "Reid",
+          "Thomas Jr.",
+          "Kathy Ruemmler",
+          "clinton",
+          "Steve Bannon",
+          "Alan Dershowitz",
+          "Richard Kahn \nHBRK Associates Inc.",
+          "Hillary Clinton",
+          "Bill",
+          "Twitter",
+          "Bush",
+          "Larry Summers",
+          "Richard Kahn \nSent",
+          "Michael",
+          "Edwards",
+          "Richard Kahn",
+          "David",
+          "Jane Doe",
+          "Michael Wolff \nSent",
+          "Jeffrey E. \nSent",
+          "Donald",
+          "Bannon",
+          "Al Gore",
+          "Jane",
+          "Putin",
+          "Donald Trump's",
+          "George W. Bush",
+          "Jeff",
+          "Jeffrey Epstein's",
+          "Hillary",
+          "Weingarten",
+          "Lawrence Krauss",
+          "Larry",
+          "Dershowitz",
+          "Kathy Ruemmler \nSent",
+          "Landon \nSent",
+          "Kennedy",
+          "Reagan",
+          "Suite",
+          "Lawrence M. Krauss",
+          "Darren Indyke"
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "CORE: Geographic Mapping",
+      "status": "\u2713 PASS",
+      "data_count": 286,
+      "details": {
+        "mapped_locations": 286
+      },
+      "error": null
+    },
+    {
+      "name": "INTEL: Email Intelligence",
+      "status": "\u2713 PASS",
+      "data_count": 366,
+      "details": {
+        "total_emails": 366,
+        "suspicious_emails": 246,
+        "threads": 266,
+        "contacts": 75
+      },
+      "error": null
+    },
+    {
+      "name": "INTEL: Flight Intelligence",
+      "status": "\u2717 FAIL",
+      "data_count": 0,
+      "details": {
+        "total_flights": 0,
+        "total_passengers": 0,
+        "unique_routes": 0
+      },
+      "error": "No flight data"
+    },
+    {
+      "name": "INTEL: Financial Intelligence",
+      "status": "\u2713 PASS",
+      "data_count": 53,
+      "details": {
+        "total_transactions": 53,
+        "total_amount": 7628847.75,
+        "suspicious_transactions": 25,
+        "financial_entities": 2
+      },
+      "error": null
+    },
+    {
+      "name": "INTEL: Timeline Builder",
+      "status": "\u2713 PASS",
+      "data_count": 3,
+      "details": {
+        "total_events": 3,
+        "by_type": {},
+        "suspicious_events": 3
+      },
+      "error": null
+    },
+    {
+      "name": "DETECTION: Minor Travel Alerts",
+      "status": "\u2713 PASS",
+      "data_count": 169,
+      "details": {
+        "critical_alerts": 169
+      },
+      "error": null
+    },
+    {
+      "name": "DETECTION: Suspicious Emails",
+      "status": "\u2713 PASS",
+      "data_count": 246,
+      "details": {
+        "suspicious_emails": 246
+      },
+      "error": null
+    },
+    {
+      "name": "DETECTION: Suspicious Transactions",
+      "status": "\u2713 PASS",
+      "data_count": 1,
+      "details": {
+        "suspicious_transactions": 1
+      },
+      "error": null
+    },
+    {
+      "name": "DETECTION: Anomaly Detection",
+      "status": "\u2717 FAIL",
+      "data_count": 0,
+      "details": {},
+      "error": "HTTPConnectionPool(host='localhost', port=5001): Read timed out. (read timeout=10)"
+    },
+    {
+      "name": "AI: Journalist Query System",
+      "status": "\u2717 FAIL",
+      "data_count": 0,
+      "details": {
+        "response_length": 0
+      },
+      "error": "No response generated"
+    }
+  ],
+  "feature_data": {
+    "CORE": {
+      "CORE: Basic Statistics": {
+        "success": true,
+        "data_count": 153112,
+        "details": {
+          "entities": 150202,
+          "images": 0,
+          "text_documents": 2910
+        },
+        "error": null
+      },
+      "CORE: Document Retrieval": {
+        "success": true,
+        "data_count": 2910,
+        "details": {
+          "sample": [
+            {
+              "filename": "DOJ_Epstein_Indictment.pdf",
+              "id": 2913,
+              "type": "txt",
+              "uploaded_date": "2025-11-20T21:28:31.090611"
+            },
+            {
+              "filename": "DOJ_Maxwell_Indictment.pdf",
+              "id": 2912,
+              "type": "txt",
+              "uploaded_date": "2025-11-20T21:28:31.066644"
+            },
+            {
+              "filename": "Newsweek_Epstein_Documents_Full.pdf",
+              "id": 2911,
+              "type": "txt",
+              "uploaded_date": "2025-11-20T21:28:30.864393"
+            }
+          ]
+        },
+        "error": null
+      },
+      "CORE: Entity Extraction": {
+        "success": true,
+        "data_count": 150202,
+        "details": {
+          "top_entities": [
+            {
+              "id": 4,
+              "mentions": 4885,
+              "name": "Jeffrey Epstein",
+              "type": "person"
+            },
+            {
+              "id": 16131,
+              "mentions": 2196,
+              "name": "HOUSE",
+              "type": "organization"
+            },
+            {
+              "id": 26,
+              "mentions": 968,
+              "name": "Donald Trump",
+              "type": "person"
+            },
+            {
+              "id": 19,
+              "mentions": 672,
+              "name": "New York",
+              "type": "location"
+            },
+            {
+              "id": 14,
+              "mentions": 591,
+              "name": "Bill Clinton",
+              "type": "person"
+            }
+          ]
+        },
+        "error": null
+      },
+      "CORE: Network Graph": {
+        "success": false,
+        "error": "HTTPConnectionPool(host='localhost', port=5001): Read timed out. (read timeout=10)"
+      },
+      "CORE: Timeline": {
+        "success": true,
+        "data_count": 93637,
+        "details": {
+          "sample_events": [
+            {
+              "context": null,
+              "date": "' 01",
+              "doc_id": 1518,
+              "filename": "HOUSE_OVERSIGHT_014118.txt"
+            },
+            {
+              "context": null,
+              "date": "' 1",
+              "doc_id": 391,
+              "filename": "HOUSE_OVERSIGHT_021434.txt"
+            },
+            {
+              "context": null,
+              "date": "' 1",
+              "doc_id": 1682,
+              "filename": "HOUSE_OVERSIGHT_018872.txt"
+            }
+          ]
+        },
+        "error": null
+      },
+      "CORE: Full-Text Search": {
+        "success": true,
+        "data_count": 1110,
+        "details": {
+          "search_results": 1110
+        },
+        "error": null
+      },
+      "CORE: Co-occurrence Analysis": {
+        "success": true,
+        "data_count": 50,
+        "details": {
+          "cooccurrences": [
+            {
+              "count": 161,
+              "entity1": "Prince Andrew",
+              "entity2": "Jeffrey Epstein"
+            },
+            {
+              "count": 91,
+              "entity1": "Prince Andrew",
+              "entity2": "Ghislaine Maxwell"
+            },
+            {
+              "count": 127,
+              "entity1": "Prince Andrew",
+              "entity2": "Bill Clinton"
+            },
+            {
+              "count": 47,
+              "entity1": "Prince Andrew",
+              "entity2": "Donald Trump"
+            },
+            {
+              "count": 36,
+              "entity1": "Prince Andrew",
+              "entity2": "Jane Doe"
+            },
+            {
+              "count": 21,
+              "entity1": "Prince Andrew",
+              "entity2": "Michael"
+            },
+            {
+              "count": 38,
+              "entity1": "Prince Andrew",
+              "entity2": "Edwards"
+            },
+            {
+              "count": 17,
+              "entity1": "Prince Andrew",
+              "entity2": "Putin"
+            },
+            {
+              "count": 11,
+              "entity1": "Prince Andrew",
+              "entity2": "Hillary"
+            },
+            {
+              "count": 19,
+              "entity1": "Prince Andrew",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 25,
+              "entity1": "Prince Andrew",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 12,
+              "entity1": "Prince Andrew",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 17,
+              "entity1": "Prince Andrew",
+              "entity2": "Suite"
+            },
+            {
+              "count": 15,
+              "entity1": "Prince Andrew",
+              "entity2": "Bush"
+            },
+            {
+              "count": 24,
+              "entity1": "Prince Andrew",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 41,
+              "entity1": "Prince Andrew",
+              "entity2": "Bill"
+            },
+            {
+              "count": 16,
+              "entity1": "Prince Andrew",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 11,
+              "entity1": "Prince Andrew",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 31,
+              "entity1": "Prince Andrew",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 31,
+              "entity1": "Prince Andrew",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 15,
+              "entity1": "Prince Andrew",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 48,
+              "entity1": "Prince Andrew",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 31,
+              "entity1": "Prince Andrew",
+              "entity2": "Jane"
+            },
+            {
+              "count": 5,
+              "entity1": "Prince Andrew",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 16,
+              "entity1": "Prince Andrew",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 11,
+              "entity1": "Prince Andrew",
+              "entity2": "clinton"
+            },
+            {
+              "count": 8,
+              "entity1": "Prince Andrew",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 10,
+              "entity1": "Prince Andrew",
+              "entity2": "David"
+            },
+            {
+              "count": 10,
+              "entity1": "Prince Andrew",
+              "entity2": "Larry"
+            },
+            {
+              "count": 12,
+              "entity1": "Prince Andrew",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 9,
+              "entity1": "Prince Andrew",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 15,
+              "entity1": "Prince Andrew",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 137,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Ghislaine Maxwell"
+            },
+            {
+              "count": 380,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Bill Clinton"
+            },
+            {
+              "count": 630,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Donald Trump"
+            },
+            {
+              "count": 70,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Jane Doe"
+            },
+            {
+              "count": 65,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Michael"
+            },
+            {
+              "count": 79,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Edwards"
+            },
+            {
+              "count": 44,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Putin"
+            },
+            {
+              "count": 57,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Bannon"
+            },
+            {
+              "count": 48,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Donald"
+            },
+            {
+              "count": 40,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Hillary"
+            },
+            {
+              "count": 46,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 85,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 49,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 41,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Suite"
+            },
+            {
+              "count": 40,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Bush"
+            },
+            {
+              "count": 194,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 128,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Fri"
+            },
+            {
+              "count": 74,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Richard Kahn"
+            },
+            {
+              "count": 49,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Lawrence Krauss"
+            },
+            {
+              "count": 45,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Lawrence M. Krauss"
+            },
+            {
+              "count": 113,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Reid"
+            },
+            {
+              "count": 72,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Bill"
+            },
+            {
+              "count": 112,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Thomas Jr."
+            },
+            {
+              "count": 130,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 109,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 50,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 57,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 30,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 91,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 62,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Jane"
+            },
+            {
+              "count": 49,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 51,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 93,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 110,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "clinton"
+            },
+            {
+              "count": 89,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Richard Kahn \nSent"
+            },
+            {
+              "count": 102,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Richard Kahn \nHBRK Associates Inc."
+            },
+            {
+              "count": 25,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 50,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "David"
+            },
+            {
+              "count": 24,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 44,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Larry"
+            },
+            {
+              "count": 55,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 140,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 71,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Michael Wolff \nSent"
+            },
+            {
+              "count": 50,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 45,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 68,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Jeffrey E. \nSent"
+            },
+            {
+              "count": 47,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Kathy Ruemmler \nSent"
+            },
+            {
+              "count": 49,
+              "entity1": "Jeffrey Epstein",
+              "entity2": "Landon \nSent"
+            },
+            {
+              "count": 102,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Bill Clinton"
+            },
+            {
+              "count": 55,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Donald Trump"
+            },
+            {
+              "count": 45,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Jane Doe"
+            },
+            {
+              "count": 12,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Michael"
+            },
+            {
+              "count": 37,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Edwards"
+            },
+            {
+              "count": 6,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Putin"
+            },
+            {
+              "count": 7,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Hillary"
+            },
+            {
+              "count": 12,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 15,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 20,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Suite"
+            },
+            {
+              "count": 12,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Bush"
+            },
+            {
+              "count": 11,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 30,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Bill"
+            },
+            {
+              "count": 9,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 9,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 34,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 34,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 10,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 46,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 39,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Jane"
+            },
+            {
+              "count": 8,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 8,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 6,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Larry"
+            },
+            {
+              "count": 9,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 14,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 5,
+              "entity1": "Ghislaine Maxwell",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 121,
+              "entity1": "Bill Clinton",
+              "entity2": "Donald Trump"
+            },
+            {
+              "count": 46,
+              "entity1": "Bill Clinton",
+              "entity2": "Jane Doe"
+            },
+            {
+              "count": 27,
+              "entity1": "Bill Clinton",
+              "entity2": "Michael"
+            },
+            {
+              "count": 65,
+              "entity1": "Bill Clinton",
+              "entity2": "Edwards"
+            },
+            {
+              "count": 23,
+              "entity1": "Bill Clinton",
+              "entity2": "Putin"
+            },
+            {
+              "count": 6,
+              "entity1": "Bill Clinton",
+              "entity2": "Bannon"
+            },
+            {
+              "count": 6,
+              "entity1": "Bill Clinton",
+              "entity2": "Donald"
+            },
+            {
+              "count": 34,
+              "entity1": "Bill Clinton",
+              "entity2": "Hillary"
+            },
+            {
+              "count": 35,
+              "entity1": "Bill Clinton",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 37,
+              "entity1": "Bill Clinton",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 20,
+              "entity1": "Bill Clinton",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 31,
+              "entity1": "Bill Clinton",
+              "entity2": "Suite"
+            },
+            {
+              "count": 51,
+              "entity1": "Bill Clinton",
+              "entity2": "Bush"
+            },
+            {
+              "count": 76,
+              "entity1": "Bill Clinton",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 6,
+              "entity1": "Bill Clinton",
+              "entity2": "Fri"
+            },
+            {
+              "count": 5,
+              "entity1": "Bill Clinton",
+              "entity2": "Richard Kahn"
+            },
+            {
+              "count": 8,
+              "entity1": "Bill Clinton",
+              "entity2": "Reid"
+            },
+            {
+              "count": 76,
+              "entity1": "Bill Clinton",
+              "entity2": "Bill"
+            },
+            {
+              "count": 15,
+              "entity1": "Bill Clinton",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 21,
+              "entity1": "Bill Clinton",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 43,
+              "entity1": "Bill Clinton",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 48,
+              "entity1": "Bill Clinton",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 37,
+              "entity1": "Bill Clinton",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 74,
+              "entity1": "Bill Clinton",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 40,
+              "entity1": "Bill Clinton",
+              "entity2": "Jane"
+            },
+            {
+              "count": 19,
+              "entity1": "Bill Clinton",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 52,
+              "entity1": "Bill Clinton",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 20,
+              "entity1": "Bill Clinton",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 13,
+              "entity1": "Bill Clinton",
+              "entity2": "clinton"
+            },
+            {
+              "count": 6,
+              "entity1": "Bill Clinton",
+              "entity2": "Richard Kahn \nSent"
+            },
+            {
+              "count": 36,
+              "entity1": "Bill Clinton",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 20,
+              "entity1": "Bill Clinton",
+              "entity2": "David"
+            },
+            {
+              "count": 26,
+              "entity1": "Bill Clinton",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 18,
+              "entity1": "Bill Clinton",
+              "entity2": "Larry"
+            },
+            {
+              "count": 17,
+              "entity1": "Bill Clinton",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 16,
+              "entity1": "Bill Clinton",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 5,
+              "entity1": "Bill Clinton",
+              "entity2": "Michael Wolff \nSent"
+            },
+            {
+              "count": 28,
+              "entity1": "Bill Clinton",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 11,
+              "entity1": "Bill Clinton",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 8,
+              "entity1": "Bill Clinton",
+              "entity2": "Kathy Ruemmler \nSent"
+            },
+            {
+              "count": 35,
+              "entity1": "Donald Trump",
+              "entity2": "Jane Doe"
+            },
+            {
+              "count": 37,
+              "entity1": "Donald Trump",
+              "entity2": "Michael"
+            },
+            {
+              "count": 47,
+              "entity1": "Donald Trump",
+              "entity2": "Edwards"
+            },
+            {
+              "count": 32,
+              "entity1": "Donald Trump",
+              "entity2": "Putin"
+            },
+            {
+              "count": 44,
+              "entity1": "Donald Trump",
+              "entity2": "Bannon"
+            },
+            {
+              "count": 35,
+              "entity1": "Donald Trump",
+              "entity2": "Donald"
+            },
+            {
+              "count": 25,
+              "entity1": "Donald Trump",
+              "entity2": "Hillary"
+            },
+            {
+              "count": 14,
+              "entity1": "Donald Trump",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 17,
+              "entity1": "Donald Trump",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 50,
+              "entity1": "Donald Trump",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 20,
+              "entity1": "Donald Trump",
+              "entity2": "Suite"
+            },
+            {
+              "count": 26,
+              "entity1": "Donald Trump",
+              "entity2": "Bush"
+            },
+            {
+              "count": 55,
+              "entity1": "Donald Trump",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 36,
+              "entity1": "Donald Trump",
+              "entity2": "Fri"
+            },
+            {
+              "count": 31,
+              "entity1": "Donald Trump",
+              "entity2": "Richard Kahn"
+            },
+            {
+              "count": 15,
+              "entity1": "Donald Trump",
+              "entity2": "Lawrence Krauss"
+            },
+            {
+              "count": 14,
+              "entity1": "Donald Trump",
+              "entity2": "Lawrence M. Krauss"
+            },
+            {
+              "count": 23,
+              "entity1": "Donald Trump",
+              "entity2": "Reid"
+            },
+            {
+              "count": 23,
+              "entity1": "Donald Trump",
+              "entity2": "Bill"
+            },
+            {
+              "count": 34,
+              "entity1": "Donald Trump",
+              "entity2": "Thomas Jr."
+            },
+            {
+              "count": 39,
+              "entity1": "Donald Trump",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 39,
+              "entity1": "Donald Trump",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 23,
+              "entity1": "Donald Trump",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 25,
+              "entity1": "Donald Trump",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 19,
+              "entity1": "Donald Trump",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 50,
+              "entity1": "Donald Trump",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 33,
+              "entity1": "Donald Trump",
+              "entity2": "Jane"
+            },
+            {
+              "count": 45,
+              "entity1": "Donald Trump",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 63,
+              "entity1": "Donald Trump",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 54,
+              "entity1": "Donald Trump",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 36,
+              "entity1": "Donald Trump",
+              "entity2": "Richard Kahn \nSent"
+            },
+            {
+              "count": 39,
+              "entity1": "Donald Trump",
+              "entity2": "Richard Kahn \nHBRK Associates Inc."
+            },
+            {
+              "count": 17,
+              "entity1": "Donald Trump",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 35,
+              "entity1": "Donald Trump",
+              "entity2": "David"
+            },
+            {
+              "count": 16,
+              "entity1": "Donald Trump",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 9,
+              "entity1": "Donald Trump",
+              "entity2": "Larry"
+            },
+            {
+              "count": 19,
+              "entity1": "Donald Trump",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 66,
+              "entity1": "Donald Trump",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 30,
+              "entity1": "Donald Trump",
+              "entity2": "Michael Wolff \nSent"
+            },
+            {
+              "count": 32,
+              "entity1": "Donald Trump",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 12,
+              "entity1": "Donald Trump",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 10,
+              "entity1": "Donald Trump",
+              "entity2": "Jeffrey E. \nSent"
+            },
+            {
+              "count": 19,
+              "entity1": "Donald Trump",
+              "entity2": "Kathy Ruemmler \nSent"
+            },
+            {
+              "count": 15,
+              "entity1": "Donald Trump",
+              "entity2": "Landon \nSent"
+            },
+            {
+              "count": 10,
+              "entity1": "Jane Doe",
+              "entity2": "Michael"
+            },
+            {
+              "count": 28,
+              "entity1": "Jane Doe",
+              "entity2": "Edwards"
+            },
+            {
+              "count": 8,
+              "entity1": "Jane Doe",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 13,
+              "entity1": "Jane Doe",
+              "entity2": "Suite"
+            },
+            {
+              "count": 6,
+              "entity1": "Jane Doe",
+              "entity2": "Bush"
+            },
+            {
+              "count": 6,
+              "entity1": "Jane Doe",
+              "entity2": "Bill"
+            },
+            {
+              "count": 24,
+              "entity1": "Jane Doe",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 27,
+              "entity1": "Jane Doe",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 30,
+              "entity1": "Jane Doe",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 43,
+              "entity1": "Jane Doe",
+              "entity2": "Jane"
+            },
+            {
+              "count": 8,
+              "entity1": "Jane Doe",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 5,
+              "entity1": "Jane Doe",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 12,
+              "entity1": "Jane Doe",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 9,
+              "entity1": "Michael",
+              "entity2": "Edwards"
+            },
+            {
+              "count": 7,
+              "entity1": "Michael",
+              "entity2": "Putin"
+            },
+            {
+              "count": 6,
+              "entity1": "Michael",
+              "entity2": "Donald"
+            },
+            {
+              "count": 5,
+              "entity1": "Michael",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 5,
+              "entity1": "Michael",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 8,
+              "entity1": "Michael",
+              "entity2": "Suite"
+            },
+            {
+              "count": 10,
+              "entity1": "Michael",
+              "entity2": "Bush"
+            },
+            {
+              "count": 17,
+              "entity1": "Michael",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 12,
+              "entity1": "Michael",
+              "entity2": "Bill"
+            },
+            {
+              "count": 5,
+              "entity1": "Michael",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 7,
+              "entity1": "Michael",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 8,
+              "entity1": "Michael",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 5,
+              "entity1": "Michael",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 15,
+              "entity1": "Michael",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 13,
+              "entity1": "Michael",
+              "entity2": "Jane"
+            },
+            {
+              "count": 8,
+              "entity1": "Michael",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 10,
+              "entity1": "Michael",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 6,
+              "entity1": "Michael",
+              "entity2": "clinton"
+            },
+            {
+              "count": 6,
+              "entity1": "Michael",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 21,
+              "entity1": "Michael",
+              "entity2": "David"
+            },
+            {
+              "count": 6,
+              "entity1": "Michael",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 6,
+              "entity1": "Michael",
+              "entity2": "Larry"
+            },
+            {
+              "count": 6,
+              "entity1": "Michael",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 15,
+              "entity1": "Michael",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 6,
+              "entity1": "Michael",
+              "entity2": "Michael Wolff \nSent"
+            },
+            {
+              "count": 15,
+              "entity1": "Michael",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 8,
+              "entity1": "Michael",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 5,
+              "entity1": "Edwards",
+              "entity2": "Putin"
+            },
+            {
+              "count": 5,
+              "entity1": "Edwards",
+              "entity2": "Hillary"
+            },
+            {
+              "count": 11,
+              "entity1": "Edwards",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 10,
+              "entity1": "Edwards",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 5,
+              "entity1": "Edwards",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 15,
+              "entity1": "Edwards",
+              "entity2": "Suite"
+            },
+            {
+              "count": 15,
+              "entity1": "Edwards",
+              "entity2": "Bush"
+            },
+            {
+              "count": 13,
+              "entity1": "Edwards",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 10,
+              "entity1": "Edwards",
+              "entity2": "Bill"
+            },
+            {
+              "count": 10,
+              "entity1": "Edwards",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 23,
+              "entity1": "Edwards",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 24,
+              "entity1": "Edwards",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 7,
+              "entity1": "Edwards",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 32,
+              "entity1": "Edwards",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 31,
+              "entity1": "Edwards",
+              "entity2": "Jane"
+            },
+            {
+              "count": 6,
+              "entity1": "Edwards",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 5,
+              "entity1": "Edwards",
+              "entity2": "Larry"
+            },
+            {
+              "count": 5,
+              "entity1": "Edwards",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 11,
+              "entity1": "Edwards",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 8,
+              "entity1": "Edwards",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 13,
+              "entity1": "Putin",
+              "entity2": "Bannon"
+            },
+            {
+              "count": 11,
+              "entity1": "Putin",
+              "entity2": "Donald"
+            },
+            {
+              "count": 15,
+              "entity1": "Putin",
+              "entity2": "Hillary"
+            },
+            {
+              "count": 8,
+              "entity1": "Putin",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 17,
+              "entity1": "Putin",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 8,
+              "entity1": "Putin",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 13,
+              "entity1": "Putin",
+              "entity2": "Bush"
+            },
+            {
+              "count": 33,
+              "entity1": "Putin",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 13,
+              "entity1": "Putin",
+              "entity2": "Bill"
+            },
+            {
+              "count": 8,
+              "entity1": "Putin",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 7,
+              "entity1": "Putin",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 12,
+              "entity1": "Putin",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 5,
+              "entity1": "Putin",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 6,
+              "entity1": "Putin",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 18,
+              "entity1": "Putin",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 10,
+              "entity1": "Putin",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 5,
+              "entity1": "Putin",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 6,
+              "entity1": "Putin",
+              "entity2": "Larry"
+            },
+            {
+              "count": 12,
+              "entity1": "Putin",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 6,
+              "entity1": "Putin",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 6,
+              "entity1": "Putin",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 6,
+              "entity1": "Bannon",
+              "entity2": "Donald"
+            },
+            {
+              "count": 16,
+              "entity1": "Bannon",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 5,
+              "entity1": "Bannon",
+              "entity2": "Bush"
+            },
+            {
+              "count": 5,
+              "entity1": "Bannon",
+              "entity2": "Reid"
+            },
+            {
+              "count": 15,
+              "entity1": "Bannon",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 5,
+              "entity1": "Bannon",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 35,
+              "entity1": "Bannon",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 5,
+              "entity1": "Bannon",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 20,
+              "entity1": "Bannon",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 7,
+              "entity1": "Bannon",
+              "entity2": "Michael Wolff \nSent"
+            },
+            {
+              "count": 5,
+              "entity1": "Bannon",
+              "entity2": "Jeffrey E. \nSent"
+            },
+            {
+              "count": 5,
+              "entity1": "Donald",
+              "entity2": "Hillary"
+            },
+            {
+              "count": 6,
+              "entity1": "Donald",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 5,
+              "entity1": "Donald",
+              "entity2": "Bush"
+            },
+            {
+              "count": 8,
+              "entity1": "Donald",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 6,
+              "entity1": "Donald",
+              "entity2": "Fri"
+            },
+            {
+              "count": 7,
+              "entity1": "Donald",
+              "entity2": "Bill"
+            },
+            {
+              "count": 8,
+              "entity1": "Donald",
+              "entity2": "Thomas Jr."
+            },
+            {
+              "count": 8,
+              "entity1": "Donald",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 6,
+              "entity1": "Donald",
+              "entity2": "Jane"
+            },
+            {
+              "count": 6,
+              "entity1": "Donald",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 5,
+              "entity1": "Donald",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 12,
+              "entity1": "Donald",
+              "entity2": "David"
+            },
+            {
+              "count": 6,
+              "entity1": "Hillary",
+              "entity2": "Al Gore"
+            },
+            {
+              "count": 8,
+              "entity1": "Hillary",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 5,
+              "entity1": "Hillary",
+              "entity2": "Suite"
+            },
+            {
+              "count": 15,
+              "entity1": "Hillary",
+              "entity2": "Bush"
+            },
+            {
+              "count": 24,
+              "entity1": "Hillary",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 20,
+              "entity1": "Hillary",
+              "entity2": "Bill"
+            },
+            {
+              "count": 7,
+              "entity1": "Hillary",
+              "entity2": "Thomas Jr."
+            },
+            {
+              "count": 13,
+              "entity1": "Hillary",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 6,
+              "entity1": "Hillary",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 15,
+              "entity1": "Hillary",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 16,
+              "entity1": "Hillary",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 6,
+              "entity1": "Hillary",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 5,
+              "entity1": "Hillary",
+              "entity2": "David"
+            },
+            {
+              "count": 13,
+              "entity1": "Hillary",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 7,
+              "entity1": "Hillary",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 5,
+              "entity1": "Hillary",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 12,
+              "entity1": "Al Gore",
+              "entity2": "Larry Summers"
+            },
+            {
+              "count": 7,
+              "entity1": "Al Gore",
+              "entity2": "Twitter"
+            },
+            {
+              "count": 5,
+              "entity1": "Al Gore",
+              "entity2": "Suite"
+            },
+            {
+              "count": 14,
+              "entity1": "Al Gore",
+              "entity2": "Bush"
+            },
+            {
+              "count": 10,
+              "entity1": "Al Gore",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 6,
+              "entity1": "Al Gore",
+              "entity2": "Richard Kahn"
+            },
+            {
+              "count": 7,
+              "entity1": "Al Gore",
+              "entity2": "Bill"
+            },
+            {
+              "count": 10,
+              "entity1": "Al Gore",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 7,
+              "entity1": "Al Gore",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 5,
+              "entity1": "Al Gore",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 11,
+              "entity1": "Al Gore",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 9,
+              "entity1": "Al Gore",
+              "entity2": "Jane"
+            },
+            {
+              "count": 8,
+              "entity1": "Al Gore",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 11,
+              "entity1": "Larry Summers",
+              "entity2": "Bush"
+            },
+            {
+              "count": 29,
+              "entity1": "Larry Summers",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 12,
+              "entity1": "Larry Summers",
+              "entity2": "Bill"
+            },
+            {
+              "count": 8,
+              "entity1": "Larry Summers",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 9,
+              "entity1": "Larry Summers",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 5,
+              "entity1": "Larry Summers",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 5,
+              "entity1": "Larry Summers",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 10,
+              "entity1": "Larry Summers",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 15,
+              "entity1": "Larry Summers",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 7,
+              "entity1": "Larry Summers",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 9,
+              "entity1": "Larry Summers",
+              "entity2": "Larry"
+            },
+            {
+              "count": 12,
+              "entity1": "Larry Summers",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 11,
+              "entity1": "Twitter",
+              "entity2": "Bush"
+            },
+            {
+              "count": 28,
+              "entity1": "Twitter",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 7,
+              "entity1": "Twitter",
+              "entity2": "Bill"
+            },
+            {
+              "count": 5,
+              "entity1": "Twitter",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 5,
+              "entity1": "Twitter",
+              "entity2": "Jane"
+            },
+            {
+              "count": 17,
+              "entity1": "Twitter",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 9,
+              "entity1": "Twitter",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 17,
+              "entity1": "Twitter",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 9,
+              "entity1": "Twitter",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 11,
+              "entity1": "Twitter",
+              "entity2": "David"
+            },
+            {
+              "count": 12,
+              "entity1": "Twitter",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 6,
+              "entity1": "Suite",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 8,
+              "entity1": "Suite",
+              "entity2": "Bill"
+            },
+            {
+              "count": 18,
+              "entity1": "Suite",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 15,
+              "entity1": "Suite",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 23,
+              "entity1": "Suite",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 16,
+              "entity1": "Suite",
+              "entity2": "Jane"
+            },
+            {
+              "count": 6,
+              "entity1": "Suite",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 6,
+              "entity1": "Suite",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 9,
+              "entity1": "Suite",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 57,
+              "entity1": "Bush",
+              "entity2": "Barack Obama"
+            },
+            {
+              "count": 6,
+              "entity1": "Bush",
+              "entity2": "Reid"
+            },
+            {
+              "count": 12,
+              "entity1": "Bush",
+              "entity2": "Bill"
+            },
+            {
+              "count": 6,
+              "entity1": "Bush",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 8,
+              "entity1": "Bush",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 7,
+              "entity1": "Bush",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 20,
+              "entity1": "Bush",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 9,
+              "entity1": "Bush",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 8,
+              "entity1": "Bush",
+              "entity2": "Jane"
+            },
+            {
+              "count": 23,
+              "entity1": "Bush",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 7,
+              "entity1": "Bush",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 22,
+              "entity1": "Bush",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 18,
+              "entity1": "Bush",
+              "entity2": "David"
+            },
+            {
+              "count": 22,
+              "entity1": "Bush",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 8,
+              "entity1": "Bush",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 9,
+              "entity1": "Bush",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 8,
+              "entity1": "Barack Obama",
+              "entity2": "Fri"
+            },
+            {
+              "count": 11,
+              "entity1": "Barack Obama",
+              "entity2": "Lawrence Krauss"
+            },
+            {
+              "count": 9,
+              "entity1": "Barack Obama",
+              "entity2": "Lawrence M. Krauss"
+            },
+            {
+              "count": 10,
+              "entity1": "Barack Obama",
+              "entity2": "Reid"
+            },
+            {
+              "count": 31,
+              "entity1": "Barack Obama",
+              "entity2": "Bill"
+            },
+            {
+              "count": 9,
+              "entity1": "Barack Obama",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 20,
+              "entity1": "Barack Obama",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 30,
+              "entity1": "Barack Obama",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 13,
+              "entity1": "Barack Obama",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 5,
+              "entity1": "Barack Obama",
+              "entity2": "Jane"
+            },
+            {
+              "count": 6,
+              "entity1": "Barack Obama",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 49,
+              "entity1": "Barack Obama",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 16,
+              "entity1": "Barack Obama",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 38,
+              "entity1": "Barack Obama",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 23,
+              "entity1": "Barack Obama",
+              "entity2": "David"
+            },
+            {
+              "count": 22,
+              "entity1": "Barack Obama",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 20,
+              "entity1": "Barack Obama",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 11,
+              "entity1": "Barack Obama",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 12,
+              "entity1": "Barack Obama",
+              "entity2": "Kathy Ruemmler \nSent"
+            },
+            {
+              "count": 9,
+              "entity1": "Fri",
+              "entity2": "Reid"
+            },
+            {
+              "count": 12,
+              "entity1": "Fri",
+              "entity2": "Thomas Jr."
+            },
+            {
+              "count": 13,
+              "entity1": "Fri",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 12,
+              "entity1": "Fri",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 6,
+              "entity1": "Fri",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 12,
+              "entity1": "Fri",
+              "entity2": "clinton"
+            },
+            {
+              "count": 5,
+              "entity1": "Fri",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 5,
+              "entity1": "Fri",
+              "entity2": "Jeffrey E. \nSent"
+            },
+            {
+              "count": 14,
+              "entity1": "Richard Kahn",
+              "entity2": "Richard Kahn \nSent"
+            },
+            {
+              "count": 38,
+              "entity1": "Richard Kahn",
+              "entity2": "Richard Kahn \nHBRK Associates Inc."
+            },
+            {
+              "count": 42,
+              "entity1": "Lawrence Krauss",
+              "entity2": "Lawrence M. Krauss"
+            },
+            {
+              "count": 10,
+              "entity1": "Reid",
+              "entity2": "Kathy Ruemmler"
+            },
+            {
+              "count": 10,
+              "entity1": "Reid",
+              "entity2": "clinton"
+            },
+            {
+              "count": 42,
+              "entity1": "Reid",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 51,
+              "entity1": "Reid",
+              "entity2": "Jeffrey E. \nSent"
+            },
+            {
+              "count": 6,
+              "entity1": "Reid",
+              "entity2": "Kathy Ruemmler \nSent"
+            },
+            {
+              "count": 5,
+              "entity1": "Bill",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 9,
+              "entity1": "Bill",
+              "entity2": "Dershowitz"
+            },
+            {
+              "count": 8,
+              "entity1": "Bill",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 11,
+              "entity1": "Bill",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 16,
+              "entity1": "Bill",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 6,
+              "entity1": "Bill",
+              "entity2": "Jane"
+            },
+            {
+              "count": 18,
+              "entity1": "Bill",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 7,
+              "entity1": "Bill",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 8,
+              "entity1": "Bill",
+              "entity2": "David"
+            },
+            {
+              "count": 6,
+              "entity1": "Bill",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 6,
+              "entity1": "Bill",
+              "entity2": "Larry"
+            },
+            {
+              "count": 7,
+              "entity1": "Bill",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 8,
+              "entity1": "Bill",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 113,
+              "entity1": "Thomas Jr.",
+              "entity2": "Landon Thomas"
+            },
+            {
+              "count": 15,
+              "entity1": "Thomas Jr.",
+              "entity2": "clinton"
+            },
+            {
+              "count": 6,
+              "entity1": "Thomas Jr.",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 11,
+              "entity1": "Thomas Jr.",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 50,
+              "entity1": "Thomas Jr.",
+              "entity2": "Landon \nSent"
+            },
+            {
+              "count": 8,
+              "entity1": "Landon Thomas",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 15,
+              "entity1": "Landon Thomas",
+              "entity2": "clinton"
+            },
+            {
+              "count": 7,
+              "entity1": "Landon Thomas",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 8,
+              "entity1": "Landon Thomas",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 13,
+              "entity1": "Landon Thomas",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 50,
+              "entity1": "Landon Thomas",
+              "entity2": "Landon \nSent"
+            },
+            {
+              "count": 7,
+              "entity1": "Kathy Ruemmler",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 8,
+              "entity1": "Kathy Ruemmler",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 18,
+              "entity1": "Kathy Ruemmler",
+              "entity2": "clinton"
+            },
+            {
+              "count": 5,
+              "entity1": "Kathy Ruemmler",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 6,
+              "entity1": "Kathy Ruemmler",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 8,
+              "entity1": "Kathy Ruemmler",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 29,
+              "entity1": "Kathy Ruemmler",
+              "entity2": "Kathy Ruemmler \nSent"
+            },
+            {
+              "count": 27,
+              "entity1": "Dershowitz",
+              "entity2": "Jeffrey Epstein's"
+            },
+            {
+              "count": 9,
+              "entity1": "Dershowitz",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 42,
+              "entity1": "Dershowitz",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 24,
+              "entity1": "Dershowitz",
+              "entity2": "Jane"
+            },
+            {
+              "count": 8,
+              "entity1": "Dershowitz",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 7,
+              "entity1": "Dershowitz",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 6,
+              "entity1": "Dershowitz",
+              "entity2": "David"
+            },
+            {
+              "count": 11,
+              "entity1": "Dershowitz",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 7,
+              "entity1": "Jeffrey Epstein's",
+              "entity2": "Kennedy"
+            },
+            {
+              "count": 37,
+              "entity1": "Jeffrey Epstein's",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 29,
+              "entity1": "Jeffrey Epstein's",
+              "entity2": "Jane"
+            },
+            {
+              "count": 6,
+              "entity1": "Jeffrey Epstein's",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 5,
+              "entity1": "Jeffrey Epstein's",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 12,
+              "entity1": "Jeffrey Epstein's",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 6,
+              "entity1": "Jeffrey Epstein's",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 16,
+              "entity1": "Kennedy",
+              "entity2": "Alan Dershowitz"
+            },
+            {
+              "count": 13,
+              "entity1": "Kennedy",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 10,
+              "entity1": "Kennedy",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 8,
+              "entity1": "Kennedy",
+              "entity2": "David"
+            },
+            {
+              "count": 11,
+              "entity1": "Kennedy",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 8,
+              "entity1": "Kennedy",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 5,
+              "entity1": "Kennedy",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 30,
+              "entity1": "Alan Dershowitz",
+              "entity2": "Jane"
+            },
+            {
+              "count": 11,
+              "entity1": "Alan Dershowitz",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 13,
+              "entity1": "Alan Dershowitz",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 8,
+              "entity1": "Alan Dershowitz",
+              "entity2": "David"
+            },
+            {
+              "count": 5,
+              "entity1": "Alan Dershowitz",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 5,
+              "entity1": "Alan Dershowitz",
+              "entity2": "Larry"
+            },
+            {
+              "count": 8,
+              "entity1": "Alan Dershowitz",
+              "entity2": "Weingarten"
+            },
+            {
+              "count": 15,
+              "entity1": "Alan Dershowitz",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 7,
+              "entity1": "Jane",
+              "entity2": "Donald Trump's"
+            },
+            {
+              "count": 7,
+              "entity1": "Jane",
+              "entity2": "David"
+            },
+            {
+              "count": 12,
+              "entity1": "Jane",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 5,
+              "entity1": "Jane",
+              "entity2": "Darren Indyke"
+            },
+            {
+              "count": 16,
+              "entity1": "Donald Trump's",
+              "entity2": "Hillary Clinton"
+            },
+            {
+              "count": 23,
+              "entity1": "Donald Trump's",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 5,
+              "entity1": "Donald Trump's",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 13,
+              "entity1": "Donald Trump's",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 5,
+              "entity1": "Donald Trump's",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 14,
+              "entity1": "Hillary Clinton",
+              "entity2": "Steve Bannon"
+            },
+            {
+              "count": 22,
+              "entity1": "Hillary Clinton",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 12,
+              "entity1": "Hillary Clinton",
+              "entity2": "David"
+            },
+            {
+              "count": 12,
+              "entity1": "Hillary Clinton",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 13,
+              "entity1": "Hillary Clinton",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 5,
+              "entity1": "Steve Bannon",
+              "entity2": "George W. Bush"
+            },
+            {
+              "count": 8,
+              "entity1": "Steve Bannon",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 13,
+              "entity1": "Steve Bannon",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 7,
+              "entity1": "clinton",
+              "entity2": "David"
+            },
+            {
+              "count": 13,
+              "entity1": "clinton",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 5,
+              "entity1": "clinton",
+              "entity2": "Michael Wolff \nSent"
+            },
+            {
+              "count": 7,
+              "entity1": "clinton",
+              "entity2": "Kathy Ruemmler \nSent"
+            },
+            {
+              "count": 6,
+              "entity1": "clinton",
+              "entity2": "Landon \nSent"
+            },
+            {
+              "count": 70,
+              "entity1": "Richard Kahn \nSent",
+              "entity2": "Richard Kahn \nHBRK Associates Inc."
+            },
+            {
+              "count": 10,
+              "entity1": "George W. Bush",
+              "entity2": "David"
+            },
+            {
+              "count": 11,
+              "entity1": "George W. Bush",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 5,
+              "entity1": "George W. Bush",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 6,
+              "entity1": "David",
+              "entity2": "Reagan"
+            },
+            {
+              "count": 6,
+              "entity1": "David",
+              "entity2": "Michael Wolff"
+            },
+            {
+              "count": 8,
+              "entity1": "David",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 5,
+              "entity1": "Reagan",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 5,
+              "entity1": "Larry",
+              "entity2": "Jeff"
+            },
+            {
+              "count": 27,
+              "entity1": "Weingarten",
+              "entity2": "Jeffrey E. \nSent"
+            },
+            {
+              "count": 33,
+              "entity1": "Michael Wolff",
+              "entity2": "Michael Wolff \nSent"
+            }
+          ],
+          "entities": [
+            "Jeffrey Epstein",
+            "Donald Trump",
+            "Bill Clinton",
+            "Barack Obama",
+            "Ghislaine Maxwell",
+            "Prince Andrew",
+            "Michael Wolff",
+            "Fri",
+            "Landon Thomas",
+            "Reid",
+            "Thomas Jr.",
+            "Kathy Ruemmler",
+            "clinton",
+            "Steve Bannon",
+            "Alan Dershowitz",
+            "Richard Kahn \nHBRK Associates Inc.",
+            "Hillary Clinton",
+            "Bill",
+            "Twitter",
+            "Bush",
+            "Larry Summers",
+            "Richard Kahn \nSent",
+            "Michael",
+            "Edwards",
+            "Richard Kahn",
+            "David",
+            "Jane Doe",
+            "Michael Wolff \nSent",
+            "Jeffrey E. \nSent",
+            "Donald",
+            "Bannon",
+            "Al Gore",
+            "Jane",
+            "Putin",
+            "Donald Trump's",
+            "George W. Bush",
+            "Jeff",
+            "Jeffrey Epstein's",
+            "Hillary",
+            "Weingarten",
+            "Lawrence Krauss",
+            "Larry",
+            "Dershowitz",
+            "Kathy Ruemmler \nSent",
+            "Landon \nSent",
+            "Kennedy",
+            "Reagan",
+            "Suite",
+            "Lawrence M. Krauss",
+            "Darren Indyke"
+          ]
+        },
+        "error": null
+      },
+      "CORE: Geographic Mapping": {
+        "success": true,
+        "data_count": 286,
+        "details": {
+          "mapped_locations": 286
+        },
+        "error": null
+      }
+    },
+    "INTEL": {
+      "INTEL: Email Intelligence": {
+        "success": true,
+        "data_count": 366,
+        "details": {
+          "total_emails": 366,
+          "suspicious_emails": 246,
+          "threads": 266,
+          "contacts": 75
+        },
+        "error": null
+      },
+      "INTEL: Flight Intelligence": {
+        "success": false,
+        "data_count": 0,
+        "details": {
+          "total_flights": 0,
+          "total_passengers": 0,
+          "unique_routes": 0
+        },
+        "error": "No flight data"
+      },
+      "INTEL: Financial Intelligence": {
+        "success": true,
+        "data_count": 53,
+        "details": {
+          "total_transactions": 53,
+          "total_amount": 7628847.75,
+          "suspicious_transactions": 25,
+          "financial_entities": 2
+        },
+        "error": null
+      },
+      "INTEL: Timeline Builder": {
+        "success": true,
+        "data_count": 3,
+        "details": {
+          "total_events": 3,
+          "by_type": {},
+          "suspicious_events": 3
+        },
+        "error": null
+      }
+    },
+    "DETECTION": {
+      "DETECTION: Minor Travel Alerts": {
+        "success": true,
+        "data_count": 169,
+        "details": {
+          "critical_alerts": 169
+        },
+        "error": null
+      },
+      "DETECTION: Suspicious Emails": {
+        "success": true,
+        "data_count": 246,
+        "details": {
+          "suspicious_emails": 246
+        },
+        "error": null
+      },
+      "DETECTION: Suspicious Transactions": {
+        "success": true,
+        "data_count": 1,
+        "details": {
+          "suspicious_transactions": 1
+        },
+        "error": null
+      },
+      "DETECTION: Anomaly Detection": {
+        "success": false,
+        "error": "HTTPConnectionPool(host='localhost', port=5001): Read timed out. (read timeout=10)"
+      }
+    },
+    "AI": {
+      "AI: Journalist Query System": {
+        "success": false,
+        "data_count": 0,
+        "details": {
+          "response_length": 0
+        },
+        "error": "No response generated"
+      }
+    }
+  }
+}

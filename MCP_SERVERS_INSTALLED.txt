@@ -1,0 +1,111 @@
+======================================================================
+MCP SERVERS INSTALLED - EPSTEIN INVESTIGATION APP
+======================================================================
+
+✅ 5 MCP Servers Configured in Claude Desktop
+
+WHAT THEY DO:
+
+1. **SQLite Database Server**
+   - Lets Claude directly query your investigation database
+   - Access all 6,083 documents, entities, relationships
+   - Run SQL queries through natural language
+
+2. **Memory Server**
+   - Persistent memory across Claude sessions
+   - Remembers important investigation details
+   - No setup needed - works immediately
+
+3. **Filesystem Server**
+   - Secure access to your investigation files
+   - Can read documents from your project folder
+   - Access to IMAGES001 folder with 3,173 scanned docs
+
+4. **Brave Search Server** (needs API key)
+   - Web search for entity verification
+   - Research people, companies, locations
+   - Optional: Get free API key at https://brave.com/search/api/
+
+5. **GitHub Server** (needs token)
+   - Version control for your investigation code
+   - Track changes, collaborate
+   - Optional: Get token at https://github.com/settings/tokens
+
+======================================================================
+HOW TO ACTIVATE
+======================================================================
+
+1. **Restart Claude Desktop**
+   - Quit Claude Desktop completely (Cmd+Q)
+   - Reopen it
+   - The MCP servers will automatically start
+
+2. **Test It Works**
+   - Open a new chat in Claude Desktop
+   - Ask: "Query my investigation database for all entities of type PERSON"
+   - Claude should be able to access your database
+
+3. **Optional API Keys**
+   - Brave Search API key: https://brave.com/search/api/
+   - GitHub token: https://github.com/settings/tokens
+   - Edit config file to add keys (instructions below)
+
+======================================================================
+WHAT YOU CAN NOW DO
+======================================================================
+
+**Database Queries:**
+- "Show me all documents mentioning Jeffrey Epstein"
+- "List all locations in the database"
+- "Find documents from 2019"
+- "Show entity relationships for Ghislaine Maxwell"
+
+**File Access:**
+- "Read the file at /Users/jonathon/Auto1111/Claude/app.py"
+- "Show me document DOJ-OGR-00000001.tif"
+- "List all Python files in my project"
+
+**Memory:**
+- "Remember that this investigation focuses on DOJ-OGR documents"
+- "What have we learned so far in this investigation?"
+- Claude will remember context across conversations
+
+**Web Research (if Brave API key added):**
+- "Search the web for information about Little St. James Island"
+- "Find recent news about the Epstein case"
+- "Verify this person's background"
+
+======================================================================
+ADDING API KEYS (Optional)
+======================================================================
+
+To add Brave Search or GitHub keys:
+
+1. Open: /Users/jonathon/Library/Application Support/Claude/claude_desktop_config.json
+
+2. Replace "YOUR_BRAVE_API_KEY_HERE" with your actual API key
+   Replace "YOUR_GITHUB_TOKEN_HERE" with your actual GitHub token
+
+3. Restart Claude Desktop
+
+======================================================================
+STATUS
+======================================================================
+
+✅ SQLite Database MCP - READY (no key needed)
+✅ Memory MCP - READY (no key needed)
+✅ Filesystem MCP - READY (no key needed)
+⏸️  Brave Search MCP - Needs API key (optional)
+⏸️  GitHub MCP - Needs token (optional)
+
+Your investigation database is NOW ACCESSIBLE through Claude Desktop!
+
+======================================================================
+NEXT STEPS
+======================================================================
+
+1. Restart Claude Desktop (Cmd+Q, then reopen)
+2. Try querying your database through natural language
+3. Optionally get Brave API key for web research
+
+The 3 core MCP servers (SQLite, Memory, Filesystem) work immediately!

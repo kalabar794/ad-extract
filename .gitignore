@@ -1,0 +1,47 @@
+# Database files
+database.db
+database.db-journal
+*.db
+*.db-journal
+
+# PDF files and FBI vault documents
+*.pdf
+*.PDF
+fbi_vault_epstein/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Logs
+*.log
+ocr_processing.log
+fbi_ocr_progress.log
+event_extraction.log
+ocr_new_files.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+uploads/
+temp/
+tmp/
+
+# Large data files
+*.sqlite
+*.sqlite3

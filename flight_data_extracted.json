@@ -1,0 +1,9 @@
+{
+  "flights": [],
+  "passengers": {},
+  "summary": {
+    "total_flights": 0,
+    "unique_passengers": 0,
+    "minor_alerts": 0
+  }
+}

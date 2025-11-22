@@ -1,0 +1,213 @@
+======================================================================
+MCP INTEGRATIONS - USAGE GUIDE
+======================================================================
+
+✅ MCP SERVER FUNCTIONALITY NOW AVAILABLE IN CLAUDE CODE
+
+Instead of using Claude Desktop, all MCP capabilities are now directly
+integrated into your investigation app as Python functions.
+
+======================================================================
+WHAT'S AVAILABLE
+======================================================================
+
+1. **Database MCP** - Query your investigation database
+2. **Memory MCP** - Persistent memory across sessions
+3. **Filesystem MCP** - Secure file access
+4. **Brave Search MCP** - Web research (needs API key)
+
+======================================================================
+HOW TO USE FROM CLAUDE CODE
+======================================================================
+
+Import the module:
+```python
+from mcp_integrations import *
+```
+
+EXAMPLES:
+
+1. **Query Database for Entities**
+```python
+# Get all PERSON entities
+result = get_entities('PERSON', limit=10)
+if result['success']:
+    for entity in result['data']:
+        print(f"- {entity['name']}")
+
+# Get all entities
+all_entities = get_entities()
+```
+
+2. **Find Entity Connections**
+```python
+# Get all connections for an entity
+connections = get_entity_connections('Jeffrey Epstein')
+if connections['success']:
+    for conn in connections['data']:
+        print(f"{conn['entity1']} <-> {conn['entity2']}")
+```
+
+3. **Direct SQL Queries**
+```python
+# Run custom SQL
+result = query_database("SELECT * FROM documents WHERE filename LIKE '%2019%'")
+if result['success']:
+    print(f"Found {result['count']} documents")
+```
+
+4. **Store and Recall Memory**
+```python
+# Remember something
+remember('key_witness', 'Virginia Giuffre')
+
+# Recall it later
+result = recall('key_witness')
+print(result['data']['value'])  # Virginia Giuffre
+
+# List all memories
+all_memories = memory_mcp.list_memories()
+```
+
+5. **Read Files**
+```python
+# Read a file from allowed directories
+result = read_file('/Users/jonathon/Auto1111/Claude/app.py')
+if result['success']:
+    print(result['content'][:200])  # First 200 chars
+```
+
+6. **List Files**
+```python
+# List Python files in project
+files = filesystem_mcp.list_files(
+    '/Users/jonathon/Auto1111/Claude',
+    '*.py'
+)
+print(f"Found {files['count']} Python files")
+```
+
+7. **Web Search** (optional - needs API key)
+```python
+# Search the web
+results = search_web('Epstein Little St James Island', count=5)
+if results['success']:
+    for r in results['results']:
+        print(f"{r['title']}: {r['url']}")
+```
+
+======================================================================
+USING IN YOUR CODE
+======================================================================
+
+You can now use these functions anywhere in your Flask app:
+
+**In app.py endpoints:**
+```python
+from mcp_integrations import get_entities, remember, recall
+
+@app.route('/api/mcp/entities/<entity_type>')
+def mcp_get_entities(entity_type):
+    result = get_entities(entity_type, limit=100)
+    return jsonify(result)
+
+@app.route('/api/mcp/remember', methods=['POST'])
+def mcp_remember():
+    data = request.json
+    result = remember(data['key'], data['value'])
+    return jsonify(result)
+```
+
+**In Python scripts:**
+```python
+#!/usr/bin/env python3
+from mcp_integrations import *
+
+# Query database
+entities = get_entities('PERSON')
+print(f"Found {entities['count']} people")
+
+# Remember key facts
+remember('investigation_start', '2024-11-21')
+remember('document_count', '6083')
+
+# Search for specific documents
+docs = query_database("""
+    SELECT d.filename, COUNT(em.id) as entity_count
+    FROM documents d
+    LEFT JOIN entity_mentions em ON d.id = em.document_id
+    GROUP BY d.id
+    ORDER BY entity_count DESC
+    LIMIT 10
+""")
+print("Top documents by entity mentions:")
+for doc in docs['data']:
+    print(f"  {doc['filename']}: {doc['entity_count']} entities")
+```
+
+======================================================================
+QUICK REFERENCE
+======================================================================
+
+**Database Functions:**
+- `query_database(sql)` - Run any SQL query
+- `get_entities(type, limit)` - Get entities by type
+- `get_entity_connections(name)` - Get entity relationships
+- `db_mcp.get_documents(search_term, limit)` - Search documents
+- `db_mcp.get_timeline(entity_name)` - Get timeline events
+
+**Memory Functions:**
+- `remember(key, value)` - Store memory
+- `recall(key)` - Retrieve memory
+- `memory_mcp.list_memories()` - List all memories
+- `memory_mcp.forget(key)` - Delete memory
+
+**Filesystem Functions:**
+- `read_file(path)` - Read file content
+- `filesystem_mcp.list_files(dir, pattern)` - List files
+- `filesystem_mcp.get_file_info(path)` - Get file metadata
+
+**Search Functions:**
+- `search_web(query, count)` - Web search (needs API key)
+
+======================================================================
+TEST IT NOW
+======================================================================
+
+Run this in Claude Code:
+
+```python
+from mcp_integrations import *
+
+# Test database
+print("\n🔍 Testing Database:")
+entities = get_entities('PERSON', 5)
+print(f"Found {entities['count']} person entities")
+
+# Test memory
+print("\n💭 Testing Memory:")
+remember('test', 'MCP integrations working!')
+result = recall('test')
+print(f"Recalled: {result['data']['value']}")
+
+# Test filesystem
+print("\n📁 Testing Filesystem:")
+files = filesystem_mcp.list_files('/Users/jonathon/Auto1111/Claude', '*.txt')
+print(f"Found {files['count']} text files")
+```
+
+======================================================================
+WHAT'S NEXT
+======================================================================
+
+These MCP integrations are now part of your investigation toolkit!
+
+You can:
+1. Use them directly in Claude Code conversations
+2. Add new API endpoints to your Flask app
+3. Create Python scripts that leverage these functions
+4. Integrate with your AI Journalist feature
+
+No Claude Desktop needed - everything works right here in Claude Code!
+
+======================================================================

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Dashboard - Investigation Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .card h2 {
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88 0%, #00cc88 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #ccc;
+            margin-top: 5px;
+        }
+
+        .memory-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .memory-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .memory-key {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .memory-value {
+            margin-top: 5px;
+            color: #e0e0e0;
+        }
+
+        .memory-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #ccc;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Main Dashboard</a>
+
+        <h1>🔧 MCP Investigation Tools</h1>
+
+        <!-- OCR Progress Card -->
+        <div class="card">
+            <h2>📊 OCR Processing Status</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number" id="total-images">-</div>
+                    <div class="stat-label">Total Images</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="processed-images">-</div>
+                    <div class="stat-label">Processed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="pending-images">-</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="progress-percent">-</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-bar" style="width: 0%">
+                    <span id="progress-text">0%</span>
+                </div>
+            </div>
+            <button onclick="refreshOCRProgress()">🔄 Refresh Status</button>
+        </div>
+
+        <!-- Investigation Memory Card -->
+        <div class="card">
+            <h2>💭 Investigation Notes & Memory</h2>
+            <p style="margin-bottom: 15px;">Store important findings and notes that persist across sessions.</p>
+
+            <input type="text" id="memory-key" placeholder="Note Title (e.g., 'key_witness')">
+            <textarea id="memory-value" rows="3" placeholder="Note Content (e.g., 'Virginia Giuffre mentioned in docs 123, 456')"></textarea>
+            <button onclick="saveMemory()">💾 Save Note</button>
+            <button onclick="loadMemories()">📋 Load All Notes</button>
+
+            <div id="memory-list" class="memory-list" style="margin-top: 20px;">
+                <!-- Memories will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Quick Entity Lookup Card -->
+        <div class="card">
+            <h2>🔍 Quick Entity Lookup</h2>
+            <p style="margin-bottom: 15px;">Search for people, places, and organizations in the database.</p>
+
+            <select id="entity-type" style="padding: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; margin-bottom: 10px; width: 200px;">
+                <option value="PERSON">People</option>
+                <option value="LOCATION">Locations</option>
+                <option value="ORGANIZATION">Organizations</option>
+                <option value="DATE">Dates</option>
+            </select>
+            <button onclick="searchEntities()">🔎 Search</button>
+
+            <div id="entity-results" style="margin-top: 20px;">
+                <!-- Results will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load OCR progress on page load
+        async function refreshOCRProgress() {
+            try {
+                const response = await fetch('/api/mcp/ocr-progress');
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    document.getElementById('total-images').textContent = data.total_images.toLocaleString();
+                    document.getElementById('processed-images').textContent = data.processed.toLocaleString();
+                    document.getElementById('pending-images').textContent = data.pending.toLocaleString();
+                    document.getElementById('progress-percent').textContent = data.progress_percent.toFixed(1) + '%';
+                    document.getElementById('progress-bar').style.width = data.progress_percent + '%';
+                    document.getElementById('progress-text').textContent = data.progress_percent.toFixed(1) + '%';
+                }
+            } catch (error) {
+                console.error('Error loading OCR progress:', error);
+            }
+        }
+
+        // Save memory/note
+        async function saveMemory() {
+            const key = document.getElementById('memory-key').value;
+            const value = document.getElementById('memory-value').value;
+
+            if (!key || !value) {
+                alert('Please enter both a title and content');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/mcp/memory', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({key, value})
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Note saved!');
+                    document.getElementById('memory-key').value = '';
+                    document.getElementById('memory-value').value = '';
+                    loadMemories();
+                }
+            } catch (error) {
+                console.error('Error saving memory:', error);
+            }
+        }
+
+        // Load all memories
+        async function loadMemories() {
+            try {
+                const response = await fetch('/api/mcp/memory');
+                const result = await response.json();
+
+                if (result.success) {
+                    const memoryList = document.getElementById('memory-list');
+                    const memories = result.data;
+
+                    if (Object.keys(memories).length === 0) {
+                        memoryList.innerHTML = '<p style="text-align: center; color: #999;">No notes saved yet</p>';
+                        return;
+                    }
+
+                    memoryList.innerHTML = '';
+                    for (const [key, data] of Object.entries(memories)) {
+                        const item = document.createElement('div');
+                        item.className = 'memory-item';
+                        item.innerHTML = `
+                            <div class="memory-key">${key}</div>
+                            <div class="memory-value">${data.value}</div>
+                            <div class="memory-time">Saved: ${new Date(data.timestamp).toLocaleString()}</div>
+                        `;
+                        memoryList.appendChild(item);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading memories:', error);
+            }
+        }
+
+        // Search entities
+        async function searchEntities() {
+            const entityType = document.getElementById('entity-type').value;
+            const resultsDiv = document.getElementById('entity-results');
+            resultsDiv.innerHTML = '<p>Loading...</p>';
+
+            try {
+                const response = await fetch(`/api/mcp/entities/${entityType}?limit=20`);
+                const result = await response.json();
+
+                if (result.success && result.data && result.data.length > 0) {
+                    resultsDiv.innerHTML = `<p style="margin-bottom: 10px;">Found ${result.count} entities:</p>`;
+                    result.data.forEach(entity => {
+                        const item = document.createElement('div');
+                        item.className = 'memory-item';
+                        item.innerHTML = `
+                            <strong>${entity.name}</strong>
+                            <span style="color: #999; margin-left: 10px;">(${entity.mention_count || 0} mentions)</span>
+                        `;
+                        resultsDiv.appendChild(item);
+                    });
+                } else {
+                    resultsDiv.innerHTML = '<p style="color: #999;">No entities found</p>';
+                }
+            } catch (error) {
+                console.error('Error searching entities:', error);
+                resultsDiv.innerHTML = '<p style="color: #f44336;">Error loading entities</p>';
+            }
+        }
+
+        // Load data on page load
+        refreshOCRProgress();
+        loadMemories();
+    </script>
+</body>
+</html>

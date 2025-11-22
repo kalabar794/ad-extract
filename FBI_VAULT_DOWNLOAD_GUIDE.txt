@@ -1,0 +1,77 @@
+======================================================================
+FBI VAULT - MANUAL DOWNLOAD GUIDE
+======================================================================
+
+The FBI vault uses Cloudflare anti-bot protection, which blocks automated
+downloads. Follow these steps to manually download the files:
+
+======================================================================
+STEP 1: DOWNLOAD FILES MANUALLY
+======================================================================
+
+Visit the FBI Vault Epstein page:
+https://vault.fbi.gov/jeffrey-epstein
+
+You'll see 22 parts listed. Download each one:
+
+1. Click on "Jeffrey Epstein Part 01 of 22"
+2. Click the "Download" link on the page
+3. Save the PDF to: /Users/jonathon/Auto1111/Claude/fbi_vault_epstein/
+4. Repeat for parts 02-22
+
+Alternative - Direct Links (may still require browser):
+1. https://vault.fbi.gov/jeffrey-epstein/Jeffrey%20Epstein%20Part%2001%20of%2022/@@download/file
+2. https://vault.fbi.gov/jeffrey-epstein/Jeffrey%20Epstein%20Part%2002%20of%2022/@@download/file
+3. https://vault.fbi.gov/jeffrey-epstein/Jeffrey%20Epstein%20Part%2003%20of%2022/@@download/file
+... (continue through part 22)
+
+======================================================================
+STEP 2: IMPORT TO DATABASE
+======================================================================
+
+Once you've downloaded the PDFs to fbi_vault_epstein/, run:
+
+    python3 bulk_import.py fbi_vault_epstein
+
+This will:
+1. Extract text from all PDFs
+2. Import them into database.db
+3. Run entity extraction (names, locations, organizations, dates)
+4. Make them searchable in the web interface
+
+======================================================================
+FILE DETAILS
+======================================================================
+
+The FBI Epstein files contain:
+- Investigation reports
+- Witness interviews
+- Evidence documentation
+- Flight logs cross-references
+- Financial transaction records
+- Communication intercepts
+
+Total: ~2,000 pages across 22 PDF files
+
+======================================================================
+ALTERNATIVE: USE BROWSER AUTOMATION
+======================================================================
+
+If you have Chrome/Firefox installed, you could use a browser automation
+tool like Playwright or Selenium:
+
+    python3 -m playwright install chromium
+    python3 download_fbi_vault_with_browser.py
+
+(Note: Would need to create this script with browser automation)
+
+======================================================================
+QUICK START
+======================================================================
+
+1. Open https://vault.fbi.gov/jeffrey-epstein in your browser
+2. Download all 22 parts to fbi_vault_epstein/
+3. Run: python3 bulk_import.py fbi_vault_epstein
+4. View in web interface at http://localhost:5001
+
+======================================================================
