@@ -469,6 +469,26 @@
     </header>
 
     <div class="container">
+        <!-- NEW FEATURE BANNER -->
+        <div style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); padding: 20px 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 32px rgba(255, 152, 0, 0.3); cursor: pointer;" onclick="window.location.href='/contradictions'">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div style="font-size: 48px;">⚠️</div>
+                <div style="flex: 1;">
+                    <div style="font-size: 20px; font-weight: bold; color: white; margin-bottom: 5px;">
+                        🎉 NEW: Automated Contradiction Detection Engine
+                    </div>
+                    <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+                        AI-powered system that automatically finds contradictions in testimonies, depositions, and documents. Click to analyze your data!
+                    </div>
+                </div>
+                <div>
+                    <button style="padding: 12px 24px; background: white; color: #ff9800; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                        Launch →
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-number" id="stat-documents">0</div>
@@ -482,6 +502,10 @@
                 <div class="stat-number" id="stat-entities">0</div>
                 <div class="stat-label">Entities Extracted</div>
             </div>
+            <div class="stat-card" onclick="window.location.href='/contradictions'" style="cursor: pointer;">
+                <div class="stat-number" id="stat-contradictions" style="color: #ff9800;">0</div>
+                <div class="stat-label">⚠️ Contradictions Detected</div>
+            </div>
         </div>
 
         <div class="tabs">
@@ -489,6 +513,7 @@
             <button class="tab" onclick="switchTab('search')">Search</button>
             <button class="tab" onclick="switchTab('ai-journalist')" style="background: #f50057; color: white; font-weight: bold; font-size: 16px;">🎯 AI JOURNALIST</button>
             <button class="tab" onclick="switchTab('ai-investigation')" style="background: #d32f2f; color: white;">🤖 AI Investigation</button>
+            <button class="tab" onclick="window.location.href='/contradictions'" style="background: #ff9800; color: white; font-weight: bold;">⚠️ CONTRADICTIONS</button>
             <button class="tab" onclick="switchTab('flight-logs')" style="background: #ff6f00; color: white;">✈️ Flight Logs</button>
             <button class="tab" onclick="switchTab('email-intelligence')" style="background: #1976d2; color: white;">📧 Email Intelligence</button>
             <button class="tab" onclick="switchTab('financial-tracker')" style="background: #4caf50; color: white;">💰 Financial Tracker</button>
@@ -1118,6 +1143,16 @@
                 document.getElementById('stat-entities').textContent = data.entities;
             } catch (error) {
                 console.error('Failed to load stats:', error);
+            }
+
+            // Load contradiction stats
+            try {
+                const contradictionResponse = await fetch('/api/contradictions/stats');
+                const contradictionData = await contradictionResponse.json();
+                document.getElementById('stat-contradictions').textContent = contradictionData.total_contradictions || 0;
+            } catch (error) {
+                // Silently fail if contradictions haven't been initialized yet
+                document.getElementById('stat-contradictions').textContent = '—';
             }
         }
 
