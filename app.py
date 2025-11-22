@@ -1124,6 +1124,11 @@ def investigate_page():
     """AI Investigation Dashboard"""
     return render_template('investigate.html')
 
+@app.route('/contradictions')
+def contradictions_page():
+    """Contradiction Detection Dashboard"""
+    return render_template('contradictions.html')
+
 @app.route('/mcp')
 def mcp_dashboard():
     """MCP Investigation Tools Dashboard"""
@@ -1357,6 +1362,130 @@ def api_advanced_search_fixed():
     docs = [dict(row) for row in c.fetchall()]
     conn.close()
     return jsonify({'documents': docs, 'count': len(docs)})
+
+# ============================================================================
+# CONTRADICTION DETECTION ROUTES
+# ============================================================================
+
+@app.route('/api/contradictions/init', methods=['POST'])
+def api_init_contradictions():
+    """Initialize contradiction detection tables"""
+    from contradiction_detector import init_contradiction_tables
+    try:
+        init_contradiction_tables()
+        return jsonify({'success': True, 'message': 'Contradiction detection tables initialized'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/contradictions/process/<int:doc_id>', methods=['POST'])
+def api_process_document_contradictions(doc_id):
+    """Process a specific document for contradictions"""
+    from contradiction_detector import process_document_for_contradictions
+    try:
+        speaker = request.json.get('speaker') if request.json else None
+        result = process_document_for_contradictions(doc_id, speaker)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/contradictions/process-all', methods=['POST'])
+def api_process_all_contradictions():
+    """Process all documents for contradictions"""
+    from contradiction_detector import process_all_documents
+    try:
+        results = process_all_documents()
+        total_claims = sum(r.get('claims_extracted', 0) for r in results)
+        total_contradictions = sum(r.get('contradictions_found', 0) for r in results)
+        return jsonify({
+            'success': True,
+            'documents_processed': len(results),
+            'total_claims': total_claims,
+            'total_contradictions': total_contradictions,
+            'details': results
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/contradictions', methods=['GET'])
+def api_get_contradictions():
+    """Get all contradictions with optional filters"""
+    from contradiction_detector import get_all_contradictions
+    try:
+        min_confidence = float(request.args.get('confidence', 0.5))
+        severity = request.args.get('severity')
+        contradictions = get_all_contradictions(min_confidence, severity)
+        return jsonify({'contradictions': contradictions, 'count': len(contradictions)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/contradictions/stats', methods=['GET'])
+def api_contradiction_stats():
+    """Get contradiction detection statistics"""
+    from contradiction_detector import get_contradiction_stats
+    try:
+        stats = get_contradiction_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/contradictions/high-priority', methods=['GET'])
+def api_high_priority_contradictions():
+    """Get high-priority contradictions (high severity, high confidence)"""
+    from contradiction_detector import get_all_contradictions
+    try:
+        contradictions = get_all_contradictions(min_confidence=0.7, severity='high')
+        return jsonify({'contradictions': contradictions, 'count': len(contradictions)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/contradictions/by-speaker/<speaker>', methods=['GET'])
+def api_contradictions_by_speaker(speaker):
+    """Get contradictions involving a specific speaker"""
+    from contradiction_detector import get_db
+    try:
+        conn = get_db()
+        c = conn.cursor()
+
+        c.execute('''SELECT c.*,
+                            cl1.claim_text as claim1_text, cl1.speaker as speaker1,
+                            cl2.claim_text as claim2_text, cl2.speaker as speaker2,
+                            d1.filename as doc1_filename,
+                            d2.filename as doc2_filename
+                     FROM contradictions c
+                     JOIN claims cl1 ON c.claim1_id = cl1.id
+                     JOIN claims cl2 ON c.claim2_id = cl2.id
+                     JOIN documents d1 ON cl1.source_doc_id = d1.id
+                     JOIN documents d2 ON cl2.source_doc_id = d2.id
+                     WHERE cl1.speaker = ? OR cl2.speaker = ?
+                     ORDER BY c.severity DESC, c.confidence_score DESC''',
+                  (speaker, speaker))
+
+        contradictions = [dict(row) for row in c.fetchall()]
+        conn.close()
+
+        return jsonify({'contradictions': contradictions, 'count': len(contradictions), 'speaker': speaker})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/contradictions/verify/<int:contradiction_id>', methods=['POST'])
+def api_verify_contradiction(contradiction_id):
+    """Mark a contradiction as verified by investigator"""
+    from contradiction_detector import get_db
+    try:
+        data = request.json or {}
+        notes = data.get('notes', '')
+
+        conn = get_db()
+        c = conn.cursor()
+        c.execute('''UPDATE contradictions
+                     SET verified = 1, investigator_notes = ?
+                     WHERE id = ?''', (notes, contradiction_id))
+        conn.commit()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'Contradiction verified'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     init_db()
