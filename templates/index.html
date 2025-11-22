@@ -515,6 +515,7 @@
             <button class="tab" onclick="switchTab('ai-investigation')" style="background: #d32f2f; color: white;">🤖 AI Investigation</button>
             <button class="tab" onclick="window.location.href='/contradictions'" style="background: #ff9800; color: white; font-weight: bold;">⚠️ CONTRADICTIONS</button>
             <button class="tab" onclick="switchTab('leads')" style="background: #e91e63; color: white; font-weight: bold;">🎯 LEADS</button>
+            <button class="tab" onclick="switchTab('images')" style="background: #9c27b0; color: white; font-weight: bold;">📸 IMAGES</button>
             <button class="tab" onclick="switchTab('flight-logs')" style="background: #ff6f00; color: white;">✈️ Flight Logs</button>
             <button class="tab" onclick="switchTab('email-intelligence')" style="background: #1976d2; color: white;">📧 Email Intelligence</button>
             <button class="tab" onclick="switchTab('financial-tracker')" style="background: #4caf50; color: white;">💰 Financial Tracker</button>
@@ -1079,6 +1080,82 @@
             <div id="leads-results" style="background: #2d2d2d; padding: 20px; border-radius: 8px;">
                 <div style="text-align: center; padding: 40px; color: #999;">
                     Click "Generate Leads" to analyze all evidence and create prioritized investigation leads
+                </div>
+            </div>
+        </div>
+
+        <!-- IMAGES TAB - AI-POWERED VISUAL INTELLIGENCE -->
+        <div id="images-tab" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: #9c27b0;">📸 Visual Intelligence <span style="font-size: 14px; background: #4caf50; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold;">AI-POWERED</span></h2>
+            <p style="color: #999; margin-bottom: 30px;">AI-powered image analysis: face detection, EXIF metadata extraction, location tracking, scene classification, and suspicious image flagging.</p>
+
+            <div class="stats" style="margin-bottom: 30px;">
+                <div class="stat-card" style="border-left-color: #9c27b0;">
+                    <div class="stat-number" id="images-analyzed">0</div>
+                    <div class="stat-label">Images Analyzed</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #2196f3;">
+                    <div class="stat-number" id="images-with-faces">0</div>
+                    <div class="stat-label">With Faces</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #ff9800;">
+                    <div class="stat-number" id="images-suspicious">0</div>
+                    <div class="stat-label">Suspicious</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #4caf50;">
+                    <div class="stat-number" id="images-with-location">0</div>
+                    <div class="stat-label">GPS Location</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #f44336;">
+                    <div class="stat-number" id="total-faces-detected">0</div>
+                    <div class="stat-label">Total Faces</div>
+                </div>
+            </div>
+
+            <div style="background: #2d2d2d; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button onclick="initializeVisualIntelligence()" style="padding: 12px 20px; background: #2196f3; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        1. Initialize System
+                    </button>
+                    <button onclick="analyzeAllImages()" style="padding: 12px 20px; background: #9c27b0; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                        2. Analyze All Images
+                    </button>
+                    <button onclick="findSimilarImages()" style="padding: 12px 20px; background: #ff9800; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        Find Similar/Duplicates
+                    </button>
+                    <button onclick="loadAnalyzedImages()" style="padding: 12px 20px; background: #4caf50; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        Refresh
+                    </button>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <label style="color: #aaa;">Filter:</label>
+                    <label style="color: #ccc; display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="filter-has-faces" onchange="loadAnalyzedImages()">
+                        Has Faces
+                    </label>
+                    <label style="color: #ccc; display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="filter-has-location" onchange="loadAnalyzedImages()">
+                        Has GPS Location
+                    </label>
+                    <label style="color: #ccc; display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="filter-suspicious" onchange="loadAnalyzedImages()">
+                        Suspicious Only
+                    </label>
+                    <select id="scene-type-filter" onchange="loadAnalyzedImages()" style="padding: 8px 12px; background: #1a1a1a; border: 1px solid #3d3d3d; color: white; border-radius: 4px;">
+                        <option value="">All Scenes</option>
+                        <option value="outdoor/sky">Outdoor/Sky</option>
+                        <option value="outdoor/vegetation">Outdoor/Vegetation</option>
+                        <option value="indoor/bright">Indoor/Bright</option>
+                        <option value="indoor/dark">Indoor/Dark</option>
+                        <option value="document/scan">Document/Scan</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="images-results" style="background: #2d2d2d; padding: 20px; border-radius: 8px;">
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    Click "Analyze All Images" to process photos with AI face detection, metadata extraction, and suspicious content flagging
                 </div>
             </div>
         </div>
@@ -3219,6 +3296,300 @@
                 document.getElementById('leads-resolved').textContent = stats.by_status?.resolved || 0;
             } catch (error) {
                 console.error('Error loading lead stats:', error);
+            }
+        }
+
+        // =============================================================================
+        // VISUAL INTELLIGENCE - AI-POWERED IMAGE ANALYSIS
+        // =============================================================================
+
+        async function initializeVisualIntelligence() {
+            if (!confirm('Initialize Visual Intelligence system?\n\nThis will create database tables for image analysis.')) return;
+
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Initializing...';
+
+            try {
+                const response = await fetch('/api/visual-intelligence/init', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✓ Visual Intelligence initialized!\n\nNow click "Analyze All Images" to process photos.');
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                button.disabled = false;
+                button.textContent = '1. Initialize System';
+            }
+        }
+
+        async function analyzeAllImages() {
+            if (!confirm('Analyze all images with AI?\n\nThis will:\n• Detect faces using OpenCV\n• Extract EXIF metadata\n• Detect GPS locations\n• Classify scenes\n• Flag suspicious images\n\nThis may take several minutes for large image collections.')) return;
+
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Analyzing...';
+
+            const resultsDiv = document.getElementById('images-results');
+            resultsDiv.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+                    <div style="color: #9c27b0; font-size: 18px; margin-bottom: 10px;">Analyzing images with AI...</div>
+                    <div style="color: #999;">Please wait. This may take a few minutes.</div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/visual-intelligence/analyze-all', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✓ Analysis Complete!\n\n` +
+                          `Processed: ${data.processed} images\n` +
+                          `Failed: ${data.failed}\n` +
+                          `Total Faces: ${data.total_faces}\n` +
+                          `Suspicious: ${data.suspicious_images}`);
+                    loadVisualIntelligenceStats();
+                    loadAnalyzedImages();
+                } else {
+                    alert('Error: ' + (data.error || data.message));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+                resultsDiv.innerHTML = `<div style="color: #d32f2f; padding: 20px;">Error: ${error.message}</div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = '2. Analyze All Images';
+            }
+        }
+
+        async function findSimilarImages() {
+            if (!confirm('Find similar or duplicate images?\n\nThis uses perceptual hashing to identify visually similar images.')) return;
+
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Searching...';
+
+            try {
+                const response = await fetch('/api/visual-intelligence/find-similar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ min_similarity: 0.9 })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✓ Similar Image Search Complete!\n\n` +
+                          `Found ${data.pairs_found} similar/duplicate pairs\n` +
+                          `Images compared: ${data.images_compared}`);
+                    loadAnalyzedImages();
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Find Similar/Duplicates';
+            }
+        }
+
+        async function loadAnalyzedImages() {
+            const resultsDiv = document.getElementById('images-results');
+            resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Loading analyzed images...</div>';
+
+            try {
+                // Build query params from filters
+                const params = new URLSearchParams();
+
+                if (document.getElementById('filter-has-faces').checked) {
+                    params.append('has_faces', 'true');
+                }
+                if (document.getElementById('filter-has-location').checked) {
+                    params.append('has_location', 'true');
+                }
+                if (document.getElementById('filter-suspicious').checked) {
+                    params.append('min_suspicious_score', '0.5');
+                }
+                const sceneType = document.getElementById('scene-type-filter').value;
+                if (sceneType) {
+                    params.append('scene_type', sceneType);
+                }
+                params.append('limit', '100');
+
+                const response = await fetch(`/api/visual-intelligence/analyzed-images?${params}`);
+                const data = await response.json();
+
+                if (!data.images || data.images.length === 0) {
+                    resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No analyzed images found. Click "Analyze All Images" to start.</div>';
+                    return;
+                }
+
+                let html = `<div style="color: #999; margin-bottom: 20px;">Found ${data.count} analyzed images</div>`;
+
+                data.images.forEach(img => {
+                    const suspiciousColor = img.suspicious_score >= 0.7 ? '#d32f2f' : img.suspicious_score >= 0.5 ? '#ff9800' : '#4caf50';
+                    const suspiciousLabel = img.suspicious_score >= 0.7 ? 'HIGH' : img.suspicious_score >= 0.5 ? 'MEDIUM' : 'LOW';
+
+                    html += `
+                        <div style="background: #1a1a1a; padding: 20px; margin-bottom: 15px; border-radius: 8px; border-left: 4px solid ${suspiciousColor};">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <strong style="color: #9c27b0; font-size: 16px;">${img.filename}</strong>
+                                    <div style="margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                        <span style="background: ${suspiciousColor}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">
+                                            SUSPICION: ${suspiciousLabel} (${Math.round(img.suspicious_score * 100)}%)
+                                        </span>
+                                        ${img.faces_detected > 0 ? `
+                                            <span style="background: #2196f3; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px;">
+                                                👤 ${img.faces_detected} Face${img.faces_detected > 1 ? 's' : ''}
+                                            </span>
+                                        ` : ''}
+                                        ${img.location_lat ? `
+                                            <span style="background: #4caf50; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px;">
+                                                📍 GPS: ${img.location_lat.toFixed(4)}, ${img.location_lon.toFixed(4)}
+                                            </span>
+                                        ` : ''}
+                                        <span style="background: #666; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px;">
+                                            ${img.scene_type}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="text-align: right; color: #999; font-size: 14px;">
+                                    ${img.width}×${img.height}
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                                <div>
+                                    <img src="/api/documents/${img.doc_id}"
+                                         style="width: 100%; max-height: 300px; object-fit: contain; background: #000; border-radius: 4px; cursor: pointer;"
+                                         onclick="viewDocument(${img.doc_id})"
+                                         onerror="this.style.display='none'">
+                                </div>
+                                <div style="color: #ccc; font-size: 14px; line-height: 1.8;">
+                                    ${img.camera_make ? `<div><strong>Camera:</strong> ${img.camera_make} ${img.camera_model || ''}</div>` : ''}
+                                    ${img.date_taken ? `<div><strong>Date Taken:</strong> ${img.date_taken}</div>` : ''}
+                                    ${img.file_size ? `<div><strong>Size:</strong> ${(img.file_size / 1024 / 1024).toFixed(2)} MB</div>` : ''}
+                                    ${img.image_hash ? `<div><strong>Hash:</strong> ${img.image_hash.substring(0, 16)}...</div>` : ''}
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #3d3d3d;">
+                                <button onclick="viewImageAnalysis(${img.doc_id})" style="padding: 8px 16px; background: #9c27b0; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                                    📊 Full Analysis
+                                </button>
+                                <button onclick="viewDocument(${img.doc_id})" style="padding: 8px 16px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    👁️ View Image
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div style="color: #d32f2f; padding: 20px;">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function viewImageAnalysis(docId) {
+            try {
+                const response = await fetch(`/api/visual-intelligence/analysis/${docId}`);
+                const analysis = await response.json();
+
+                if (analysis.error) {
+                    alert('No analysis found for this image');
+                    return;
+                }
+
+                let html = `
+                    <h2 style="color: #9c27b0; margin-bottom: 20px;">📸 Image Analysis Report</h2>
+
+                    <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="color: #fff; margin-bottom: 15px;">Basic Information</h3>
+                        <div style="color: #ccc; line-height: 2;">
+                            <div><strong>Image ID:</strong> ${analysis.doc_id}</div>
+                            <div><strong>Dimensions:</strong> ${analysis.width}×${analysis.height}</div>
+                            <div><strong>File Size:</strong> ${(analysis.file_size / 1024 / 1024).toFixed(2)} MB</div>
+                            <div><strong>Scene Type:</strong> ${analysis.scene_type}</div>
+                            <div><strong>Suspicion Score:</strong> ${Math.round(analysis.suspicious_score * 100)}%</div>
+                        </div>
+                    </div>
+
+                    ${analysis.faces_detected > 0 ? `
+                        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 style="color: #2196f3; margin-bottom: 15px;">👤 Face Detection (${analysis.faces_detected} detected)</h3>
+                            ${analysis.faces.map((face, i) => `
+                                <div style="background: #2d2d2d; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
+                                    <div style="color: #fff;"><strong>Face #${face.face_number}</strong></div>
+                                    <div style="color: #ccc; font-size: 14px;">
+                                        Position: (${face.x}, ${face.y}), Size: ${face.width}×${face.height}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${analysis.location_lat ? `
+                        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 style="color: #4caf50; margin-bottom: 15px;">📍 GPS Location</h3>
+                            <div style="color: #ccc; line-height: 2;">
+                                <div><strong>Latitude:</strong> ${analysis.location_lat}</div>
+                                <div><strong>Longitude:</strong> ${analysis.location_lon}</div>
+                                <div><a href="https://www.google.com/maps?q=${analysis.location_lat},${analysis.location_lon}" target="_blank" style="color: #4caf50;">View on Google Maps</a></div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${analysis.camera_make ? `
+                        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 style="color: #ff9800; margin-bottom: 15px;">📷 EXIF Metadata</h3>
+                            <div style="color: #ccc; line-height: 2;">
+                                <div><strong>Camera:</strong> ${analysis.camera_make} ${analysis.camera_model || ''}</div>
+                                ${analysis.date_taken ? `<div><strong>Date Taken:</strong> ${analysis.date_taken}</div>` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${analysis.similar_images && analysis.similar_images.length > 0 ? `
+                        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 style="color: #e91e63; margin-bottom: 15px;">🔍 Similar Images (${analysis.similar_images.length})</h3>
+                            ${analysis.similar_images.map(sim => `
+                                <div style="background: #2d2d2d; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
+                                    <div style="color: #fff;">Document #${sim.similar_doc_id}</div>
+                                    <div style="color: #ccc; font-size: 14px;">
+                                        Similarity: ${Math.round(sim.similarity_score * 100)}% (${sim.match_type})
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+
+                document.getElementById('modal-body').innerHTML = html;
+                document.getElementById('modal').style.display = 'block';
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function loadVisualIntelligenceStats() {
+            try {
+                const response = await fetch('/api/visual-intelligence/stats');
+                const stats = await response.json();
+
+                document.getElementById('images-analyzed').textContent = stats.total_analyzed || 0;
+                document.getElementById('images-with-faces').textContent = stats.images_with_faces || 0;
+                document.getElementById('images-suspicious').textContent = stats.suspicious_images || 0;
+                document.getElementById('images-with-location').textContent = stats.images_with_location || 0;
+                document.getElementById('total-faces-detected').textContent = stats.total_faces || 0;
+            } catch (error) {
+                console.error('Error loading visual intelligence stats:', error);
             }
         }
     </script>

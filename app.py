@@ -1714,6 +1714,88 @@ def api_lead_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# =============================================================================
+# VISUAL INTELLIGENCE - AI-POWERED IMAGE ANALYSIS
+# =============================================================================
+
+@app.route('/api/visual-intelligence/init', methods=['POST'])
+def api_init_visual_intelligence():
+    """Initialize visual intelligence tables"""
+    from visual_intelligence import init_visual_intelligence_tables
+    try:
+        init_visual_intelligence_tables()
+        return jsonify({'success': True, 'message': 'Visual intelligence initialized'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/visual-intelligence/analyze-all', methods=['POST'])
+def api_analyze_all_images():
+    """Analyze all images in database"""
+    from visual_intelligence import analyze_all_images
+    try:
+        result = analyze_all_images()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/visual-intelligence/analysis/<int:doc_id>', methods=['GET'])
+def api_get_image_analysis(doc_id):
+    """Get analysis for a specific image"""
+    from visual_intelligence import get_image_analysis
+    try:
+        analysis = get_image_analysis(doc_id)
+        if analysis:
+            return jsonify(analysis)
+        else:
+            return jsonify({'error': 'No analysis found for this image'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/visual-intelligence/analyzed-images', methods=['GET'])
+def api_get_analyzed_images():
+    """Get all analyzed images with optional filters"""
+    from visual_intelligence import get_all_analyzed_images
+    try:
+        filters = {}
+        if request.args.get('has_faces') == 'true':
+            filters['has_faces'] = True
+        if request.args.get('has_location') == 'true':
+            filters['has_location'] = True
+        if request.args.get('min_suspicious_score'):
+            filters['min_suspicious_score'] = float(request.args.get('min_suspicious_score'))
+        if request.args.get('scene_type'):
+            filters['scene_type'] = request.args.get('scene_type')
+        if request.args.get('limit'):
+            filters['limit'] = int(request.args.get('limit'))
+
+        images = get_all_analyzed_images(filters)
+        return jsonify({'images': images, 'count': len(images)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/visual-intelligence/find-similar', methods=['POST'])
+def api_find_similar_images():
+    """Find similar or duplicate images"""
+    from visual_intelligence import find_similar_images
+    try:
+        data = request.json or {}
+        min_similarity = data.get('min_similarity', 0.9)
+
+        result = find_similar_images(min_similarity)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/visual-intelligence/stats', methods=['GET'])
+def api_visual_intelligence_stats():
+    """Get visual intelligence statistics"""
+    from visual_intelligence import get_visual_intelligence_stats
+    try:
+        stats = get_visual_intelligence_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     init_db()
     print("=" * 50)
