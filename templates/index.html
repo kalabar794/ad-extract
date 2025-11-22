@@ -548,8 +548,60 @@
         </div>
 
         <div id="search-tab" class="tab-content">
-            <h2 style="margin-bottom: 20px;">Search Documents</h2>
-            <input type="text" class="search-box" id="search-input" placeholder="Search for keywords...">
+            <h2 style="margin-bottom: 20px;">🔍 Smart Search <span style="font-size: 14px; background: #2196f3; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold;">AI-POWERED</span></h2>
+
+            <!-- Search Mode Selector -->
+            <div style="background: #2d2d2d; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <label style="color: #aaa; font-weight: bold;">Search Mode:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="mode-keyword" onclick="setSearchMode('keyword')" style="padding: 10px 20px; background: #555; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s;">
+                            📝 Keyword
+                        </button>
+                        <button id="mode-semantic" onclick="setSearchMode('semantic')" class="active" style="padding: 10px 20px; background: #2196f3; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s;">
+                            🧠 Semantic (AI)
+                        </button>
+                        <button id="mode-hybrid" onclick="setSearchMode('hybrid')" style="padding: 10px 20px; background: #555; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s;">
+                            ⚡ Hybrid
+                        </button>
+                    </div>
+                </div>
+
+                <div id="search-mode-description" style="color: #888; font-size: 13px; padding: 10px; background: #1a1a1a; border-radius: 4px;">
+                    <strong style="color: #2196f3;">Semantic Search:</strong> Finds documents by meaning, not just exact keywords. Try: "evidence of trafficking", "payments to young women", "meetings at the mansion"
+                </div>
+            </div>
+
+            <!-- Search Input -->
+            <input type="text" class="search-box" id="search-input" placeholder="Try: 'flights to the island', 'suspicious financial activity', 'witness testimonies'..." onkeypress="if(event.key==='Enter') performSmartSearch()">
+
+            <!-- Search Actions -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button onclick="performSmartSearch()" style="flex: 1; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                    🔍 Search
+                </button>
+                <button onclick="showSemanticSearchSetup()" style="padding: 15px 20px; background: #555; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    ⚙️ Setup
+                </button>
+            </div>
+
+            <!-- Search Stats -->
+            <div id="search-stats" style="display: none; background: #2d2d2d; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="color: #888;">Embeddings: </span>
+                        <span id="embeddings-count" style="color: #2196f3; font-weight: bold;">0</span>
+                        <span style="color: #888;"> / </span>
+                        <span id="documents-count" style="color: #fff;">0</span>
+                        <span style="color: #888;"> documents</span>
+                    </div>
+                    <div style="color: #4caf50; font-weight: bold;">
+                        <span id="coverage-percentage">0</span>% Ready
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results -->
             <div id="search-results"></div>
         </div>
 
@@ -1101,6 +1153,238 @@
             });
         }
 
+        // Semantic Search Variables
+        let currentSearchMode = 'semantic';
+
+        function setSearchMode(mode) {
+            currentSearchMode = mode;
+
+            // Update button styles
+            document.getElementById('mode-keyword').style.background = mode === 'keyword' ? '#2196f3' : '#555';
+            document.getElementById('mode-semantic').style.background = mode === 'semantic' ? '#2196f3' : '#555';
+            document.getElementById('mode-hybrid').style.background = mode === 'hybrid' ? '#2196f3' : '#555';
+
+            // Update description
+            const descriptions = {
+                'keyword': '<strong style="color: #fff;">Keyword Search:</strong> Traditional exact-match search. Fastest, but may miss relevant documents.',
+                'semantic': '<strong style="color: #2196f3;">Semantic Search:</strong> Finds documents by meaning, not just exact keywords. Try: "evidence of trafficking", "payments to young women", "meetings at the mansion"',
+                'hybrid': '<strong style="color: #ff9800;">Hybrid Search:</strong> Combines keyword matching with AI semantic understanding for best results.'
+            };
+            document.getElementById('search-mode-description').innerHTML = descriptions[mode];
+        }
+
+        async function performSmartSearch() {
+            const query = document.getElementById('search-input').value;
+            const container = document.getElementById('search-results');
+
+            if (!query.trim()) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><p>Enter a search term to begin</p></div>';
+                return;
+            }
+
+            container.innerHTML = '<div class="loading">🔍 Searching...</div>';
+
+            try {
+                let endpoint, data;
+
+                if (currentSearchMode === 'semantic') {
+                    const response = await fetch(`/api/semantic-search/search?q=${encodeURIComponent(query)}&limit=20`);
+                    data = await response.json();
+                } else if (currentSearchMode === 'hybrid') {
+                    const response = await fetch(`/api/semantic-search/hybrid?q=${encodeURIComponent(query)}&limit=20`);
+                    data = await response.json();
+                } else {
+                    const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+                    data = await response.json();
+                }
+
+                if (data.error) {
+                    if (data.error.includes('no such table') || data.error.includes('embeddings')) {
+                        container.innerHTML = `
+                            <div style="background: #2d2d2d; padding: 30px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+                                <h3 style="color: #ff9800; margin-bottom: 10px;">Semantic Search Not Initialized</h3>
+                                <p style="color: #aaa; margin-bottom: 20px;">You need to set up semantic search first. This is a one-time process.</p>
+                                <button onclick="showSemanticSearchSetup()" style="padding: 12px 24px; background: #2196f3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                                    Setup Semantic Search
+                                </button>
+                            </div>
+                        `;
+                        return;
+                    }
+                    throw new Error(data.error);
+                }
+
+                const results = data.results || [];
+
+                if (results.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No results found</p></div>';
+                    return;
+                }
+
+                // Display results with relevance scores
+                container.innerHTML = '<div class="document-list">' + results.map((doc, index) => {
+                    const relevance = doc.relevance_percentage || doc.similarity_score * 100 || 50;
+                    const relevanceColor = relevance >= 70 ? '#4caf50' : relevance >= 50 ? '#ff9800' : '#999';
+
+                    return `
+                        <div class="document-item" onclick="viewDocument(${doc.doc_id})" style="position: relative;">
+                            <div style="position: absolute; top: 15px; right: 15px; background: ${relevanceColor}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                                ${Math.round(relevance)}% Match
+                            </div>
+                            <div class="doc-title">${doc.filename}</div>
+                            <div class="doc-meta">
+                                ${new Date(doc.uploaded_date).toLocaleDateString()}
+                                ${currentSearchMode === 'hybrid' ?
+                                    ` | Semantic: ${Math.round((doc.semantic_score || 0) * 100)}% | Keyword: ${Math.round((doc.keyword_score || 0) * 100)}%`
+                                    : ''}
+                            </div>
+                            <div class="snippet">${doc.content ? doc.content.substring(0, 300) + '...' : 'No preview available'}</div>
+                        </div>
+                    `;
+                }).join('') + '</div>';
+            } catch (error) {
+                container.innerHTML = `<div style="color: #f44336; background: #2d2d2d; padding: 20px; border-radius: 8px;">
+                    <strong>Search failed:</strong> ${error.message}
+                    <br><br>
+                    <button onclick="showSemanticSearchSetup()" style="padding: 10px 20px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Setup Semantic Search
+                    </button>
+                </div>`;
+            }
+        }
+
+        async function showSemanticSearchSetup() {
+            const container = document.getElementById('search-results');
+
+            container.innerHTML = `
+                <div style="background: #2d2d2d; padding: 30px; border-radius: 8px;">
+                    <h3 style="color: #2196f3; margin-bottom: 15px;">🧠 Semantic Search Setup</h3>
+                    <p style="color: #aaa; margin-bottom: 20px;">
+                        Semantic search uses AI to understand the meaning of your queries, not just match keywords.
+                        This one-time setup will analyze all your documents and create AI embeddings.
+                    </p>
+
+                    <div style="background: #1a1a1a; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #888;">Status:</span>
+                            <span id="setup-status" style="color: #ff9800; font-weight: bold;">Not Initialized</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #888;">Documents Ready:</span>
+                            <span id="setup-progress" style="color: #2196f3; font-weight: bold;">0 / 0</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button id="init-btn" onclick="initSemanticSearch()" style="flex: 1; padding: 12px; background: #2196f3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            1. Initialize System
+                        </button>
+                        <button id="generate-btn" onclick="generateEmbeddings()" disabled style="flex: 1; padding: 12px; background: #555; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            2. Generate Embeddings
+                        </button>
+                    </div>
+
+                    <div id="setup-log" style="margin-top: 20px; padding: 15px; background: #1a1a1a; border-radius: 6px; font-family: monospace; font-size: 12px; color: #4caf50; max-height: 200px; overflow-y: auto; display: none;"></div>
+                </div>
+            `;
+
+            // Load current stats
+            loadSemanticSearchStats();
+        }
+
+        async function initSemanticSearch() {
+            const btn = document.getElementById('init-btn');
+            const log = document.getElementById('setup-log');
+
+            btn.disabled = true;
+            btn.textContent = 'Initializing...';
+            log.style.display = 'block';
+            log.innerHTML = '> Initializing semantic search tables...\n';
+
+            try {
+                const response = await fetch('/api/semantic-search/init', { method: 'POST' });
+                const data = await response.json();
+
+                log.innerHTML += `> ✓ ${data.message}\n`;
+                document.getElementById('setup-status').textContent = 'Initialized';
+                document.getElementById('setup-status').style.color = '#4caf50';
+
+                // Enable next button
+                document.getElementById('generate-btn').disabled = false;
+                document.getElementById('generate-btn').style.background = '#2196f3';
+
+                btn.textContent = '✓ Initialized';
+            } catch (error) {
+                log.innerHTML += `> ✗ Error: ${error.message}\n`;
+                btn.disabled = false;
+                btn.textContent = '1. Initialize System';
+            }
+        }
+
+        async function generateEmbeddings() {
+            const btn = document.getElementById('generate-btn');
+            const log = document.getElementById('setup-log');
+
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            log.innerHTML += '\n> Generating embeddings for all documents...\n> This may take a few minutes...\n';
+
+            try {
+                const response = await fetch('/api/semantic-search/generate-embeddings', { method: 'POST' });
+                const data = await response.json();
+
+                log.innerHTML += `> ✓ Processed: ${data.processed} documents\n`;
+                if (data.failed > 0) {
+                    log.innerHTML += `> ⚠ Failed: ${data.failed} documents\n`;
+                }
+                log.innerHTML += `> ✓ Semantic search is ready!\n`;
+
+                document.getElementById('setup-status').textContent = 'Ready';
+                document.getElementById('setup-status').style.color = '#4caf50';
+                document.getElementById('setup-progress').textContent = `${data.processed} / ${data.total}`;
+
+                btn.textContent = '✓ Complete';
+                btn.style.background = '#4caf50';
+
+                // Show stats
+                document.getElementById('search-stats').style.display = 'block';
+                loadSemanticSearchStats();
+            } catch (error) {
+                log.innerHTML += `> ✗ Error: ${error.message}\n`;
+                btn.disabled = false;
+                btn.textContent = '2. Generate Embeddings';
+            }
+        }
+
+        async function loadSemanticSearchStats() {
+            try {
+                const response = await fetch('/api/semantic-search/stats');
+                const stats = await response.json();
+
+                document.getElementById('embeddings-count').textContent = stats.total_embeddings || 0;
+                document.getElementById('documents-count').textContent = stats.total_documents || 0;
+                document.getElementById('coverage-percentage').textContent = stats.coverage_percentage || 0;
+
+                if (stats.coverage_percentage > 0) {
+                    document.getElementById('search-stats').style.display = 'block';
+                }
+
+                if (document.getElementById('setup-progress')) {
+                    document.getElementById('setup-progress').textContent = `${stats.total_embeddings} / ${stats.total_documents}`;
+                }
+
+                if (stats.coverage_percentage >= 100) {
+                    if (document.getElementById('setup-status')) {
+                        document.getElementById('setup-status').textContent = 'Ready';
+                        document.getElementById('setup-status').style.color = '#4caf50';
+                    }
+                }
+            } catch (error) {
+                // Silently fail if not initialized
+            }
+        }
+
         async function performSearch(query) {
             const container = document.getElementById('search-results');
 
@@ -1131,6 +1415,11 @@
                 container.innerHTML = `<div style="color: #f44336;">Search failed: ${error.message}</div>`;
             }
         }
+
+        // Load semantic search stats when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSemanticSearchStats();
+        });
 
         // Load stats
         async function loadStats() {

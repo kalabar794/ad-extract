@@ -1487,6 +1487,88 @@ def api_verify_contradiction(contradiction_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ============================================================================
+# SEMANTIC SEARCH ROUTES
+# ============================================================================
+
+@app.route('/api/semantic-search/init', methods=['POST'])
+def api_init_semantic_search():
+    """Initialize semantic search tables"""
+    from semantic_search import init_semantic_search_tables
+    try:
+        init_semantic_search_tables()
+        return jsonify({'success': True, 'message': 'Semantic search tables initialized'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/semantic-search/generate-embeddings', methods=['POST'])
+def api_generate_embeddings():
+    """Generate embeddings for all documents"""
+    from semantic_search import generate_all_embeddings
+    try:
+        result = generate_all_embeddings()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/semantic-search/search', methods=['GET'])
+def api_semantic_search():
+    """Perform semantic search"""
+    from semantic_search import semantic_search
+    try:
+        query = request.args.get('q', '')
+        limit = int(request.args.get('limit', 20))
+        min_similarity = float(request.args.get('min_similarity', 0.3))
+
+        if not query:
+            return jsonify({'error': 'Query parameter "q" is required'}), 400
+
+        results = semantic_search(query, limit, min_similarity)
+        return jsonify({'results': results, 'count': len(results), 'query': query})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/semantic-search/hybrid', methods=['GET'])
+def api_hybrid_search():
+    """Perform hybrid search (semantic + keyword)"""
+    from semantic_search import hybrid_search
+    try:
+        query = request.args.get('q', '')
+        limit = int(request.args.get('limit', 20))
+        semantic_weight = float(request.args.get('semantic_weight', 0.7))
+
+        if not query:
+            return jsonify({'error': 'Query parameter "q" is required'}), 400
+
+        results = hybrid_search(query, limit, semantic_weight)
+        return jsonify({'results': results, 'count': len(results), 'query': query})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/semantic-search/stats', methods=['GET'])
+def api_semantic_search_stats():
+    """Get semantic search statistics"""
+    from semantic_search import get_semantic_search_stats
+    try:
+        stats = get_semantic_search_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/semantic-search/expand-query', methods=['GET'])
+def api_expand_query():
+    """Expand a query with related terms"""
+    from semantic_search import expand_query
+    try:
+        query = request.args.get('q', '')
+        if not query:
+            return jsonify({'error': 'Query parameter "q" is required'}), 400
+
+        expansions = expand_query(query)
+        return jsonify({'query': query, 'expansions': expansions})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     init_db()
     print("=" * 50)
