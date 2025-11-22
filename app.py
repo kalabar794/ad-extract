@@ -1569,6 +1569,151 @@ def api_expand_query():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ============================================================================
+# CROSS-DOCUMENT LINKING ROUTES
+# ============================================================================
+
+@app.route('/api/document-linking/init', methods=['POST'])
+def api_init_linking():
+    """Initialize document linking tables"""
+    from document_linking import init_linking_tables
+    try:
+        init_linking_tables()
+        return jsonify({'success': True, 'message': 'Document linking tables initialized'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/document-linking/build', methods=['POST'])
+def api_build_links():
+    """Build links between all documents"""
+    from document_linking import build_document_links
+    try:
+        result = build_document_links()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/document-linking/related/<int:doc_id>', methods=['GET'])
+def api_get_related_docs(doc_id):
+    """Get documents related to a specific document"""
+    from document_linking import get_related_documents
+    try:
+        min_strength = float(request.args.get('min_strength', 0.2))
+        limit = int(request.args.get('limit', 20))
+
+        related = get_related_documents(doc_id, min_strength, limit)
+        return jsonify({'related_documents': related, 'count': len(related)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/document-linking/evidence-chain/<int:doc_id>', methods=['GET'])
+def api_evidence_chain(doc_id):
+    """Build evidence chain from a document"""
+    from document_linking import build_evidence_chain
+    try:
+        entity = request.args.get('entity', '')
+        max_depth = int(request.args.get('max_depth', 5))
+
+        if not entity:
+            return jsonify({'error': 'Entity parameter required'}), 400
+
+        chains = build_evidence_chain(doc_id, entity, max_depth)
+        return jsonify({'chains': chains, 'count': len(chains)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/document-linking/citation-network', methods=['GET'])
+def api_citation_network():
+    """Get citation network for an entity"""
+    from document_linking import get_citation_network
+    try:
+        entity = request.args.get('entity', '')
+        if not entity:
+            return jsonify({'error': 'Entity parameter required'}), 400
+
+        network = get_citation_network(entity)
+        return jsonify(network)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/document-linking/stats', methods=['GET'])
+def api_linking_stats():
+    """Get document linking statistics"""
+    from document_linking import get_linking_stats
+    try:
+        stats = get_linking_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# LEAD PRIORITIZATION ROUTES
+# ============================================================================
+
+@app.route('/api/leads/init', methods=['POST'])
+def api_init_leads():
+    """Initialize lead prioritization tables"""
+    from lead_prioritizer import init_leads_tables
+    try:
+        init_leads_tables()
+        return jsonify({'success': True, 'message': 'Lead prioritization tables initialized'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/leads/generate', methods=['POST'])
+def api_generate_leads():
+    """Generate investigative leads from all sources"""
+    from lead_prioritizer import generate_all_leads
+    try:
+        result = generate_all_leads()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/leads', methods=['GET'])
+def api_get_leads():
+    """Get prioritized leads"""
+    from lead_prioritizer import get_prioritized_leads
+    try:
+        status = request.args.get('status')
+        lead_type = request.args.get('type')
+        limit = int(request.args.get('limit', 50))
+
+        leads = get_prioritized_leads(status, lead_type, limit)
+        return jsonify({'leads': leads, 'count': len(leads)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/leads/<int:lead_id>/status', methods=['POST'])
+def api_update_lead_status(lead_id):
+    """Update lead status"""
+    from lead_prioritizer import update_lead_status
+    try:
+        data = request.json or {}
+        status = data.get('status')
+        notes = data.get('notes')
+
+        if not status:
+            return jsonify({'error': 'Status required'}), 400
+
+        success = update_lead_status(lead_id, status, notes)
+        if success:
+            return jsonify({'success': True, 'message': 'Lead status updated'})
+        else:
+            return jsonify({'error': 'Lead not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/leads/stats', methods=['GET'])
+def api_lead_stats():
+    """Get lead statistics"""
+    from lead_prioritizer import get_lead_stats
+    try:
+        stats = get_lead_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     init_db()
     print("=" * 50)

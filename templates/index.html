@@ -514,6 +514,7 @@
             <button class="tab" onclick="switchTab('ai-journalist')" style="background: #f50057; color: white; font-weight: bold; font-size: 16px;">🎯 AI JOURNALIST</button>
             <button class="tab" onclick="switchTab('ai-investigation')" style="background: #d32f2f; color: white;">🤖 AI Investigation</button>
             <button class="tab" onclick="window.location.href='/contradictions'" style="background: #ff9800; color: white; font-weight: bold;">⚠️ CONTRADICTIONS</button>
+            <button class="tab" onclick="switchTab('leads')" style="background: #e91e63; color: white; font-weight: bold;">🎯 LEADS</button>
             <button class="tab" onclick="switchTab('flight-logs')" style="background: #ff6f00; color: white;">✈️ Flight Logs</button>
             <button class="tab" onclick="switchTab('email-intelligence')" style="background: #1976d2; color: white;">📧 Email Intelligence</button>
             <button class="tab" onclick="switchTab('financial-tracker')" style="background: #4caf50; color: white;">💰 Financial Tracker</button>
@@ -1017,6 +1018,68 @@
             <div id="ai-results" style="background: #2d2d2d; padding: 20px; border-radius: 8px; display: none;">
                 <h3 style="color: #fff; margin-bottom: 15px;">Results</h3>
                 <div id="ai-results-content"></div>
+            </div>
+        </div>
+
+        <div id="leads-tab" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: #e91e63;">🎯 Investigation Leads <span style="font-size: 14px; background: #4caf50; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold;">AI-POWERED</span></h2>
+            <p style="color: #999; margin-bottom: 30px;">AI-scored and prioritized investigative leads from contradictions, suspicious emails, flight anomalies, financial patterns, and network analysis.</p>
+
+            <div class="stats" style="margin-bottom: 30px;">
+                <div class="stat-card" style="border-left-color: #e91e63;">
+                    <div class="stat-number" id="leads-total">0</div>
+                    <div class="stat-label">Total Leads</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #d32f2f;">
+                    <div class="stat-number" id="leads-high-priority">0</div>
+                    <div class="stat-label">High Priority</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #ff9800;">
+                    <div class="stat-number" id="leads-investigating">0</div>
+                    <div class="stat-label">Investigating</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #4caf50;">
+                    <div class="stat-number" id="leads-resolved">0</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
+
+            <div style="background: #2d2d2d; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button onclick="initializeLeads()" style="padding: 12px 20px; background: #2196f3; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        1. Initialize System
+                    </button>
+                    <button onclick="generateLeads()" style="padding: 12px 20px; background: #e91e63; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                        2. Generate Leads
+                    </button>
+                    <button onclick="loadLeads()" style="padding: 12px 20px; background: #4caf50; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        Refresh
+                    </button>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <label style="color: #aaa;">Filter:</label>
+                    <select id="lead-status-filter" onchange="loadLeads()" style="padding: 8px 12px; background: #1a1a1a; border: 1px solid #3d3d3d; color: white; border-radius: 4px;">
+                        <option value="">All Status</option>
+                        <option value="new">New</option>
+                        <option value="investigating">Investigating</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                    <select id="lead-type-filter" onchange="loadLeads()" style="padding: 8px 12px; background: #1a1a1a; border: 1px solid #3d3d3d; color: white; border-radius: 4px;">
+                        <option value="">All Types</option>
+                        <option value="contradiction">Contradictions</option>
+                        <option value="suspicious_email">Suspicious Emails</option>
+                        <option value="flight_anomaly">Flight Anomalies</option>
+                        <option value="financial_suspicious">Financial</option>
+                        <option value="network_analysis">Network Analysis</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="leads-results" style="background: #2d2d2d; padding: 20px; border-radius: 8px;">
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    Click "Generate Leads" to analyze all evidence and create prioritized investigation leads
+                </div>
             </div>
         </div>
     </div>
@@ -3007,7 +3070,157 @@
             if (tabName === 'timeline') {
                 loadTimelineStats();
             }
+            if (tabName === 'leads') {
+                loadLeadStats();
+            }
         };
+
+        // ================================================================
+        // LEADS FUNCTIONALITY
+        // ================================================================
+
+        async function initializeLeads() {
+            try {
+                const response = await fetch('/api/leads/init', { method: 'POST' });
+                const data = await response.json();
+                alert(data.message || 'Leads system initialized');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function generateLeads() {
+            const resultsDiv = document.getElementById('leads-results');
+            resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="border: 3px solid #333; border-top: 3px solid #e91e63; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div><div style="color: #999;">Analyzing all evidence and generating leads...</div></div>';
+
+            try {
+                const response = await fetch('/api/leads/generate', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Generated ${data.leads_created} leads!\n\n` +
+                          `Contradictions: ${data.by_type.contradictions}\n` +
+                          `Emails: ${data.by_type.emails}\n` +
+                          `Flights: ${data.by_type.flights}\n` +
+                          `Financial: ${data.by_type.financial}\n` +
+                          `Networks: ${data.by_type.networks}`);
+                    loadLeads();
+                    loadLeadStats();
+                } else {
+                    alert('Error generating leads');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div style="color: #d32f2f; padding: 20px;">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function loadLeads() {
+            const resultsDiv = document.getElementById('leads-results');
+            const status = document.getElementById('lead-status-filter').value;
+            const type = document.getElementById('lead-type-filter').value;
+
+            resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Loading leads...</div>';
+
+            try {
+                let url = '/api/leads?limit=50';
+                if (status) url += `&status=${status}`;
+                if (type) url += `&type=${type}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!data.leads || data.leads.length === 0) {
+                    resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No leads found. Click "Generate Leads" to analyze evidence.</div>';
+                    return;
+                }
+
+                let html = '';
+                data.leads.forEach(lead => {
+                    const priorityPercent = Math.round(lead.priority_score * 100);
+                    const priorityColor = priorityPercent >= 70 ? '#d32f2f' : priorityPercent >= 50 ? '#ff9800' : '#4caf50';
+                    const statusColor = lead.status === 'resolved' ? '#4caf50' : lead.status === 'investigating' ? '#ff9800' : '#2196f3';
+
+                    html += `
+                        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${priorityColor};">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <h3 style="color: #fff; margin-bottom: 8px;">${lead.lead_title}</h3>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        <span style="background: ${priorityColor}; color: white; padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold;">
+                                            ${priorityPercent}% Priority
+                                        </span>
+                                        <span style="background: ${statusColor}; color: white; padding: 4px 10px; border-radius: 15px; font-size: 12px;">
+                                            ${lead.status.toUpperCase()}
+                                        </span>
+                                        <span style="background: #666; color: white; padding: 4px 10px; border-radius: 15px; font-size: 12px;">
+                                            ${lead.lead_type.replace('_', ' ').toUpperCase()}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    ${lead.status !== 'investigating' ? `
+                                        <button onclick="updateLeadStatus(${lead.id}, 'investigating')" style="padding: 8px 15px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                                            Start Investigating
+                                        </button>
+                                    ` : ''}
+                                    ${lead.status !== 'resolved' ? `
+                                        <button onclick="updateLeadStatus(${lead.id}, 'resolved')" style="padding: 8px 15px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                                            Mark Resolved
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <div style="color: #ccc; line-height: 1.6; white-space: pre-wrap;">${lead.lead_description}</div>
+                            ${lead.investigation_notes ? `
+                                <div style="margin-top: 15px; padding: 12px; background: #2d2d2d; border-radius: 4px;">
+                                    <strong style="color: #4caf50;">Notes:</strong> ${lead.investigation_notes}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div style="color: #d32f2f; padding: 20px;">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function updateLeadStatus(leadId, newStatus) {
+            const notes = prompt(`Update status to "${newStatus}". Add notes (optional):`);
+
+            try {
+                const response = await fetch(`/api/leads/${leadId}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus, notes })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    loadLeads();
+                    loadLeadStats();
+                } else {
+                    alert('Error updating lead');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function loadLeadStats() {
+            try {
+                const response = await fetch('/api/leads/stats');
+                const stats = await response.json();
+
+                document.getElementById('leads-total').textContent = stats.total_leads || 0;
+                document.getElementById('leads-high-priority').textContent = stats.high_priority || 0;
+                document.getElementById('leads-investigating').textContent = stats.by_status?.investigating || 0;
+                document.getElementById('leads-resolved').textContent = stats.by_status?.resolved || 0;
+            } catch (error) {
+                console.error('Error loading lead stats:', error);
+            }
+        }
     </script>
 </body>
 </html>
