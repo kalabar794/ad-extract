@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competitive Ads Extractor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#6366F1'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card {
+      @apply bg-white rounded-lg shadow-md p-6;
+    }
+    .btn-primary {
+      @apply bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors;
+    }
+    .btn-secondary {
+      @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors;
+    }
+    .input {
+      @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent;
+    }
+    .progress-bar {
+      transition: width 0.3s ease;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .animate-pulse-slow {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Header -->
+  <header class="gradient-bg text-white py-6 px-8 shadow-lg">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+          <span>🔍</span>
+          Competitive Ads Extractor
+        </h1>
+        <p class="text-blue-100 text-sm mt-1">Extract and analyze competitor advertising intelligence</p>
+      </div>
+      <div id="connection-status" class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+        <span class="text-sm">Connecting...</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column: New Extraction Form -->
+      <div class="lg:col-span-2">
+        <div class="card">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <span>📊</span>
+            New Extraction
+          </h2>
+
+          <form id="extraction-form" class="space-y-4">
+            <!-- Competitor Name -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Competitor Name / Page ID
+              </label>
+              <input
+                type="text"
+                id="competitor"
+                class="input"
+                placeholder="e.g., Nike, Coca-Cola, or advertiser ID"
+                required
+              >
+            </div>
+
+            <!-- Platforms -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Platforms
+              </label>
+              <div id="platforms-container" class="flex flex-wrap gap-2">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+
+            <!-- Options Row -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Max Ads per Platform
+                </label>
+                <select id="max-ads" class="input">
+                  <option value="25">25 ads</option>
+                  <option value="50" selected>50 ads</option>
+                  <option value="100">100 ads</option>
+                  <option value="200">200 ads</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Country
+                </label>
+                <select id="country" class="input">
+                  <option value="US">United States</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="CA">Canada</option>
+                  <option value="AU">Australia</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="ALL">All Countries</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Report Formats -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Report Formats
+              </label>
+              <div class="flex flex-wrap gap-3">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" id="format-json" checked class="w-4 h-4 text-primary rounded">
+                  <span class="text-sm">JSON</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" id="format-markdown" checked class="w-4 h-4 text-primary rounded">
+                  <span class="text-sm">Markdown</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" id="format-excel" disabled class="w-4 h-4 text-gray-300 rounded">
+                  <span class="text-sm text-gray-400">Excel (soon)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Screenshots Option -->
+            <div>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="screenshots" class="w-4 h-4 text-primary rounded">
+                <span class="text-sm">Capture ad screenshots</span>
+              </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-primary w-full py-3 text-lg">
+              🚀 Start Extraction
+            </button>
+          </form>
+        </div>
+
+        <!-- Active Job Progress -->
+        <div id="job-progress" class="card mt-6 hidden">
+          <h3 class="font-semibold mb-3 flex items-center gap-2">
+            <span class="animate-pulse-slow">⏳</span>
+            <span id="job-title">Extraction in Progress</span>
+          </h3>
+          <div class="mb-2">
+            <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div id="progress-bar" class="progress-bar bg-primary h-full rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+          <p id="job-message" class="text-sm text-gray-600">Starting...</p>
+        </div>
+      </div>
+
+      <!-- Right Column: Jobs & Reports -->
+      <div class="space-y-6">
+        <!-- Recent Jobs -->
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span>📋</span>
+            Recent Jobs
+          </h2>
+          <div id="jobs-list" class="space-y-3 max-h-64 overflow-y-auto">
+            <p class="text-gray-500 text-sm">No jobs yet</p>
+          </div>
+        </div>
+
+        <!-- Generated Reports -->
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span>📄</span>
+            Reports
+          </h2>
+          <div id="reports-list" class="space-y-2 max-h-64 overflow-y-auto">
+            <p class="text-gray-500 text-sm">No reports yet</p>
+          </div>
+          <button onclick="loadReports()" class="btn-secondary w-full mt-4 text-sm">
+            🔄 Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-gray-500 text-sm py-6">
+    Competitive Ads Extractor v1.0.0
+  </footer>
+
+  <script>
+    // State
+    let ws = null;
+    let currentJobId = null;
+    let platforms = { available: [], all: [] };
+
+    // Connect WebSocket
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+      ws.onopen = () => {
+        updateConnectionStatus(true);
+      };
+
+      ws.onclose = () => {
+        updateConnectionStatus(false);
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      ws.onmessage = (event) => {
+        const { event: eventName, data } = JSON.parse(event.data);
+        handleWebSocketEvent(eventName, data);
+      };
+    }
+
+    function updateConnectionStatus(connected) {
+      const status = document.getElementById('connection-status');
+      if (connected) {
+        status.innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-green-400"></span>
+          <span class="text-sm">Connected</span>
+        `;
+      } else {
+        status.innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-red-400"></span>
+          <span class="text-sm">Disconnected</span>
+        `;
+      }
+    }
+
+    function handleWebSocketEvent(event, data) {
+      switch (event) {
+        case 'job:created':
+        case 'job:updated':
+          updateJobInList(data);
+          break;
+        case 'job:progress':
+          updateProgress(data);
+          break;
+        case 'job:completed':
+          updateJobInList(data);
+          hideProgressBar();
+          loadReports();
+          showNotification('Extraction complete!', 'success');
+          break;
+        case 'job:failed':
+          updateJobInList(data);
+          hideProgressBar();
+          showNotification(`Extraction failed: ${data.error}`, 'error');
+          break;
+      }
+    }
+
+    // Load platforms
+    async function loadPlatforms() {
+      try {
+        const res = await fetch('/api/platforms');
+        platforms = await res.json();
+        renderPlatforms();
+      } catch (error) {
+        console.error('Failed to load platforms:', error);
+      }
+    }
+
+    function renderPlatforms() {
+      const container = document.getElementById('platforms-container');
+      container.innerHTML = platforms.all.map(p => {
+        const isAvailable = platforms.available.includes(p);
+        return `
+          <label class="flex items-center gap-2 px-3 py-2 rounded-lg border ${isAvailable ? 'border-gray-300 hover:border-primary cursor-pointer' : 'border-gray-200 bg-gray-100 cursor-not-allowed'}">
+            <input
+              type="checkbox"
+              name="platform"
+              value="${p}"
+              ${p === 'meta' ? 'checked' : ''}
+              ${!isAvailable ? 'disabled' : ''}
+              class="w-4 h-4 text-primary rounded"
+            >
+            <span class="text-sm ${!isAvailable ? 'text-gray-400' : ''}">${p.charAt(0).toUpperCase() + p.slice(1)}</span>
+            ${!isAvailable ? '<span class="text-xs text-gray-400">(soon)</span>' : ''}
+          </label>
+        `;
+      }).join('');
+    }
+
+    // Load jobs
+    async function loadJobs() {
+      try {
+        const res = await fetch('/api/jobs');
+        const jobs = await res.json();
+        renderJobs(jobs);
+      } catch (error) {
+        console.error('Failed to load jobs:', error);
+      }
+    }
+
+    function renderJobs(jobs) {
+      const container = document.getElementById('jobs-list');
+      if (jobs.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">No jobs yet</p>';
+        return;
+      }
+
+      container.innerHTML = jobs.slice(0, 10).map(job => {
+        const statusColors = {
+          pending: 'bg-yellow-100 text-yellow-800',
+          running: 'bg-blue-100 text-blue-800',
+          completed: 'bg-green-100 text-green-800',
+          failed: 'bg-red-100 text-red-800'
+        };
+        const statusIcons = {
+          pending: '⏳',
+          running: '🔄',
+          completed: '✅',
+          failed: '❌'
+        };
+
+        return `
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-medium text-sm">${job.competitor}</span>
+              <span class="text-xs px-2 py-1 rounded-full ${statusColors[job.status]}">
+                ${statusIcons[job.status]} ${job.status}
+              </span>
+            </div>
+            <div class="text-xs text-gray-500">
+              ${job.platforms.join(', ')} • ${new Date(job.startedAt).toLocaleTimeString()}
+              ${job.result ? ` • ${job.result.totalAds} ads` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateJobInList(job) {
+      loadJobs();
+    }
+
+    // Load reports
+    async function loadReports() {
+      try {
+        const res = await fetch('/api/reports');
+        const reports = await res.json();
+        renderReports(reports);
+      } catch (error) {
+        console.error('Failed to load reports:', error);
+      }
+    }
+
+    function renderReports(reports) {
+      const container = document.getElementById('reports-list');
+      if (reports.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">No reports yet</p>';
+        return;
+      }
+
+      container.innerHTML = reports.slice(0, 10).map(report => {
+        const icon = report.format === 'json' ? '📊' : '📝';
+        return `
+          <a href="/api/reports/${report.name}" download
+             class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+            <span>${icon}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">${report.name}</p>
+              <p class="text-xs text-gray-500">${new Date(report.modified).toLocaleDateString()}</p>
+            </div>
+            <span class="text-gray-400">⬇️</span>
+          </a>
+        `;
+      }).join('');
+    }
+
+    // Progress bar
+    function showProgressBar(jobId) {
+      currentJobId = jobId;
+      document.getElementById('job-progress').classList.remove('hidden');
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('job-message').textContent = 'Starting...';
+    }
+
+    function updateProgress(data) {
+      if (data.jobId !== currentJobId) return;
+      document.getElementById('progress-bar').style.width = `${data.progress}%`;
+      document.getElementById('job-message').textContent = data.message;
+    }
+
+    function hideProgressBar() {
+      document.getElementById('job-progress').classList.add('hidden');
+      currentJobId = null;
+    }
+
+    // Notifications
+    function showNotification(message, type = 'info') {
+      // Simple alert for now - could be replaced with toast library
+      if (type === 'error') {
+        alert(`Error: ${message}`);
+      }
+    }
+
+    // Form submission
+    document.getElementById('extraction-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const competitor = document.getElementById('competitor').value.trim();
+      const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
+        .map(cb => cb.value);
+      const maxAds = parseInt(document.getElementById('max-ads').value);
+      const country = document.getElementById('country').value;
+      const screenshots = document.getElementById('screenshots').checked;
+
+      const formats = [];
+      if (document.getElementById('format-json').checked) formats.push('json');
+      if (document.getElementById('format-markdown').checked) formats.push('markdown');
+
+      if (!competitor) {
+        alert('Please enter a competitor name');
+        return;
+      }
+
+      if (selectedPlatforms.length === 0) {
+        alert('Please select at least one platform');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            competitor,
+            platforms: selectedPlatforms,
+            maxAds,
+            country,
+            screenshots,
+            formats
+          })
+        });
+
+        const data = await res.json();
+        if (data.jobId) {
+          showProgressBar(data.jobId);
+          loadJobs();
+        }
+      } catch (error) {
+        showNotification('Failed to start extraction: ' + error.message, 'error');
+      }
+    });
+
+    // Initialize
+    connectWebSocket();
+    loadPlatforms();
+    loadJobs();
+    loadReports();
+  </script>
+</body>
+</html>
