@@ -1,4 +1,5 @@
 import { Page } from 'playwright';
+import axios from 'axios';
 import { BaseExtractor, ExtractorEvents } from './base';
 import { Ad, ExtractionOptions } from '../types/ad';
 import { AppConfig } from '../types/config';
@@ -440,10 +441,281 @@ export class GoogleExtractor extends BaseExtractor {
     });
   }
 
+  /**
+   * Extract ads via third-party API services
+   * Since Google doesn't have a public Transparency Center API,
+   * we use SerpApi or SearchAPI.io as alternatives
+   */
   async extractViaApi(options: ExtractionOptions): Promise<Ad[] | null> {
-    // Google Ads API requires OAuth and is primarily for managing your own ads
-    // The Transparency Center doesn't have a public API
-    this.logger.debug('No Google Ads Transparency API available');
+    const apiConfig = this.config.api?.google;
+
+    // Try SerpApi first
+    if (apiConfig?.serpApiKey) {
+      const result = await this.extractViaSerpApi(apiConfig.serpApiKey, options);
+      if (result && result.length > 0) return result;
+    }
+
+    // Fall back to SearchAPI.io
+    if (apiConfig?.searchApiKey) {
+      const result = await this.extractViaSearchApi(apiConfig.searchApiKey, options);
+      if (result && result.length > 0) return result;
+    }
+
+    if (!apiConfig?.serpApiKey && !apiConfig?.searchApiKey) {
+      this.logger.debug('No Google third-party API credentials configured');
+    }
+
     return null;
+  }
+
+  /**
+   * Extract ads using SerpApi Google Ads Transparency endpoint
+   * Docs: https://serpapi.com/google-ads-transparency-center
+   */
+  private async extractViaSerpApi(apiKey: string, options: ExtractionOptions): Promise<Ad[] | null> {
+    this.logger.info('Extracting via SerpApi Google Ads Transparency...');
+    const ads: Ad[] = [];
+    const maxAds = options.maxAds || this.config.extraction.defaultMaxAds;
+
+    try {
+      const baseUrl = 'https://serpapi.com/search.json';
+
+      const params: Record<string, string> = {
+        engine: 'google_ads_transparency_center',
+        api_key: apiKey,
+        advertiser_id: options.competitor,
+        region: options.country || 'US'
+      };
+
+      // Handle search by advertiser name vs ID
+      if (options.searchType === 'keyword') {
+        params.q = options.competitor;
+        delete params.advertiser_id;
+      }
+
+      let start = 0;
+      let totalFetched = 0;
+
+      while (totalFetched < maxAds) {
+        this.emitProgress(`Fetching ads from SerpApi (${totalFetched}/${maxAds})...`,
+          Math.round((totalFetched / maxAds) * 100));
+
+        params.start = start.toString();
+
+        const response = await axios.get(baseUrl, {
+          params,
+          timeout: 30000
+        });
+
+        const data = response.data;
+
+        if (data.error) {
+          this.logger.error(`SerpApi Error: ${data.error}`);
+          break;
+        }
+
+        const adResults = data.ads || data.ad_results || [];
+        if (adResults.length === 0) {
+          this.logger.debug('No more ads from SerpApi');
+          break;
+        }
+
+        for (const apiAd of adResults) {
+          if (totalFetched >= maxAds) break;
+
+          const ad = this.processSerpApiAd(apiAd, options.competitor);
+          ads.push(ad);
+          this.emitAdFound(ad);
+          totalFetched++;
+        }
+
+        // Check for pagination
+        if (!data.serpapi_pagination?.next || adResults.length < 10) {
+          break;
+        }
+
+        start += adResults.length;
+      }
+
+      this.logger.info(`Extracted ${ads.length} ads via SerpApi`);
+      return ads.length > 0 ? ads : null;
+
+    } catch (error) {
+      const err = error as any;
+      if (err.response?.status === 401) {
+        this.logger.error('SerpApi: Invalid API key');
+      } else if (err.response?.status === 429) {
+        this.logger.error('SerpApi: Rate limit exceeded');
+      } else {
+        this.logger.error(`SerpApi request failed: ${err.message}`);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Extract ads using SearchAPI.io Google Ads endpoint
+   * Docs: https://www.searchapi.io/docs/google-ads
+   */
+  private async extractViaSearchApi(apiKey: string, options: ExtractionOptions): Promise<Ad[] | null> {
+    this.logger.info('Extracting via SearchAPI.io Google Ads...');
+    const ads: Ad[] = [];
+    const maxAds = options.maxAds || this.config.extraction.defaultMaxAds;
+
+    try {
+      const baseUrl = 'https://www.searchapi.io/api/v1/search';
+
+      const params: Record<string, string> = {
+        engine: 'google_ads_transparency',
+        api_key: apiKey,
+        q: options.competitor,
+        region: options.country || 'US'
+      };
+
+      let page = 1;
+      let totalFetched = 0;
+
+      while (totalFetched < maxAds) {
+        this.emitProgress(`Fetching ads from SearchAPI.io (${totalFetched}/${maxAds})...`,
+          Math.round((totalFetched / maxAds) * 100));
+
+        params.page = page.toString();
+
+        const response = await axios.get(baseUrl, {
+          params,
+          timeout: 30000
+        });
+
+        const data = response.data;
+
+        if (data.error) {
+          this.logger.error(`SearchAPI.io Error: ${data.error}`);
+          break;
+        }
+
+        const adResults = data.ads || data.results || [];
+        if (adResults.length === 0) {
+          this.logger.debug('No more ads from SearchAPI.io');
+          break;
+        }
+
+        for (const apiAd of adResults) {
+          if (totalFetched >= maxAds) break;
+
+          const ad = this.processSearchApiAd(apiAd, options.competitor);
+          ads.push(ad);
+          this.emitAdFound(ad);
+          totalFetched++;
+        }
+
+        // Check for more pages
+        if (!data.pagination?.next_page || adResults.length < 10) {
+          break;
+        }
+
+        page++;
+      }
+
+      this.logger.info(`Extracted ${ads.length} ads via SearchAPI.io`);
+      return ads.length > 0 ? ads : null;
+
+    } catch (error) {
+      const err = error as any;
+      if (err.response?.status === 401) {
+        this.logger.error('SearchAPI.io: Invalid API key');
+      } else if (err.response?.status === 429) {
+        this.logger.error('SearchAPI.io: Rate limit exceeded');
+      } else {
+        this.logger.error(`SearchAPI.io request failed: ${err.message}`);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Process SerpApi response into Ad object
+   */
+  private processSerpApiAd(apiAd: any, competitor: string): Ad {
+    // Extract primary text
+    const primaryText = apiAd.text || apiAd.description || apiAd.body || '';
+
+    // Extract headline
+    const headline = apiAd.title || apiAd.headline || '';
+
+    // Determine media type
+    let mediaType: 'image' | 'video' | 'carousel' | undefined;
+    const format = (apiAd.format || apiAd.ad_type || '').toLowerCase();
+    if (format.includes('video')) mediaType = 'video';
+    else if (format.includes('image') || format.includes('display')) mediaType = 'image';
+
+    // Parse dates
+    const startDate = apiAd.first_shown || apiAd.start_date;
+    const endDate = apiAd.last_shown || apiAd.end_date;
+
+    // Extract regions
+    const regions = apiAd.regions || apiAd.countries || [];
+
+    return this.createBaseAd(competitor, {
+      primaryText,
+      headline,
+      description: apiAd.description,
+      startDate: startDate ? new Date(startDate).toISOString() : undefined,
+      endDate: endDate ? new Date(endDate).toISOString() : undefined,
+      platforms: ['Google'],
+      mediaType,
+      destinationUrl: apiAd.destination_url || apiAd.link || apiAd.url,
+      hashtags: this.extractHashtags(primaryText),
+      rawData: {
+        adId: apiAd.ad_id || apiAd.id,
+        advertiserName: apiAd.advertiser_name || apiAd.advertiser,
+        advertiserId: apiAd.advertiser_id,
+        format: apiAd.format || apiAd.ad_type,
+        regions: regions,
+        thumbnail: apiAd.thumbnail || apiAd.image_url,
+        impressions: apiAd.impressions,
+        source: 'serpapi'
+      }
+    });
+  }
+
+  /**
+   * Process SearchAPI.io response into Ad object
+   */
+  private processSearchApiAd(apiAd: any, competitor: string): Ad {
+    // Extract primary text
+    const primaryText = apiAd.text || apiAd.body || apiAd.snippet || '';
+
+    // Extract headline
+    const headline = apiAd.title || apiAd.headline || '';
+
+    // Determine media type
+    let mediaType: 'image' | 'video' | 'carousel' | undefined;
+    const format = (apiAd.format || apiAd.type || '').toLowerCase();
+    if (format.includes('video')) mediaType = 'video';
+    else if (format.includes('image') || format.includes('display')) mediaType = 'image';
+
+    // Parse dates
+    const startDate = apiAd.first_shown || apiAd.date_first_shown;
+    const endDate = apiAd.last_shown || apiAd.date_last_shown;
+
+    return this.createBaseAd(competitor, {
+      primaryText,
+      headline,
+      description: apiAd.description,
+      startDate: startDate ? new Date(startDate).toISOString() : undefined,
+      endDate: endDate ? new Date(endDate).toISOString() : undefined,
+      platforms: ['Google'],
+      mediaType,
+      destinationUrl: apiAd.destination_url || apiAd.link,
+      hashtags: this.extractHashtags(primaryText),
+      rawData: {
+        adId: apiAd.id,
+        advertiserName: apiAd.advertiser,
+        format: apiAd.format || apiAd.type,
+        regions: apiAd.regions || apiAd.countries,
+        thumbnail: apiAd.thumbnail || apiAd.image,
+        source: 'searchapi'
+      }
+    });
   }
 }

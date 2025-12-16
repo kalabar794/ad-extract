@@ -135,6 +135,17 @@ export abstract class BaseExtractor {
   }
 
   /**
+   * Public close method for external cleanup
+   */
+  async close(): Promise<void> {
+    await this.cleanup();
+    if (this.browser) {
+      await this.browser.close().catch(() => {});
+      this.browser = null;
+    }
+  }
+
+  /**
    * Navigate with retry logic
    */
   protected async navigateWithRetry(

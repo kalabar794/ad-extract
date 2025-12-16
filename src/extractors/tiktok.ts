@@ -1,4 +1,5 @@
 import { Page } from 'playwright';
+import axios from 'axios';
 import { BaseExtractor, ExtractorEvents } from './base';
 import { Ad, ExtractionOptions } from '../types/ad';
 import { AppConfig } from '../types/config';
@@ -388,9 +389,243 @@ export class TikTokExtractor extends BaseExtractor {
     });
   }
 
+  /**
+   * Extract ads via TikTok Commercial Content API
+   * Docs: https://developers.tiktok.com/doc/commercial-content-api-overview/
+   * Requires: TikTok developer app with commercial content API access
+   */
   async extractViaApi(options: ExtractionOptions): Promise<Ad[] | null> {
-    // TikTok doesn't have a public API for ad library access
-    this.logger.debug('No TikTok API available');
-    return null;
+    const apiConfig = this.config.api?.tiktok;
+
+    if (!apiConfig?.clientKey || !apiConfig?.clientSecret) {
+      this.logger.debug('No TikTok API credentials configured');
+      return null;
+    }
+
+    this.logger.info('Extracting via TikTok Commercial Content API...');
+    const ads: Ad[] = [];
+    const maxAds = options.maxAds || this.config.extraction.defaultMaxAds;
+
+    try {
+      // Step 1: Get access token via client credentials flow
+      const accessToken = await this.getAccessToken(apiConfig.clientKey, apiConfig.clientSecret);
+      if (!accessToken) {
+        this.logger.error('Failed to obtain TikTok access token');
+        return null;
+      }
+
+      // Step 2: Query the Commercial Content API
+      const baseUrl = 'https://open.tiktokapis.com/v2/research/adlib/ad/query/';
+
+      // Build request body
+      const requestBody: Record<string, any> = {
+        filters: {
+          search_term: options.competitor
+        },
+        max_count: Math.min(maxAds, 100), // API max per request
+        fields: [
+          'ad_id',
+          'advertiser_business_name',
+          'ad_text',
+          'ad_start_date',
+          'ad_end_date',
+          'ad_reach',
+          'ad_targeting',
+          'ad_format',
+          'video_url',
+          'image_urls',
+          'landing_page_url',
+          'call_to_action',
+          'impression_count',
+          'click_count',
+          'engagement_count'
+        ]
+      };
+
+      // Add country filter if specified
+      if (options.country) {
+        requestBody.filters.country_code = options.country;
+      }
+
+      // Add date filters if specified
+      if (options.dateRange) {
+        requestBody.filters.ad_published_date_range = {
+          min_date: options.dateRange.start,
+          max_date: options.dateRange.end
+        };
+      }
+
+      let cursor: string | null = null;
+      let totalFetched = 0;
+
+      while (totalFetched < maxAds) {
+        this.emitProgress(`Fetching ads from TikTok API (${totalFetched}/${maxAds})...`,
+          Math.round((totalFetched / maxAds) * 100));
+
+        if (cursor) {
+          requestBody.cursor = cursor;
+        }
+
+        const response = await axios.post(baseUrl, requestBody, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 30000
+        });
+
+        const data = response.data;
+
+        if (data.error?.code !== 'ok') {
+          this.logger.error(`TikTok API Error: ${data.error?.message || 'Unknown error'}`);
+          break;
+        }
+
+        if (!data.data?.ads || data.data.ads.length === 0) {
+          this.logger.debug('No more ads from TikTok API');
+          break;
+        }
+
+        for (const apiAd of data.data.ads) {
+          if (totalFetched >= maxAds) break;
+
+          const ad = this.processApiAd(apiAd, options.competitor);
+          ads.push(ad);
+          this.emitAdFound(ad);
+          totalFetched++;
+        }
+
+        // Handle pagination
+        cursor = data.data.cursor || null;
+        if (!cursor || !data.data.has_more) {
+          break;
+        }
+      }
+
+      this.logger.info(`Extracted ${ads.length} ads via TikTok API`);
+      return ads;
+
+    } catch (error) {
+      const err = error as any;
+
+      if (err.response?.data?.error) {
+        const apiError = err.response.data.error;
+        this.logger.error(`TikTok API Error: ${apiError.message} (code: ${apiError.code})`);
+
+        if (apiError.code === 'access_token_invalid') {
+          this.logger.error('Access token invalid or expired. Please refresh credentials.');
+        } else if (apiError.code === 'rate_limit_exceeded') {
+          this.logger.error('Rate limit exceeded. Wait before retrying.');
+        } else if (apiError.code === 'permission_denied') {
+          this.logger.error('Permission denied. Ensure app has Commercial Content API access.');
+        }
+      } else {
+        this.logger.error(`TikTok API request failed: ${err.message}`);
+      }
+
+      return null;
+    }
+  }
+
+  /**
+   * Get OAuth2 access token using client credentials flow
+   */
+  private async getAccessToken(clientKey: string, clientSecret: string): Promise<string | null> {
+    try {
+      const response = await axios.post('https://open.tiktokapis.com/v2/oauth/token/', {
+        client_key: clientKey,
+        client_secret: clientSecret,
+        grant_type: 'client_credentials'
+      }, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        timeout: 10000
+      });
+
+      if (response.data.access_token) {
+        this.logger.debug('Successfully obtained TikTok access token');
+        return response.data.access_token;
+      }
+
+      return null;
+    } catch (error) {
+      this.logger.error(`Failed to get TikTok access token: ${(error as Error).message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Process TikTok API response into Ad object
+   */
+  private processApiAd(apiAd: any, competitor: string): Ad {
+    // Extract primary text
+    const primaryText = apiAd.ad_text || '';
+
+    // Extract CTA
+    const cta = apiAd.call_to_action || undefined;
+
+    // Parse dates
+    const startDate = apiAd.ad_start_date
+      ? new Date(apiAd.ad_start_date).toISOString()
+      : undefined;
+    const endDate = apiAd.ad_end_date
+      ? new Date(apiAd.ad_end_date).toISOString()
+      : undefined;
+
+    // Determine media type
+    let mediaType: 'image' | 'video' | 'carousel' | undefined;
+    if (apiAd.video_url) {
+      mediaType = 'video';
+    } else if (apiAd.image_urls && apiAd.image_urls.length > 1) {
+      mediaType = 'carousel';
+    } else if (apiAd.image_urls && apiAd.image_urls.length > 0) {
+      mediaType = 'image';
+    }
+
+    // Extract targeting info
+    const targetingInfo: Ad['targetingInfo'] = {};
+    if (apiAd.ad_targeting) {
+      const targeting = apiAd.ad_targeting;
+      if (targeting.age_range) {
+        targetingInfo.age = {
+          min: targeting.age_range.min,
+          max: targeting.age_range.max
+        };
+      }
+      if (targeting.genders) {
+        targetingInfo.gender = targeting.genders;
+      }
+      if (targeting.locations) {
+        targetingInfo.locations = targeting.locations;
+      }
+      if (targeting.interests) {
+        targetingInfo.interests = targeting.interests;
+      }
+    }
+
+    return this.createBaseAd(competitor, {
+      primaryText,
+      headline: apiAd.advertiser_business_name || competitor,
+      cta,
+      startDate,
+      endDate,
+      platforms: ['TikTok'],
+      mediaType,
+      destinationUrl: apiAd.landing_page_url,
+      targetingInfo: Object.keys(targetingInfo).length > 0 ? targetingInfo : undefined,
+      hashtags: this.extractHashtags(primaryText),
+      rawData: {
+        adId: apiAd.ad_id,
+        advertiserName: apiAd.advertiser_business_name,
+        adFormat: apiAd.ad_format,
+        reach: apiAd.ad_reach,
+        impressions: apiAd.impression_count,
+        clicks: apiAd.click_count,
+        engagement: apiAd.engagement_count,
+        videoUrl: apiAd.video_url,
+        imageUrls: apiAd.image_urls
+      }
+    });
   }
 }

@@ -66,6 +66,10 @@ export interface ExtractionOptions {
   includeInactive?: boolean;
   captureScreenshots?: boolean;
   analyzeLandingPages?: boolean;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
 }
 
 export interface ExtractionResult {

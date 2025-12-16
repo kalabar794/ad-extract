@@ -14,6 +14,8 @@ A Node.js CLI tool for extracting competitive advertising intelligence from Meta
 - **Database**: SQLite via better-sqlite3
 - **NLP**: Natural + Compromise for text analysis
 - **Reports**: ExcelJS, Markdown-it, Puppeteer-PDF
+- **APIs**: Axios for HTTP, Zod for validation
+- **MCP**: @modelcontextprotocol/sdk for Claude integration
 
 ## Commands
 
@@ -36,6 +38,10 @@ npm run dev extract -c "Competitor Name" -p meta
 # Start Web GUI
 npm run serve
 # Then open http://localhost:3000
+
+# Start MCP Server (for Claude integration)
+npm run mcp
+# Or in dev mode: npm run mcp:dev
 
 # Run tests
 npm test
@@ -79,10 +85,10 @@ The tool uses **Playwright browser automation as the primary extraction method**
 - APIs as reliable fallback when blocked
 
 **Platform API availability:**
-- Meta Ad Library API - exists, limited fields, requires app approval
-- Google Ads Transparency API - limited/unofficial
-- TikTok Commercial Content API - restricted access
-- LinkedIn - no public API
+- Meta Ad Library API - Graph API ads_archive endpoint, requires approved Facebook app
+- TikTok Commercial Content API - OAuth2 client credentials flow, requires developer access
+- Google Ads Transparency - No official API, uses SerpApi or SearchAPI.io
+- LinkedIn Ad Library - No official API, uses SearchAPI.io or Apify scrapers
 
 ### Core Components
 
@@ -123,7 +129,8 @@ interface Ad {
 
 enum AdCategory {
   TESTIMONIAL, OFFER_PROMO, EDUCATIONAL,
-  PRODUCT_FEATURE, BRAND_AWARENESS, EVENT, HIRING, OTHER
+  PRODUCT_FEATURE, BRAND_AWARENESS, EVENT, HIRING,
+  URGENCY_SCARCITY, PROBLEM_SOLUTION, COMPARISON, OTHER
 }
 ```
 
@@ -193,15 +200,20 @@ src/
 ├── cli.ts                # CLI entry point
 ├── types/                # TypeScript interfaces
 │   ├── ad.ts             # Ad, Platform, ExtractionOptions
-│   ├── analysis.ts       # Analysis result types
-│   └── config.ts         # Configuration types
+│   ├── analysis.ts       # Analysis result types (incl. LandingPageAnalysis)
+│   └── config.ts         # Configuration types (incl. ApiConfig)
 ├── extractors/           # Platform extractors
 │   ├── base.ts           # BaseExtractor class
-│   ├── meta.ts           # Meta Ad Library
+│   ├── meta.ts           # Meta Ad Library + Graph API
+│   ├── tiktok.ts         # TikTok + Commercial Content API
+│   ├── google.ts         # Google Ads + SerpApi/SearchAPI.io
+│   ├── linkedin.ts       # LinkedIn + SearchAPI.io/Apify
 │   └── index.ts          # Factory function
 ├── analyzers/            # Analysis engines
-│   ├── categorizer.ts    # Ad categorization
-│   ├── copy-analyzer.ts  # Text analysis
+│   ├── categorizer.ts    # Ad categorization (11 categories)
+│   ├── copy-analyzer.ts  # Text analysis, NLP
+│   ├── landing-page.ts   # Landing page conversion analysis
+│   ├── campaign-analyzer.ts # Campaign pattern detection
 │   └── index.ts          # Main analyzer
 ├── reporters/            # Report generators
 │   ├── json.ts           # JSON output
@@ -217,8 +229,13 @@ src/
 │   └── logger.ts         # Winston logger
 ├── server/               # Web GUI backend
 │   └── index.ts          # Express + WebSocket server
+├── mcp/                  # MCP Server for Claude
+│   └── index.ts          # MCP tools and handlers
 └── web/                  # Web GUI frontend
     └── index.html        # Single-page app with Tailwind
+
+docs/
+└── SENTIMENT-ANALYZER-PLAN.md  # Sentiment analysis design document
 ```
 
 ## Extending the Tool
@@ -239,3 +256,93 @@ src/
 ### Updating DOM Selectors
 
 Ad libraries change frequently. All selectors are centralized in `src/config/selectors.ts` for easy maintenance.
+
+## API Configuration
+
+Configure API credentials via environment variables:
+
+```bash
+# Meta Ad Library API
+export META_ACCESS_TOKEN="your_token"
+export META_APP_ID="your_app_id"
+export META_APP_SECRET="your_secret"
+
+# TikTok Commercial Content API
+export TIKTOK_CLIENT_KEY="your_client_key"
+export TIKTOK_CLIENT_SECRET="your_client_secret"
+
+# Google (via third-party)
+export SERP_API_KEY="your_serpapi_key"
+export SEARCH_API_KEY="your_searchapi_key"
+
+# LinkedIn (via third-party)
+export APIFY_TOKEN="your_apify_token"
+# SEARCH_API_KEY also used for LinkedIn
+```
+
+## MCP Server Integration
+
+The tool includes an MCP (Model Context Protocol) server for Claude integration.
+
+### Setup for Claude Desktop
+
+Add to `~/.claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "ad-extractor": {
+      "command": "node",
+      "args": ["/path/to/ad-extraction-tool/dist/mcp/index.js"],
+      "env": {
+        "META_ACCESS_TOKEN": "your_token",
+        "SERP_API_KEY": "your_key"
+      }
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `extract_competitor_ads` | Extract ads from ad libraries (Meta, TikTok, Google, LinkedIn) |
+| `analyze_competitor_ads` | Comprehensive analysis of extracted ads |
+| `analyze_landing_page` | Landing page conversion analysis |
+| `categorize_ads` | Categorize ads into marketing angles |
+| `analyze_ad_copy` | Deep copy analysis with NLP |
+| `list_platforms` | List available platforms and capabilities |
+
+### Example MCP Usage
+
+```
+User: "What ads is Nike running on Meta?"
+
+Claude: [Uses extract_competitor_ads tool]
+        [Returns structured ad data with copy, CTAs, targeting]
+
+User: "Analyze their messaging strategy"
+
+Claude: [Uses analyze_competitor_ads tool]
+        [Returns category distribution, top keywords, messaging themes]
+```
+
+## Landing Page Analyzer
+
+Comprehensive landing page analysis for conversion intelligence:
+
+- **Headlines**: H1/H2/H3 hierarchy, primary value proposition
+- **CTAs**: Primary/secondary, placement, dominance analysis
+- **Forms**: Field count, friction scoring (1-10), multi-step detection
+- **Trust Signals**: Testimonials, reviews, badges, guarantees
+- **Offers**: Free trials, discounts, urgency elements
+- **Technical**: Load time, mobile optimization, schema markup
+
+## Sentiment Analyzer (Planned)
+
+See `docs/SENTIMENT-ANALYZER-PLAN.md` for the design document covering:
+- Emotional tone analysis (Plutchik's wheel)
+- Persuasion technique detection (Cialdini's principles)
+- Voice & tone analysis
+- Competitive positioning assessment

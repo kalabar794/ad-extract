@@ -9,6 +9,10 @@ export interface CopyAnalysis {
   emojiUsage: string[];
   readabilityScore: number;
   hashtagFrequency: Map<string, number>;
+  topNGrams?: {
+    bigrams: string[];
+    trigrams: string[];
+  };
 }
 
 export interface CategorizationResult {

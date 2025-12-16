@@ -1,4 +1,5 @@
 import { Page } from 'playwright';
+import axios from 'axios';
 import { BaseExtractor, ExtractorEvents } from './base';
 import { Ad, ExtractionOptions } from '../types/ad';
 import { AppConfig } from '../types/config';
@@ -437,9 +438,330 @@ export class LinkedInExtractor extends BaseExtractor {
     });
   }
 
+  /**
+   * Extract ads via third-party API services
+   * LinkedIn doesn't have a public ad library API, so we use:
+   * - SearchAPI.io LinkedIn Ads endpoint
+   * - Apify LinkedIn Ad Library scraper
+   */
   async extractViaApi(options: ExtractionOptions): Promise<Ad[] | null> {
-    // LinkedIn does not provide a public API for ad library access
-    this.logger.debug('LinkedIn does not have a public ad library API');
+    const apiConfig = this.config.api?.linkedin;
+
+    // Try SearchAPI.io first
+    if (apiConfig?.searchApiKey) {
+      const result = await this.extractViaSearchApi(apiConfig.searchApiKey, options);
+      if (result && result.length > 0) return result;
+    }
+
+    // Fall back to Apify scraper
+    if (apiConfig?.apifyToken) {
+      const result = await this.extractViaApify(apiConfig.apifyToken, options);
+      if (result && result.length > 0) return result;
+    }
+
+    if (!apiConfig?.searchApiKey && !apiConfig?.apifyToken) {
+      this.logger.debug('No LinkedIn third-party API credentials configured');
+    }
+
     return null;
+  }
+
+  /**
+   * Extract ads using SearchAPI.io LinkedIn Ads endpoint
+   * Docs: https://www.searchapi.io/docs/linkedin-ads
+   */
+  private async extractViaSearchApi(apiKey: string, options: ExtractionOptions): Promise<Ad[] | null> {
+    this.logger.info('Extracting via SearchAPI.io LinkedIn Ads...');
+    const ads: Ad[] = [];
+    const maxAds = options.maxAds || this.config.extraction.defaultMaxAds;
+
+    try {
+      const baseUrl = 'https://www.searchapi.io/api/v1/search';
+
+      const params: Record<string, string> = {
+        engine: 'linkedin_ads',
+        api_key: apiKey,
+        q: options.competitor
+      };
+
+      // Add country filter if specified
+      if (options.country) {
+        params.country = options.country;
+      }
+
+      let page = 1;
+      let totalFetched = 0;
+
+      while (totalFetched < maxAds) {
+        this.emitProgress(`Fetching ads from SearchAPI.io (${totalFetched}/${maxAds})...`,
+          Math.round((totalFetched / maxAds) * 100));
+
+        params.page = page.toString();
+
+        const response = await axios.get(baseUrl, {
+          params,
+          timeout: 30000
+        });
+
+        const data = response.data;
+
+        if (data.error) {
+          this.logger.error(`SearchAPI.io Error: ${data.error}`);
+          break;
+        }
+
+        const adResults = data.ads || data.results || [];
+        if (adResults.length === 0) {
+          this.logger.debug('No more ads from SearchAPI.io');
+          break;
+        }
+
+        for (const apiAd of adResults) {
+          if (totalFetched >= maxAds) break;
+
+          const ad = this.processSearchApiAd(apiAd, options.competitor);
+          ads.push(ad);
+          this.emitAdFound(ad);
+          totalFetched++;
+        }
+
+        // Check for more pages
+        if (!data.pagination?.next_page || adResults.length < 10) {
+          break;
+        }
+
+        page++;
+      }
+
+      this.logger.info(`Extracted ${ads.length} ads via SearchAPI.io`);
+      return ads.length > 0 ? ads : null;
+
+    } catch (error) {
+      const err = error as any;
+      if (err.response?.status === 401) {
+        this.logger.error('SearchAPI.io: Invalid API key');
+      } else if (err.response?.status === 429) {
+        this.logger.error('SearchAPI.io: Rate limit exceeded');
+      } else {
+        this.logger.error(`SearchAPI.io request failed: ${err.message}`);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Extract ads using Apify LinkedIn Ad Library scraper
+   * Docs: https://apify.com/apify/linkedin-ad-library-scraper
+   */
+  private async extractViaApify(apiToken: string, options: ExtractionOptions): Promise<Ad[] | null> {
+    this.logger.info('Extracting via Apify LinkedIn Ad Library scraper...');
+    const ads: Ad[] = [];
+    const maxAds = options.maxAds || this.config.extraction.defaultMaxAds;
+
+    try {
+      // Step 1: Start the actor run
+      const actorId = 'apify~linkedin-ad-library-scraper';
+      const runUrl = `https://api.apify.com/v2/acts/${actorId}/runs`;
+
+      const runInput = {
+        searchQuery: options.competitor,
+        maxResults: maxAds,
+        country: options.country || 'US'
+      };
+
+      this.emitProgress('Starting Apify scraper...', 10);
+
+      const runResponse = await axios.post(runUrl, runInput, {
+        params: { token: apiToken },
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 30000
+      });
+
+      const runId = runResponse.data.data.id;
+      this.logger.debug(`Apify run started: ${runId}`);
+
+      // Step 2: Wait for the run to complete
+      const statusUrl = `https://api.apify.com/v2/actor-runs/${runId}`;
+      let attempts = 0;
+      const maxAttempts = 60; // 5 minutes max wait (5 seconds * 60)
+
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+
+        const statusResponse = await axios.get(statusUrl, {
+          params: { token: apiToken },
+          timeout: 10000
+        });
+
+        const status = statusResponse.data.data.status;
+        this.emitProgress(`Apify scraper running... (${attempts * 5}s)`,
+          Math.min(10 + attempts, 80));
+
+        if (status === 'SUCCEEDED') {
+          break;
+        } else if (status === 'FAILED' || status === 'ABORTED') {
+          this.logger.error(`Apify run failed with status: ${status}`);
+          return null;
+        }
+
+        attempts++;
+      }
+
+      if (attempts >= maxAttempts) {
+        this.logger.error('Apify run timed out');
+        return null;
+      }
+
+      // Step 3: Get the results
+      this.emitProgress('Fetching results...', 85);
+
+      const datasetUrl = `https://api.apify.com/v2/actor-runs/${runId}/dataset/items`;
+      const resultsResponse = await axios.get(datasetUrl, {
+        params: { token: apiToken },
+        timeout: 30000
+      });
+
+      const adResults = resultsResponse.data;
+      if (!Array.isArray(adResults) || adResults.length === 0) {
+        this.logger.debug('No ads found from Apify');
+        return null;
+      }
+
+      for (const apiAd of adResults) {
+        if (ads.length >= maxAds) break;
+
+        const ad = this.processApifyAd(apiAd, options.competitor);
+        ads.push(ad);
+        this.emitAdFound(ad);
+      }
+
+      this.logger.info(`Extracted ${ads.length} ads via Apify`);
+      return ads.length > 0 ? ads : null;
+
+    } catch (error) {
+      const err = error as any;
+      if (err.response?.status === 401) {
+        this.logger.error('Apify: Invalid API token');
+      } else if (err.response?.status === 402) {
+        this.logger.error('Apify: Insufficient credits');
+      } else {
+        this.logger.error(`Apify request failed: ${err.message}`);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Process SearchAPI.io response into Ad object
+   */
+  private processSearchApiAd(apiAd: any, competitor: string): Ad {
+    const primaryText = apiAd.text || apiAd.body || apiAd.description || '';
+    const headline = apiAd.title || apiAd.headline || '';
+
+    // Determine media type
+    let mediaType: 'image' | 'video' | 'carousel' | undefined;
+    const format = (apiAd.format || apiAd.type || '').toLowerCase();
+    if (format.includes('video')) mediaType = 'video';
+    else if (format.includes('carousel')) mediaType = 'carousel';
+    else if (format.includes('image') || apiAd.image) mediaType = 'image';
+
+    // Parse dates
+    const startDate = apiAd.start_date || apiAd.first_shown;
+    const endDate = apiAd.end_date || apiAd.last_shown;
+
+    // Extract targeting info
+    const targetingInfo: Ad['targetingInfo'] = {};
+    if (apiAd.targeting) {
+      if (apiAd.targeting.locations) {
+        targetingInfo.locations = apiAd.targeting.locations;
+      }
+      if (apiAd.targeting.industries) {
+        targetingInfo.interests = apiAd.targeting.industries;
+      }
+      if (apiAd.targeting.job_functions) {
+        targetingInfo.interests = [
+          ...(targetingInfo.interests || []),
+          ...apiAd.targeting.job_functions
+        ];
+      }
+    }
+
+    return this.createBaseAd(competitor, {
+      primaryText,
+      headline,
+      cta: apiAd.cta || apiAd.call_to_action,
+      startDate: startDate ? new Date(startDate).toISOString() : undefined,
+      endDate: endDate ? new Date(endDate).toISOString() : undefined,
+      platforms: ['LinkedIn'],
+      mediaType,
+      destinationUrl: apiAd.destination_url || apiAd.link,
+      targetingInfo: Object.keys(targetingInfo).length > 0 ? targetingInfo : undefined,
+      hashtags: this.extractHashtags(primaryText),
+      rawData: {
+        adId: apiAd.id,
+        advertiserName: apiAd.advertiser || apiAd.company_name,
+        impressions: apiAd.impressions,
+        image: apiAd.image || apiAd.thumbnail,
+        source: 'searchapi'
+      }
+    });
+  }
+
+  /**
+   * Process Apify response into Ad object
+   */
+  private processApifyAd(apiAd: any, competitor: string): Ad {
+    const primaryText = apiAd.adText || apiAd.text || apiAd.description || '';
+    const headline = apiAd.headline || apiAd.title || '';
+
+    // Determine media type
+    let mediaType: 'image' | 'video' | 'carousel' | undefined;
+    if (apiAd.videoUrl || apiAd.video) {
+      mediaType = 'video';
+    } else if (apiAd.images && apiAd.images.length > 1) {
+      mediaType = 'carousel';
+    } else if (apiAd.imageUrl || apiAd.image || apiAd.images?.length > 0) {
+      mediaType = 'image';
+    }
+
+    // Parse dates
+    const startDate = apiAd.startDate || apiAd.dateStarted;
+    const endDate = apiAd.endDate || apiAd.dateEnded;
+
+    // Extract targeting info
+    const targetingInfo: Ad['targetingInfo'] = {};
+    if (apiAd.targetingCriteria) {
+      const tc = apiAd.targetingCriteria;
+      if (tc.locations) targetingInfo.locations = tc.locations;
+      if (tc.industries) targetingInfo.interests = tc.industries;
+      if (tc.companySize) {
+        targetingInfo.interests = [
+          ...(targetingInfo.interests || []),
+          `Company Size: ${tc.companySize}`
+        ];
+      }
+    }
+
+    return this.createBaseAd(competitor, {
+      primaryText,
+      headline,
+      cta: apiAd.callToAction || apiAd.cta,
+      startDate: startDate ? new Date(startDate).toISOString() : undefined,
+      endDate: endDate ? new Date(endDate).toISOString() : undefined,
+      platforms: ['LinkedIn'],
+      mediaType,
+      destinationUrl: apiAd.destinationUrl || apiAd.landingPageUrl,
+      targetingInfo: Object.keys(targetingInfo).length > 0 ? targetingInfo : undefined,
+      hashtags: this.extractHashtags(primaryText),
+      rawData: {
+        adId: apiAd.adId || apiAd.id,
+        advertiserName: apiAd.advertiserName || apiAd.companyName,
+        impressions: apiAd.impressions,
+        imageUrl: apiAd.imageUrl || apiAd.images?.[0],
+        videoUrl: apiAd.videoUrl,
+        targetingCriteria: apiAd.targetingCriteria,
+        source: 'apify'
+      }
+    });
   }
 }

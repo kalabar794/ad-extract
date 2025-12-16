@@ -45,8 +45,22 @@ export interface ApiConfig {
   meta?: {
     accessToken?: string;
     appId?: string;
+    appSecret?: string;
   };
-  // Future API configs
+  tiktok?: {
+    clientKey?: string;
+    clientSecret?: string;
+  };
+  google?: {
+    // Google doesn't have official API - use third-party
+    serpApiKey?: string;      // SerpApi
+    searchApiKey?: string;    // SearchAPI.io
+  };
+  linkedin?: {
+    // LinkedIn doesn't have public ad library API - use third-party
+    searchApiKey?: string;    // SearchAPI.io
+    apifyToken?: string;      // Apify scraper
+  };
 }
 
 export interface AppConfig {

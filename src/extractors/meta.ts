@@ -1,4 +1,5 @@
 import { Page } from 'playwright';
+import axios from 'axios';
 import { BaseExtractor, ExtractorEvents } from './base';
 import { Ad, ExtractionOptions } from '../types/ad';
 import { AppConfig } from '../types/config';
@@ -304,6 +305,11 @@ export class MetaExtractor extends BaseExtractor {
     });
   }
 
+  /**
+   * Extract ads via Meta Ad Library API (Graph API ads_archive endpoint)
+   * Requires: Facebook App with ads_read permission and valid access token
+   * Docs: https://developers.facebook.com/docs/marketing-api/reference/ads_archive/
+   */
   async extractViaApi(options: ExtractionOptions): Promise<Ad[] | null> {
     const apiConfig = this.config.api?.meta;
 
@@ -312,7 +318,169 @@ export class MetaExtractor extends BaseExtractor {
       return null;
     }
 
-    this.logger.warn('Meta API fallback not yet implemented');
-    return null;
+    this.logger.info('Extracting via Meta Ad Library API...');
+    const ads: Ad[] = [];
+    const maxAds = options.maxAds || this.config.extraction.defaultMaxAds;
+
+    try {
+      const baseUrl = 'https://graph.facebook.com/v18.0/ads_archive';
+
+      // Build API parameters
+      const params: Record<string, string> = {
+        access_token: apiConfig.accessToken,
+        ad_reached_countries: `["${options.country || 'US'}"]`,
+        search_terms: options.competitor,
+        ad_active_status: options.includeInactive ? 'ALL' : 'ACTIVE',
+        ad_type: 'ALL',
+        fields: [
+          'id',
+          'ad_creation_time',
+          'ad_creative_bodies',
+          'ad_creative_link_captions',
+          'ad_creative_link_descriptions',
+          'ad_creative_link_titles',
+          'ad_delivery_start_time',
+          'ad_delivery_stop_time',
+          'ad_snapshot_url',
+          'page_id',
+          'page_name',
+          'publisher_platforms',
+          'bylines',
+          'currency',
+          'estimated_audience_size',
+          'impressions',
+          'spend',
+          'demographic_distribution',
+          'delivery_by_region'
+        ].join(','),
+        limit: Math.min(maxAds, 100).toString() // API max is 100 per request
+      };
+
+      // Handle search by page ID
+      if (options.searchType === 'advertiser_id' || options.searchType === 'page') {
+        params.search_page_ids = `["${options.competitor}"]`;
+        delete params.search_terms;
+      }
+
+      let nextUrl: string | null = `${baseUrl}?${new URLSearchParams(params)}`;
+      let totalFetched = 0;
+
+      while (nextUrl && totalFetched < maxAds) {
+        this.emitProgress(`Fetching ads from API (${totalFetched}/${maxAds})...`,
+          Math.round((totalFetched / maxAds) * 100));
+
+        const response = await axios.get(nextUrl, { timeout: 30000 });
+        const data = response.data;
+
+        if (!data.data || data.data.length === 0) {
+          this.logger.debug('No more ads from API');
+          break;
+        }
+
+        for (const apiAd of data.data) {
+          if (totalFetched >= maxAds) break;
+
+          const ad = this.processApiAd(apiAd, options.competitor);
+          ads.push(ad);
+          this.emitAdFound(ad);
+          totalFetched++;
+        }
+
+        // Handle pagination
+        nextUrl = data.paging?.next || null;
+      }
+
+      this.logger.info(`Extracted ${ads.length} ads via API`);
+      return ads;
+
+    } catch (error) {
+      const err = error as any;
+
+      // Handle specific API errors
+      if (err.response?.data?.error) {
+        const apiError = err.response.data.error;
+        this.logger.error(`Meta API Error: ${apiError.message} (code: ${apiError.code})`);
+
+        if (apiError.code === 190) {
+          this.logger.error('Access token expired or invalid. Please refresh your token.');
+        } else if (apiError.code === 100) {
+          this.logger.error('Invalid parameter. Check search terms and country code.');
+        } else if (apiError.code === 4) {
+          this.logger.error('Rate limit exceeded. Wait before retrying.');
+        }
+      } else {
+        this.logger.error(`API request failed: ${err.message}`);
+      }
+
+      return null;
+    }
+  }
+
+  /**
+   * Process API response into Ad object
+   */
+  private processApiAd(apiAd: any, competitor: string): Ad {
+    // Extract primary text from creative bodies
+    const primaryText = apiAd.ad_creative_bodies?.[0] || '';
+
+    // Extract headline from link titles
+    const headline = apiAd.ad_creative_link_titles?.[0] || '';
+
+    // Extract description
+    const description = apiAd.ad_creative_link_descriptions?.[0] || '';
+
+    // Extract platforms
+    const platforms = apiAd.publisher_platforms?.map((p: string) =>
+      p.charAt(0).toUpperCase() + p.slice(1)
+    ) || ['Facebook'];
+
+    // Parse dates
+    const startDate = apiAd.ad_delivery_start_time
+      ? new Date(apiAd.ad_delivery_start_time).toISOString()
+      : undefined;
+    const endDate = apiAd.ad_delivery_stop_time
+      ? new Date(apiAd.ad_delivery_stop_time).toISOString()
+      : undefined;
+
+    // Extract targeting info from demographic distribution
+    const targetingInfo: Ad['targetingInfo'] = {};
+    if (apiAd.demographic_distribution) {
+      const demographics = apiAd.demographic_distribution;
+      if (demographics.age) {
+        const ages = demographics.age.map((d: any) => d.age);
+        targetingInfo.age = {
+          min: Math.min(...ages.map((a: string) => parseInt(a.split('-')[0]))),
+          max: Math.max(...ages.map((a: string) => parseInt(a.split('-')[1] || a.split('-')[0])))
+        };
+      }
+      if (demographics.gender) {
+        targetingInfo.gender = demographics.gender.map((d: any) => d.gender);
+      }
+    }
+    if (apiAd.delivery_by_region) {
+      targetingInfo.locations = apiAd.delivery_by_region.map((r: any) => r.region);
+    }
+
+    return this.createBaseAd(competitor, {
+      primaryText,
+      headline,
+      description,
+      platforms,
+      startDate,
+      endDate,
+      targetingInfo: Object.keys(targetingInfo).length > 0 ? targetingInfo : undefined,
+      hashtags: this.extractHashtags(primaryText),
+      rawData: {
+        id: apiAd.id,
+        pageId: apiAd.page_id,
+        pageName: apiAd.page_name,
+        snapshotUrl: apiAd.ad_snapshot_url,
+        impressions: apiAd.impressions,
+        spend: apiAd.spend,
+        currency: apiAd.currency,
+        estimatedAudienceSize: apiAd.estimated_audience_size,
+        bylines: apiAd.bylines
+      }
+    });
   }
 }
