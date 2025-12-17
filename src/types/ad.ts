@@ -1,4 +1,4 @@
-export type Platform = 'meta' | 'tiktok' | 'google' | 'linkedin';
+export type Platform = 'meta' | 'tiktok' | 'google' | 'linkedin' | 'youtube';
 
 export enum AdCategory {
   TESTIMONIAL = 'testimonial',
@@ -34,6 +34,8 @@ export interface Ad {
   // Media
   mediaType?: 'image' | 'video' | 'carousel';
   mediaUrls?: string[];
+  videoUrl?: string;           // Direct URL to video file
+  videoThumbnailUrl?: string;  // Video thumbnail/poster image
   screenshotPath?: string;
 
   // Destination
@@ -46,6 +48,15 @@ export interface Ad {
   // Analysis results (populated after analysis)
   category?: AdCategory;
   categoryConfidence?: number;
+
+  // Performance metrics (when available from APIs)
+  impressions?: number;
+  reach?: number;
+  spend?: {
+    lower_bound?: number;
+    upper_bound?: number;
+    currency?: string;
+  };
 
   // Raw data for debugging
   rawData?: Record<string, unknown>;

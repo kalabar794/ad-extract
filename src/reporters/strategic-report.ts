@@ -570,9 +570,9 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
     <div class="info-grid">
       <div class="info-card">
         <div class="info-card-title">Campaign Distribution</div>
-        ${campaigns.slice(0, 4).map(c => `
+        ${campaigns.length > 0 ? campaigns.slice(0, 4).map(c => `
           <div class="info-item"><strong>${c.name}:</strong> ${c.percentage}% (${c.variations} variations)</div>
-        `).join('')}
+        `).join('') : '<div class="info-item" style="color: #6b7280;">Limited campaign data available - insufficient ad volume for pattern detection</div>'}
       </div>
       <div class="info-card">
         <div class="info-card-title">Investment Estimate</div>
@@ -584,7 +584,7 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
     </div>
   </div>
 
-  ${campaigns.slice(0, 4).map((campaign, index) => `
+  ${campaigns.length > 0 ? campaigns.slice(0, 4).map((campaign, index) => `
   <!-- Campaign #${index + 1} -->
   <div class="page">
     <h2 class="section-title">Campaign #${index + 1}: ${campaign.name}</h2>
@@ -620,7 +620,7 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
       </div>
     </div>
   </div>
-  `).join('')}
+  `).join('') : ''}
 
   ${caseStudies.length > 0 ? `
   <!-- Case Studies -->
@@ -646,6 +646,7 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
   </div>
   ` : ''}
 
+  ${painPointCategories.length > 0 ? `
   <!-- Pain Points Analysis -->
   <div class="page">
     <h2 class="section-title">Messaging: Pain Points Addressed</h2>
@@ -659,7 +660,9 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
       `).join('')}
     </div>
   </div>
+  ` : ''}
 
+  ${valuePropositions.length > 0 ? `
   <!-- Value Propositions -->
   <div class="page">
     <h2 class="section-title">Core Value Propositions</h2>
@@ -672,6 +675,7 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
       `).join('')}
     </div>
   </div>
+  ` : ''}
 
   <!-- Creative Execution -->
   <div class="page">
@@ -726,6 +730,7 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
     </div>
   </div>
 
+  ${strengths.length > 0 ? `
   <!-- Strategic Strengths -->
   <div class="page">
     <h2 class="section-title">Strategic Strengths</h2>
@@ -743,7 +748,9 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
       </ol>
     </div>
   </div>
+  ` : ''}
 
+  ${weaknesses.length > 0 ? `
   <!-- Strategic Weaknesses -->
   <div class="page">
     <h2 class="section-title">Strategic Weaknesses + Gaps</h2>
@@ -761,7 +768,9 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
       </ol>
     </div>
   </div>
+  ` : ''}
 
+  ${keyInsights.length > 0 || weaknesses.length > 0 ? `
   <!-- Key Insights Summary -->
   <div class="page">
     <h2 class="section-title">Key Insights Summary</h2>
@@ -773,6 +782,7 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
     </div>
     `).join('')}
 
+    ${weaknesses.length > 0 ? `
     <h3 class="subsection-title" style="margin-top: 30px;">Vulnerabilities</h3>
     <div class="vulnerabilities-grid">
       ${weaknesses.slice(0, 6).map(w => `
@@ -782,7 +792,9 @@ export function generateStrategicReportHTML(analysis: StrategicAnalysis): string
       </div>
       `).join('')}
     </div>
+    ` : ''}
   </div>
+  ` : ''}
 
   ${adExamples.length > 0 ? `
   <!-- Ad Examples -->

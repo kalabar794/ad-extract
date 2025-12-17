@@ -28,7 +28,7 @@ describe('Ad Categorizer', () => {
       const result = categorizeAd(ad);
 
       expect(result.category).toBe(AdCategory.TESTIMONIAL);
-      expect(result.categoryConfidence).toBeGreaterThan(0);
+      expect(result.confidence).toBeGreaterThan(0);
     });
 
     it('should categorize offer/promo ads', () => {
@@ -39,7 +39,7 @@ describe('Ad Categorizer', () => {
       const result = categorizeAd(ad);
 
       expect(result.category).toBe(AdCategory.OFFER_PROMO);
-      expect(result.categoryConfidence).toBeGreaterThan(0);
+      expect(result.confidence).toBeGreaterThan(0);
     });
 
     it('should categorize educational ads', () => {
@@ -50,7 +50,7 @@ describe('Ad Categorizer', () => {
       const result = categorizeAd(ad);
 
       expect(result.category).toBe(AdCategory.EDUCATIONAL);
-      expect(result.categoryConfidence).toBeGreaterThan(0);
+      expect(result.confidence).toBeGreaterThan(0);
     });
 
     it('should categorize urgency/scarcity ads', () => {
@@ -61,7 +61,7 @@ describe('Ad Categorizer', () => {
       const result = categorizeAd(ad);
 
       expect(result.category).toBe(AdCategory.URGENCY_SCARCITY);
-      expect(result.categoryConfidence).toBeGreaterThan(0);
+      expect(result.confidence).toBeGreaterThan(0);
     });
 
     it('should categorize problem/solution ads', () => {
@@ -72,7 +72,7 @@ describe('Ad Categorizer', () => {
       const result = categorizeAd(ad);
 
       expect(result.category).toBe(AdCategory.PROBLEM_SOLUTION);
-      expect(result.categoryConfidence).toBeGreaterThan(0);
+      expect(result.confidence).toBeGreaterThan(0);
     });
 
     it('should categorize hiring ads', () => {
@@ -83,7 +83,33 @@ describe('Ad Categorizer', () => {
       const result = categorizeAd(ad);
 
       expect(result.category).toBe(AdCategory.HIRING);
-      expect(result.categoryConfidence).toBeGreaterThan(0);
+      expect(result.confidence).toBeGreaterThan(0);
+    });
+
+    it('should return signals showing why it matched', () => {
+      const ad = createMockAd({
+        primaryText: '"Best product ever!" ★★★★★ - Customer review'
+      });
+
+      const result = categorizeAd(ad);
+
+      expect(result.signals).toBeDefined();
+      expect(Array.isArray(result.signals)).toBe(true);
+    });
+
+    it('should return scores for all categories', () => {
+      const ad = createMockAd({
+        primaryText: 'Generic advertisement text'
+      });
+
+      const result = categorizeAd(ad);
+
+      expect(result.scores).toBeDefined();
+      expect(typeof result.scores).toBe('object');
+      // Should have scores for all categories
+      expect(result.scores[AdCategory.TESTIMONIAL]).toBeDefined();
+      expect(result.scores[AdCategory.OFFER_PROMO]).toBeDefined();
+      expect(result.scores[AdCategory.OTHER]).toBeDefined();
     });
 
     it('should handle ads with low confidence by defaulting to OTHER', () => {
@@ -95,12 +121,12 @@ describe('Ad Categorizer', () => {
 
       // With minimal text, should default to OTHER
       expect(result.category).toBeDefined();
-      expect(result.categoryConfidence).toBeDefined();
+      expect(result.confidence).toBeDefined();
     });
   });
 
   describe('categorizeAds', () => {
-    it('should categorize multiple ads', () => {
+    it('should categorize multiple ads and update them', () => {
       const ads: Ad[] = [
         createMockAd({ primaryText: '★★★★★ Amazing product review!' }),
         createMockAd({ primaryText: '50% OFF limited time!' }),

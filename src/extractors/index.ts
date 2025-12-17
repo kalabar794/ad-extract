@@ -5,12 +5,14 @@ import { MetaExtractor } from './meta';
 import { TikTokExtractor } from './tiktok';
 import { GoogleExtractor } from './google';
 import { LinkedInExtractor } from './linkedin';
+import { YouTubeExtractor } from './youtube';
 
 export { BaseExtractor, ExtractorEvents } from './base';
 export { MetaExtractor } from './meta';
 export { TikTokExtractor } from './tiktok';
 export { GoogleExtractor } from './google';
 export { LinkedInExtractor } from './linkedin';
+export { YouTubeExtractor } from './youtube';
 
 /**
  * Factory function to get the appropriate extractor for a platform
@@ -29,6 +31,8 @@ export function getExtractor(
       return new GoogleExtractor(config, events);
     case 'linkedin':
       return new LinkedInExtractor(config, events);
+    case 'youtube':
+      return new YouTubeExtractor(config, events);
     default:
       throw new Error(`Unknown platform: ${platform}`);
   }
@@ -38,5 +42,5 @@ export function getExtractor(
  * Get list of available extractors
  */
 export function getAvailablePlatforms(): Platform[] {
-  return ['meta', 'tiktok', 'google', 'linkedin'];
+  return ['meta', 'tiktok', 'google', 'linkedin', 'youtube'];
 }

@@ -116,18 +116,19 @@ describe('Strategic Intelligence Analyzer', () => {
     });
 
     it('should identify strengths when many case studies exist', () => {
+      // Use proper doctor names (regex requires [A-Z][a-z]+ pattern)
       const ads: Ad[] = [
-        createMockAd({ primaryText: 'Dr. A saw 100% growth.' }),
-        createMockAd({ primaryText: 'Dr. B saw 150% growth.' }),
-        createMockAd({ primaryText: 'Dr. C saw 200% growth.' }),
-        createMockAd({ primaryText: 'Dr. D saw 250% growth.' }),
+        createMockAd({ primaryText: 'Dr. Adams saw 100% growth after partnering with us.' }),
+        createMockAd({ primaryText: 'Dr. Brown saw 150% growth in just 6 months.' }),
+        createMockAd({ primaryText: 'Dr. Chen saw 200% growth with our system.' }),
+        createMockAd({ primaryText: 'Dr. Davis saw 250% growth this year.' }),
       ];
 
       const analysis = generateStrategicAnalysis('Test Company', ads);
 
       expect(analysis.strengths.length).toBeGreaterThan(0);
 
-      // Should identify testimonial factory strength
+      // Should identify testimonial factory strength (requires 3+ case studies)
       const testimonialStrength = analysis.strengths.find(s =>
         s.title.toLowerCase().includes('testimonial')
       );
@@ -140,6 +141,46 @@ describe('Strategic Intelligence Analyzer', () => {
       expect(analysis).toBeDefined();
       expect(analysis.totalAds).toBe(0);
       expect(analysis.campaigns).toEqual([]);
+    });
+
+    it('should include creative execution analysis', () => {
+      const ads: Ad[] = [
+        createMockAd({ cta: 'Learn More', destinationUrl: 'https://example.com' }),
+        createMockAd({ cta: 'Learn More', destinationUrl: 'https://example.com/page' }),
+        createMockAd({ cta: 'Sign Up', destinationUrl: 'https://example.com/signup' }),
+      ];
+
+      const analysis = generateStrategicAnalysis('Test Company', ads);
+
+      expect(analysis.creativeExecution).toBeDefined();
+      expect(analysis.creativeExecution.ctaDistribution).toBeDefined();
+      expect(Array.isArray(analysis.creativeExecution.ctaDistribution)).toBe(true);
+    });
+
+    it('should include audience targeting analysis', () => {
+      const ads: Ad[] = [
+        createMockAd({ primaryText: 'Perfect for solo dental practitioners looking to grow.' }),
+        createMockAd({ primaryText: 'Scale your dental practice today.' }),
+      ];
+
+      const analysis = generateStrategicAnalysis('Test Company', ads);
+
+      expect(analysis.audienceTargeting).toBeDefined();
+      expect(analysis.audienceTargeting.primary).toBeDefined();
+      expect(analysis.audienceTargeting.primary.coreTarget).toBeDefined();
+    });
+
+    it('should generate key insights', () => {
+      const ads: Ad[] = [
+        createMockAd({ primaryText: 'Dr. Jones saw 196% growth with our proven system.' }),
+        createMockAd({ primaryText: 'Dr. Smith doubled his practice revenue.' }),
+      ];
+
+      const analysis = generateStrategicAnalysis('Test Company', ads);
+
+      expect(analysis.keyInsights).toBeDefined();
+      expect(Array.isArray(analysis.keyInsights)).toBe(true);
+      expect(analysis.keyInsights.length).toBeGreaterThan(0);
     });
   });
 });

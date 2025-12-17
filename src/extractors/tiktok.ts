@@ -17,6 +17,8 @@ interface TikTokAdData {
   status: string;
   format?: string;
   destinationUrl?: string;
+  videoUrl?: string;
+  videoThumbnailUrl?: string;
   engagement?: {
     likes?: number;
     comments?: number;
@@ -62,13 +64,24 @@ export class TikTokExtractor extends BaseExtractor {
 
       this.emitProgress('Extracting ad data...', 50);
 
-      // Extract ads from page
+      // Extract ads from page (includes video URLs since TikTok is video-first)
       const rawAds = await this.extractAdsFromPage(page);
       this.logger.info(`Found ${rawAds.length} ads`);
+
+      // Extract video URLs separately for better accuracy
+      this.emitProgress('Extracting video URLs...', 55);
+      const videoUrls = await this.extractVideoUrls(page);
 
       // Process ads
       for (let i = 0; i < Math.min(rawAds.length, maxAds); i++) {
         const raw = rawAds[i];
+
+        // Match video URL if available
+        if (videoUrls[i]) {
+          raw.videoUrl = videoUrls[i].videoUrl;
+          raw.videoThumbnailUrl = videoUrls[i].thumbnailUrl;
+        }
+
         const ad = this.processAd(raw, options.competitor);
 
         if (this.config.extraction.screenshots) {
@@ -78,7 +91,7 @@ export class TikTokExtractor extends BaseExtractor {
         ads.push(ad);
         this.emitAdFound(ad);
 
-        const progress = 50 + (50 * (i + 1) / Math.min(rawAds.length, maxAds));
+        const progress = 60 + (40 * (i + 1) / Math.min(rawAds.length, maxAds));
         this.emitProgress(`Processed ${i + 1}/${Math.min(rawAds.length, maxAds)} ads`, progress);
       }
 
@@ -212,6 +225,126 @@ export class TikTokExtractor extends BaseExtractor {
         // Load more button not found, continue scrolling
       }
     }
+  }
+
+  /**
+   * Extract video URLs from ad cards on the page
+   * TikTok is video-first, so most ads will have video content
+   */
+  private async extractVideoUrls(page: Page): Promise<Array<{
+    videoUrl?: string;
+    thumbnailUrl?: string;
+  }>> {
+    return await page.evaluate(() => {
+      const results: Array<{ videoUrl?: string; thumbnailUrl?: string }> = [];
+
+      // Find ad card containers
+      const adCardSelectors = [
+        '[data-testid="ad-card"]',
+        '.ad-card',
+        '.ad-item',
+        '[class*="AdCard"]',
+        '[class*="ad-card"]',
+        'div[class*="creative"]'
+      ];
+
+      let adCards: Element[] = [];
+      for (const selector of adCardSelectors) {
+        const cards = document.querySelectorAll(selector);
+        if (cards.length > 0) {
+          adCards = Array.from(cards);
+          break;
+        }
+      }
+
+      // If no structured cards found, try to find video containers
+      if (adCards.length === 0) {
+        // Look for any container with video elements
+        const videoContainers = document.querySelectorAll('div:has(video), div:has([class*="video"])');
+        adCards = Array.from(videoContainers);
+      }
+
+      for (const card of adCards) {
+        const result: { videoUrl?: string; thumbnailUrl?: string } = {};
+
+        // Strategy 1: Direct video element
+        const videoEl = card.querySelector('video');
+        if (videoEl) {
+          // Check src attribute
+          if (videoEl.src && !videoEl.src.startsWith('blob:')) {
+            result.videoUrl = videoEl.src;
+          }
+          // Check source elements inside video
+          const sourceEl = videoEl.querySelector('source');
+          if (sourceEl?.src && !sourceEl.src.startsWith('blob:')) {
+            result.videoUrl = sourceEl.src;
+          }
+          // Get poster as thumbnail
+          if (videoEl.poster) {
+            result.thumbnailUrl = videoEl.poster;
+          }
+        }
+
+        // Strategy 2: Data attributes on elements
+        const elementsWithData = Array.from(card.querySelectorAll('[data-video-url], [data-src], [data-video]'));
+        for (const el of elementsWithData) {
+          const videoUrl = el.getAttribute('data-video-url') ||
+                          el.getAttribute('data-video') ||
+                          el.getAttribute('data-src');
+          if (videoUrl && !videoUrl.startsWith('blob:') && videoUrl.includes('.mp4')) {
+            result.videoUrl = videoUrl;
+            break;
+          }
+        }
+
+        // Strategy 3: Look for video URLs in onclick or other attributes
+        const allElements = Array.from(card.querySelectorAll('*'));
+        for (const el of allElements) {
+          // Check for video URL patterns in attributes
+          for (const attr of Array.from(el.attributes)) {
+            const value = attr.value;
+            if (value && !result.videoUrl) {
+              // Match TikTok video URL patterns
+              const videoMatch = value.match(/(https?:\/\/[^\s"']+\.mp4[^\s"']*)/i) ||
+                                value.match(/(https?:\/\/[^\s"']*tiktok[^\s"']*video[^\s"']*)/i) ||
+                                value.match(/(https?:\/\/v[^\s"']*tiktok[^\s"']*)/i);
+              if (videoMatch) {
+                result.videoUrl = videoMatch[1];
+              }
+            }
+          }
+        }
+
+        // Strategy 4: Get thumbnail from img elements if not found
+        if (!result.thumbnailUrl) {
+          const imgs = Array.from(card.querySelectorAll('img'));
+          for (const img of imgs) {
+            const src = img.src || img.getAttribute('data-src');
+            if (src && img.width > 100 && img.height > 100) {
+              result.thumbnailUrl = src;
+              break;
+            }
+          }
+        }
+
+        // Strategy 5: Check background images for thumbnails
+        if (!result.thumbnailUrl) {
+          const bgElements = Array.from(card.querySelectorAll('[style*="background"]'));
+          for (const el of bgElements) {
+            const style = (el as HTMLElement).style.backgroundImage;
+            const urlMatch = style.match(/url\(['"]?([^'"]+)['"]?\)/);
+            if (urlMatch && urlMatch[1]) {
+              result.thumbnailUrl = urlMatch[1];
+              break;
+            }
+          }
+        }
+
+        results.push(result);
+      }
+
+      return results;
+    });
   }
 
   private async extractAdsFromPage(page: Page): Promise<TikTokAdData[]> {
@@ -372,20 +505,28 @@ export class TikTokExtractor extends BaseExtractor {
   }
 
   private processAd(raw: TikTokAdData, competitor: string): Ad {
+    // If we have a video URL, ensure mediaType is 'video'
+    const mediaType = raw.videoUrl
+      ? 'video' as const
+      : raw.format as 'image' | 'video' | 'carousel' | undefined;
+
     return this.createBaseAd(competitor, {
       primaryText: raw.primaryText,
       headline: raw.advertiserName,
       startDate: raw.startDate,
       endDate: raw.endDate,
       platforms: ['TikTok'],
-      mediaType: raw.format as 'image' | 'video' | 'carousel' | undefined,
+      mediaType,
       destinationUrl: raw.destinationUrl,
+      videoUrl: raw.videoUrl,
+      videoThumbnailUrl: raw.videoThumbnailUrl,
       hashtags: this.extractHashtags(raw.primaryText),
       rawData: {
         adId: raw.adId,
         status: raw.status,
         advertiserName: raw.advertiserName,
-        regions: raw.regions
+        regions: raw.regions,
+        videoUrl: raw.videoUrl
       }
     });
   }
@@ -614,8 +755,13 @@ export class TikTokExtractor extends BaseExtractor {
       platforms: ['TikTok'],
       mediaType,
       destinationUrl: apiAd.landing_page_url,
+      videoUrl: apiAd.video_url,
+      mediaUrls: apiAd.image_urls,
       targetingInfo: Object.keys(targetingInfo).length > 0 ? targetingInfo : undefined,
       hashtags: this.extractHashtags(primaryText),
+      // Include API metrics in raw data and top-level fields
+      impressions: apiAd.impression_count,
+      reach: apiAd.ad_reach,
       rawData: {
         adId: apiAd.ad_id,
         advertiserName: apiAd.advertiser_business_name,

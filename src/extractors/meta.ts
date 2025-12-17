@@ -18,6 +18,9 @@ interface MetaAdData {
   status: string;
   destinationUrl?: string;
   mediaType?: 'image' | 'video' | 'carousel';
+  videoUrl?: string;
+  videoThumbnailUrl?: string;
+  imageUrls?: string[];
 }
 
 export class MetaExtractor extends BaseExtractor {
@@ -54,9 +57,21 @@ export class MetaExtractor extends BaseExtractor {
       const rawAds = await this.extractAdsFromPage(page);
       this.logger.info(`Found ${rawAds.length} ads`);
 
+      // Extract video/media URLs from the page
+      this.emitProgress('Extracting media URLs...', 55);
+      const mediaData = await this.extractMediaUrls(page);
+
       // Process ads
       for (let i = 0; i < Math.min(rawAds.length, maxAds); i++) {
         const raw = rawAds[i];
+
+        // Match media data to this ad if available
+        if (mediaData[i]) {
+          raw.videoUrl = mediaData[i].videoUrl;
+          raw.videoThumbnailUrl = mediaData[i].thumbnailUrl;
+          raw.imageUrls = mediaData[i].imageUrls;
+        }
+
         const ad = this.processAd(raw, options.competitor);
 
         if (this.config.extraction.screenshots) {
@@ -67,7 +82,7 @@ export class MetaExtractor extends BaseExtractor {
         ads.push(ad);
         this.emitAdFound(ad);
 
-        const progress = 50 + (50 * (i + 1) / Math.min(rawAds.length, maxAds));
+        const progress = 60 + (40 * (i + 1) / Math.min(rawAds.length, maxAds));
         this.emitProgress(`Processed ${i + 1}/${Math.min(rawAds.length, maxAds)} ads`, progress);
       }
 
@@ -288,6 +303,94 @@ export class MetaExtractor extends BaseExtractor {
     });
   }
 
+  /**
+   * Extract video and image URLs from ad cards on the page
+   */
+  private async extractMediaUrls(page: Page): Promise<Array<{
+    videoUrl?: string;
+    thumbnailUrl?: string;
+    imageUrls?: string[];
+  }>> {
+    return await page.evaluate(() => {
+      const mediaData: Array<{
+        videoUrl?: string;
+        thumbnailUrl?: string;
+        imageUrls?: string[];
+      }> = [];
+
+      // Find all ad containers (elements with Library ID)
+      const adContainers: Element[] = [];
+      const allElements = document.querySelectorAll('*');
+
+      allElements.forEach((el) => {
+        const text = el.textContent || '';
+        if (text.includes('Library ID:') && text.includes('See ad details') && text.length < 5000) {
+          adContainers.push(el);
+        }
+      });
+
+      // For each ad container, extract media URLs
+      adContainers.forEach((container) => {
+        const data: {
+          videoUrl?: string;
+          thumbnailUrl?: string;
+          imageUrls?: string[];
+        } = {};
+
+        // Look for video elements
+        const videos = container.querySelectorAll('video');
+        videos.forEach((video) => {
+          // Check for source element
+          const source = video.querySelector('source');
+          if (source?.src) {
+            data.videoUrl = source.src;
+          } else if (video.src) {
+            data.videoUrl = video.src;
+          }
+
+          // Get poster/thumbnail
+          if (video.poster) {
+            data.thumbnailUrl = video.poster;
+          }
+        });
+
+        // Look for video source in data attributes or blob URLs
+        const elementsWithData = container.querySelectorAll('[data-video-url], [data-src]');
+        elementsWithData.forEach((el) => {
+          const videoUrl = el.getAttribute('data-video-url') || el.getAttribute('data-src');
+          if (videoUrl && (videoUrl.includes('.mp4') || videoUrl.includes('video'))) {
+            data.videoUrl = videoUrl;
+          }
+        });
+
+        // Look for images
+        const images = container.querySelectorAll('img');
+        const imageUrls: string[] = [];
+        images.forEach((img) => {
+          // Skip small icons and tracking pixels
+          if (img.width > 100 && img.height > 100 && img.src) {
+            // Skip data URLs and internal FB images
+            if (!img.src.startsWith('data:') && !img.src.includes('emoji')) {
+              imageUrls.push(img.src);
+            }
+          }
+        });
+
+        if (imageUrls.length > 0) {
+          data.imageUrls = imageUrls;
+          // If no video thumbnail, use first image as fallback
+          if (!data.thumbnailUrl && imageUrls.length > 0) {
+            data.thumbnailUrl = imageUrls[0];
+          }
+        }
+
+        mediaData.push(data);
+      });
+
+      return mediaData;
+    });
+  }
+
   private processAd(raw: MetaAdData, competitor: string): Ad {
     return this.createBaseAd(competitor, {
       primaryText: raw.primaryText,
@@ -297,6 +400,9 @@ export class MetaExtractor extends BaseExtractor {
       platforms: raw.platforms,
       mediaType: raw.mediaType,
       destinationUrl: raw.destinationUrl,
+      videoUrl: raw.videoUrl,
+      videoThumbnailUrl: raw.videoThumbnailUrl,
+      mediaUrls: raw.imageUrls,
       hashtags: this.extractHashtags(raw.primaryText),
       rawData: {
         libraryId: raw.libraryId,

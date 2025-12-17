@@ -36,6 +36,7 @@ import { AdCategorizer } from '../analyzers/categorizer';
 import { CopyAnalyzer } from '../analyzers/copy-analyzer';
 import { generateStrategicAnalysis } from '../analyzers/strategic-intelligence';
 import { generateStrategicReportHTML, saveStrategicReport } from '../reporters/strategic-report';
+import { SpendEstimator, formatSpend, formatSpendRange, getSpendSummary } from '../analyzers/spend-estimator';
 import { Ad, Platform, ExtractionOptions } from '../types/ad';
 import { AppConfig, defaultConfig } from '../types/config';
 import { createLogger } from '../utils/logger';
@@ -45,7 +46,7 @@ const logger = createLogger('mcp-server');
 // Input schemas for tools
 const ExtractAdsInputSchema = z.object({
   competitor: z.string().describe('Company name or advertiser ID to search for'),
-  platforms: z.array(z.enum(['meta', 'tiktok', 'google', 'linkedin']))
+  platforms: z.array(z.enum(['meta', 'tiktok', 'google', 'linkedin', 'youtube']))
     .default(['meta'])
     .describe('Platforms to extract ads from'),
   maxAds: z.number().min(1).max(500).default(50)
@@ -82,6 +83,12 @@ const GenerateStrategicReportInputSchema = z.object({
   competitor: z.string().describe('Competitor name for the report'),
   outputDir: z.string().optional().default('./output')
     .describe('Directory to save the report files')
+});
+
+const EstimateSpendInputSchema = z.object({
+  ads: z.array(z.any()).describe('Array of extracted ads to analyze'),
+  industry: z.string().optional()
+    .describe('Industry vertical for more accurate CPM estimates (e.g., dental, saas, ecommerce, finance)')
 });
 
 // Tool definitions
@@ -276,6 +283,33 @@ This produces a professional competitor analysis report similar to agency delive
         }
       },
       required: ['ads', 'competitor']
+    }
+  },
+  {
+    name: 'estimate_ad_spend',
+    description: `Estimate competitor advertising spend based on extracted ads. Uses industry CPM benchmarks to calculate:
+- Daily spend estimates (low/mid/high range)
+- Monthly spend estimates
+- Total estimated spend over campaign duration
+- Platform-by-platform breakdown
+- Impression estimates
+
+Supports industry-specific CPM rates for: dental, saas, ecommerce, finance, healthcare, b2b, legal, real_estate, technology, retail, education, and more.
+
+Note: Estimates are more accurate when ads include impression/reach data from platform APIs.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ads: {
+          type: 'array',
+          description: 'Array of extracted ads to analyze'
+        },
+        industry: {
+          type: 'string',
+          description: 'Industry vertical for more accurate CPM estimates (e.g., dental, saas, ecommerce, finance)'
+        }
+      },
+      required: ['ads']
     }
   }
 ];
@@ -513,6 +547,53 @@ async function handleGenerateStrategicReport(input: z.infer<typeof GenerateStrat
   }, null, 2);
 }
 
+async function handleEstimateSpend(input: z.infer<typeof EstimateSpendInputSchema>): Promise<string> {
+  const ads = input.ads as Ad[];
+  const estimator = new SpendEstimator(input.industry);
+  const estimate = estimator.estimate(ads);
+
+  return JSON.stringify({
+    summary: getSpendSummary(estimate),
+    daily: {
+      low: formatSpend(estimate.daily.low),
+      mid: formatSpend(estimate.daily.mid),
+      high: formatSpend(estimate.daily.high),
+      range: formatSpendRange(estimate.daily.low, estimate.daily.high)
+    },
+    monthly: {
+      low: formatSpend(estimate.monthly.low),
+      mid: formatSpend(estimate.monthly.mid),
+      high: formatSpend(estimate.monthly.high),
+      range: formatSpendRange(estimate.monthly.low, estimate.monthly.high)
+    },
+    total: {
+      low: formatSpend(estimate.total.low),
+      mid: formatSpend(estimate.total.mid),
+      high: formatSpend(estimate.total.high),
+      range: formatSpendRange(estimate.total.low, estimate.total.high)
+    },
+    confidence: estimate.confidence,
+    methodology: estimate.methodology,
+    breakdown: estimate.breakdown.map(b => ({
+      platform: b.platform,
+      adCount: b.adCount,
+      avgDaysActive: b.avgDaysActive,
+      cpmUsed: `$${b.cpmUsed.toFixed(2)}`,
+      estimatedImpressions: {
+        low: b.estimatedImpressions.low.toLocaleString(),
+        mid: b.estimatedImpressions.mid.toLocaleString(),
+        high: b.estimatedImpressions.high.toLocaleString()
+      },
+      estimatedSpend: {
+        low: formatSpend(b.estimatedSpend.low),
+        mid: formatSpend(b.estimatedSpend.mid),
+        high: formatSpend(b.estimatedSpend.high)
+      }
+    })),
+    industryUsed: input.industry || 'default (average)'
+  }, null, 2);
+}
+
 // Register handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools
@@ -557,6 +638,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'generate_strategic_report': {
         const input = GenerateStrategicReportInputSchema.parse(args);
         result = await handleGenerateStrategicReport(input);
+        break;
+      }
+      case 'estimate_ad_spend': {
+        const input = EstimateSpendInputSchema.parse(args);
+        result = await handleEstimateSpend(input);
         break;
       }
       default:
