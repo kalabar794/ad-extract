@@ -201,7 +201,18 @@ export async function startServer(config: ServerConfig): Promise<void> {
 
   // Download or view report
   app.get('/api/reports/:filename', async (req, res) => {
-    const filepath = path.resolve(defaultConfig.output.directory, req.params.filename);
+    const filename = req.params.filename;
+    const outputDir = defaultConfig.output.directory;
+    const filepath = path.join(outputDir, filename);
+
+    // Security: Prevent path traversal attacks
+    const resolvedPath = path.resolve(filepath);
+    const resolvedOutputDir = path.resolve(outputDir);
+    if (!resolvedPath.startsWith(resolvedOutputDir + path.sep) && resolvedPath !== resolvedOutputDir) {
+      logger.warn(`Path traversal attempt blocked: ${filename}`);
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
     const fs = await import('fs');
 
     if (!fs.existsSync(filepath)) {
