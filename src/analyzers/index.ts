@@ -3,6 +3,18 @@ export { CopyAnalyzer, analyzeCopy } from './copy-analyzer';
 export { CampaignAnalyzer, analyzeCampaigns } from './campaign-analyzer';
 export type { Campaign, CampaignAnalysis } from './campaign-analyzer';
 export { LandingPageAnalyzer, analyzeLandingPage, analyzeLandingPages } from './landing-page';
+export {
+  SentimentAnalyzer,
+  analyzeSentiment,
+  analyzeAdsSentiment,
+  analyzeCompetitorSentiment,
+  EmotionAnalyzer,
+  PersuasionAnalyzer,
+  ToneAnalyzer,
+  FramingAnalyzer,
+  TriggerAnalyzer,
+  PositioningAnalyzer
+} from './sentiment';
 
 import { Ad, AdCategory } from '../types/ad';
 import { CompetitorAnalysis, CopyAnalysis } from '../types/analysis';
