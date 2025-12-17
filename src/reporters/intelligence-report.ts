@@ -6,9 +6,18 @@ import { createLogger } from '../utils/logger';
 
 const logger = createLogger('intelligence-report');
 
+export interface BrandingConfig {
+  logo?: string;                    // URL to logo
+  primaryColor?: string;            // Hex color (e.g., '#3b82f6')
+  secondaryColor?: string;          // Hex color
+  companyName?: string;
+  footerText?: string;
+}
+
 export interface IntelligenceReportOptions {
   outputDir: string;
   filename?: string;
+  branding?: BrandingConfig;
 }
 
 export class IntelligenceReportGenerator {
