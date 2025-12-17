@@ -8,6 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { getExtractor, getAvailablePlatforms } from '../extractors';
 import { analyzeCompetitor, categorizeAds } from '../analyzers';
 import { generateReports } from '../reporters';
+import { generateStrategicAnalysis, StrategicAnalysis } from '../analyzers/strategic-intelligence';
+import { generateStrategicReportHTML, saveStrategicReport } from '../reporters/strategic-report';
 import { closeBrowser } from '../utils/browser';
 import { defaultConfig, AppConfig, Platform, Ad } from '../types';
 import { createLogger } from '../utils/logger';
@@ -31,6 +33,7 @@ interface Job {
   result?: {
     totalAds: number;
     reports: string[];
+    strategicAnalysis?: StrategicAnalysis;
   };
   error?: string;
 }
@@ -120,11 +123,11 @@ export async function startServer(config: ServerConfig): Promise<void> {
     // Run extraction in background
     runExtraction(jobId, {
       competitor,
-      platforms,
+      platforms: platforms as Platform[],
       maxAds,
       country,
       screenshots,
-      formats
+      formats: formats as ('json' | 'markdown' | 'html' | 'intelligence' | 'excel' | 'pdf')[]
     });
   });
 
@@ -168,16 +171,59 @@ export async function startServer(config: ServerConfig): Promise<void> {
     }
   });
 
-  // Download report
+  // Download or view report
   app.get('/api/reports/:filename', async (req, res) => {
-    const filepath = path.join(defaultConfig.output.directory, req.params.filename);
+    const filepath = path.resolve(defaultConfig.output.directory, req.params.filename);
     const fs = await import('fs');
 
     if (!fs.existsSync(filepath)) {
       return res.status(404).json({ error: 'Report not found' });
     }
 
-    res.download(filepath);
+    // Serve HTML files directly for viewing, download others
+    if (req.params.filename.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html');
+      res.sendFile(filepath);
+    } else if (req.params.filename.endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.sendFile(filepath);
+    } else {
+      res.download(filepath);
+    }
+  });
+
+  // Generate strategic report
+  app.post('/api/strategic-report', async (req, res) => {
+    const { ads, competitor } = req.body;
+
+    if (!ads || !Array.isArray(ads) || ads.length === 0) {
+      return res.status(400).json({ error: 'Ads array is required' });
+    }
+
+    if (!competitor) {
+      return res.status(400).json({ error: 'Competitor name is required' });
+    }
+
+    try {
+      // Generate strategic analysis
+      const analysis = generateStrategicAnalysis(competitor, ads);
+
+      // Generate HTML report
+      const html = generateStrategicReportHTML(analysis);
+
+      // Save reports
+      const reports = await saveStrategicReport(analysis, defaultConfig.output.directory);
+
+      res.json({
+        success: true,
+        analysis,
+        reports,
+        html
+      });
+    } catch (error) {
+      logger.error(`Strategic report error: ${(error as Error).message}`);
+      res.status(500).json({ error: (error as Error).message });
+    }
   });
 
   // Serve the main HTML page
@@ -185,8 +231,19 @@ export async function startServer(config: ServerConfig): Promise<void> {
     res.sendFile(path.join(__dirname, '../../src/web/index.html'));
   });
 
+  type OutputFormat = 'json' | 'markdown' | 'html' | 'intelligence' | 'excel' | 'pdf';
+
+  interface ExtractionJobOptions {
+    competitor: string;
+    platforms: Platform[];
+    maxAds: number;
+    country: string;
+    screenshots: boolean;
+    formats: OutputFormat[];
+  }
+
   // Run extraction job
-  async function runExtraction(jobId: string, options: any) {
+  async function runExtraction(jobId: string, options: ExtractionJobOptions) {
     const job = jobs.get(jobId)!;
     job.status = 'running';
     job.message = 'Starting extraction...';
@@ -223,7 +280,7 @@ export async function startServer(config: ServerConfig): Promise<void> {
         job.message = `Extracting from ${platform}...`;
         broadcast('job:updated', job);
 
-        const extractor = getExtractor(platform as Platform, config, {
+        const extractor = getExtractor(platform, config, {
           onProgress: (message, progress) => {
             const overallProgress = ((completedPlatforms / totalPlatforms) + (progress / 100 / totalPlatforms)) * 70;
             job.progress = Math.round(overallProgress);
@@ -260,19 +317,39 @@ export async function startServer(config: ServerConfig): Promise<void> {
       broadcast('job:progress', { jobId, progress: 75, message: 'Analyzing ads...' });
 
       const categorizedAds = categorizeAds(allAds);
-      const analysis = analyzeCompetitor(options.competitor, categorizedAds);
 
-      // Generate reports
+      // Generate strategic analysis
+      job.progress = 80;
+      job.message = 'Generating strategic analysis...';
+      broadcast('job:progress', { jobId, progress: 80, message: 'Generating strategic analysis...' });
+
+      const strategicAnalysis = generateStrategicAnalysis(options.competitor, categorizedAds);
+
+      // Generate reports (both basic and strategic)
       job.progress = 90;
       job.message = 'Generating reports...';
       broadcast('job:progress', { jobId, progress: 90, message: 'Generating reports...' });
 
-      const reports = await generateReports(
+      const basicAnalysis = analyzeCompetitor(options.competitor, categorizedAds);
+      const basicReports = await generateReports(
         options.competitor,
         categorizedAds,
-        analysis,
+        basicAnalysis,
         config.output!
       );
+
+      // Generate strategic report
+      const strategicReports = await saveStrategicReport(strategicAnalysis, config.output!.directory);
+
+      // Combine all report paths
+      const allReportPaths = [
+        ...basicReports.map(r => r.path),
+        strategicReports.html,
+        strategicReports.json
+      ];
+      if (strategicReports.pdf) {
+        allReportPaths.push(strategicReports.pdf);
+      }
 
       // Complete
       job.status = 'completed';
@@ -281,11 +358,12 @@ export async function startServer(config: ServerConfig): Promise<void> {
       job.completedAt = new Date().toISOString();
       job.result = {
         totalAds: allAds.length,
-        reports: reports.map(r => r.path)
+        reports: allReportPaths,
+        strategicAnalysis
       };
 
       broadcast('job:completed', job);
-      logger.info(`Job ${jobId} completed: ${allAds.length} ads, ${reports.length} reports`);
+      logger.info(`Job ${jobId} completed: ${allAds.length} ads, ${allReportPaths.length} reports`);
     } catch (error) {
       job.status = 'failed';
       job.error = (error as Error).message;
@@ -315,3 +393,8 @@ export async function startServer(config: ServerConfig): Promise<void> {
 }
 
 export default startServer;
+
+// Auto-start when run directly
+if (require.main === module) {
+  startServer({ port: 3000, host: 'localhost' });
+}

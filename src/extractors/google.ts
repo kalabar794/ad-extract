@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BaseExtractor, ExtractorEvents } from './base';
 import { Ad, ExtractionOptions } from '../types/ad';
 import { AppConfig } from '../types/config';
+import { SerpApiGoogleAd, SearchApiGoogleAd } from '../types/api-responses';
 
 const GOOGLE_AD_TRANSPARENCY_URL = 'https://adstransparency.google.com';
 
@@ -635,7 +636,7 @@ export class GoogleExtractor extends BaseExtractor {
   /**
    * Process SerpApi response into Ad object
    */
-  private processSerpApiAd(apiAd: any, competitor: string): Ad {
+  private processSerpApiAd(apiAd: SerpApiGoogleAd, competitor: string): Ad {
     // Extract primary text
     const primaryText = apiAd.text || apiAd.description || apiAd.body || '';
 
@@ -681,7 +682,7 @@ export class GoogleExtractor extends BaseExtractor {
   /**
    * Process SearchAPI.io response into Ad object
    */
-  private processSearchApiAd(apiAd: any, competitor: string): Ad {
+  private processSearchApiAd(apiAd: SearchApiGoogleAd, competitor: string): Ad {
     // Extract primary text
     const primaryText = apiAd.text || apiAd.body || apiAd.snippet || '';
 

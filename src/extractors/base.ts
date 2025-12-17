@@ -124,11 +124,15 @@ export abstract class BaseExtractor {
    */
   protected async cleanup(): Promise<void> {
     if (this.page) {
-      await this.page.close().catch(() => {});
+      await this.page.close().catch((err) => {
+        this.logger.debug(`Page close warning (may already be closed): ${err.message}`);
+      });
       this.page = null;
     }
     if (this.context) {
-      await this.context.close().catch(() => {});
+      await this.context.close().catch((err) => {
+        this.logger.debug(`Context close warning (may already be closed): ${err.message}`);
+      });
       this.context = null;
     }
     // Don't close browser instance - it's shared
@@ -140,7 +144,9 @@ export abstract class BaseExtractor {
   async close(): Promise<void> {
     await this.cleanup();
     if (this.browser) {
-      await this.browser.close().catch(() => {});
+      await this.browser.close().catch((err) => {
+        this.logger.debug(`Browser close warning (may already be closed): ${err.message}`);
+      });
       this.browser = null;
     }
   }

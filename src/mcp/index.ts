@@ -34,6 +34,8 @@ import { analyzeCompetitor } from '../analyzers';
 import { analyzeLandingPage } from '../analyzers/landing-page';
 import { AdCategorizer } from '../analyzers/categorizer';
 import { CopyAnalyzer } from '../analyzers/copy-analyzer';
+import { generateStrategicAnalysis } from '../analyzers/strategic-intelligence';
+import { generateStrategicReportHTML, saveStrategicReport } from '../reporters/strategic-report';
 import { Ad, Platform, ExtractionOptions } from '../types/ad';
 import { AppConfig, defaultConfig } from '../types/config';
 import { createLogger } from '../utils/logger';
@@ -73,6 +75,13 @@ const CategorizeAdsInputSchema = z.object({
 
 const AnalyzeCopyInputSchema = z.object({
   ads: z.array(z.any()).describe('Array of ads for copy analysis')
+});
+
+const GenerateStrategicReportInputSchema = z.object({
+  ads: z.array(z.any()).describe('Array of extracted ads to analyze'),
+  competitor: z.string().describe('Competitor name for the report'),
+  outputDir: z.string().optional().default('./output')
+    .describe('Directory to save the report files')
 });
 
 // Tool definitions
@@ -234,6 +243,39 @@ Use to understand messaging patterns and language.`,
     inputSchema: {
       type: 'object',
       properties: {}
+    }
+  },
+  {
+    name: 'generate_strategic_report',
+    description: `Generate a comprehensive strategic intelligence report from extracted ads. Creates a beautiful PDF/HTML report with:
+- Campaign clustering and distribution analysis
+- Case study extraction with specific metrics
+- Pain point categorization
+- Value proposition analysis
+- Investment estimation
+- Strategic strengths and weaknesses
+- Creative execution analysis
+- Audience targeting insights
+
+This produces a professional competitor analysis report similar to agency deliverables.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ads: {
+          type: 'array',
+          description: 'Array of extracted ads to analyze'
+        },
+        competitor: {
+          type: 'string',
+          description: 'Competitor name for the report'
+        },
+        outputDir: {
+          type: 'string',
+          default: './output',
+          description: 'Directory to save the report files'
+        }
+      },
+      required: ['ads', 'competitor']
     }
   }
 ];
@@ -438,6 +480,39 @@ function handleListPlatforms(): string {
   return JSON.stringify(platformInfo, null, 2);
 }
 
+async function handleGenerateStrategicReport(input: z.infer<typeof GenerateStrategicReportInputSchema>): Promise<string> {
+  const ads = input.ads as Ad[];
+
+  // Generate strategic analysis
+  const analysis = generateStrategicAnalysis(input.competitor, ads);
+
+  // Save reports
+  const reports = await saveStrategicReport(analysis, input.outputDir);
+
+  return JSON.stringify({
+    success: true,
+    competitor: input.competitor,
+    analysis: {
+      totalAds: analysis.totalAds,
+      coreCampaigns: analysis.coreCampaigns,
+      campaigns: analysis.campaigns.map(c => ({
+        name: c.name,
+        percentage: c.percentage,
+        adCount: c.adCount
+      })),
+      caseStudies: analysis.caseStudies.length,
+      investment: analysis.investment,
+      keyInsights: analysis.keyInsights
+    },
+    reports: {
+      html: reports.html,
+      pdf: reports.pdf,
+      json: reports.json
+    },
+    message: `Strategic report generated. Open the HTML file in a browser for the full visual report.`
+  }, null, 2);
+}
+
 // Register handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools
@@ -477,6 +552,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
       case 'list_platforms': {
         result = handleListPlatforms();
+        break;
+      }
+      case 'generate_strategic_report': {
+        const input = GenerateStrategicReportInputSchema.parse(args);
+        result = await handleGenerateStrategicReport(input);
         break;
       }
       default:

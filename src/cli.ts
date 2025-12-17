@@ -6,7 +6,7 @@ import { getExtractor, getAvailablePlatforms } from './extractors';
 import { analyzeCompetitor, categorizeAds } from './analyzers';
 import { generateReports } from './reporters';
 import { closeBrowser } from './utils/browser';
-import { defaultConfig, AppConfig, Platform } from './types';
+import { defaultConfig, AppConfig, Platform, OutputConfig, Ad } from './types';
 import { createLogger } from './utils/logger';
 
 const logger = createLogger('cli');
@@ -66,7 +66,7 @@ program
       output: {
         ...defaultConfig.output,
         directory: options.output,
-        formats: options.formats.split(',') as any[]
+        formats: options.formats.split(',') as OutputConfig['formats']
       }
     };
 
@@ -76,7 +76,7 @@ program
     console.log(chalk.gray(`Output: ${options.output}`));
     console.log();
 
-    const allAds: any[] = [];
+    const allAds: Ad[] = [];
     const startTime = Date.now();
 
     try {
@@ -204,7 +204,7 @@ program
         output: {
           ...defaultConfig.output,
           directory: options.output,
-          formats: options.formats.split(',') as any[]
+          formats: options.formats.split(',') as OutputConfig['formats']
         }
       };
 

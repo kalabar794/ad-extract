@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BaseExtractor, ExtractorEvents } from './base';
 import { Ad, ExtractionOptions } from '../types/ad';
 import { AppConfig } from '../types/config';
+import { MetaApiAd, MetaApiDemographic, MetaApiDeliveryRegion } from '../types/api-responses';
 
 const META_AD_LIBRARY_URL = 'https://www.facebook.com/ads/library/';
 
@@ -419,7 +420,7 @@ export class MetaExtractor extends BaseExtractor {
   /**
    * Process API response into Ad object
    */
-  private processApiAd(apiAd: any, competitor: string): Ad {
+  private processApiAd(apiAd: MetaApiAd, competitor: string): Ad {
     // Extract primary text from creative bodies
     const primaryText = apiAd.ad_creative_bodies?.[0] || '';
 
@@ -445,20 +446,23 @@ export class MetaExtractor extends BaseExtractor {
     // Extract targeting info from demographic distribution
     const targetingInfo: Ad['targetingInfo'] = {};
     if (apiAd.demographic_distribution) {
-      const demographics = apiAd.demographic_distribution;
-      if (demographics.age) {
-        const ages = demographics.age.map((d: any) => d.age);
+      const demographics = apiAd.demographic_distribution as MetaApiDemographic[];
+      const ageDemos = demographics.filter(d => d.age);
+      const genderDemos = demographics.filter(d => d.gender);
+
+      if (ageDemos.length > 0) {
+        const ages = ageDemos.map(d => d.age!);
         targetingInfo.age = {
           min: Math.min(...ages.map((a: string) => parseInt(a.split('-')[0]))),
           max: Math.max(...ages.map((a: string) => parseInt(a.split('-')[1] || a.split('-')[0])))
         };
       }
-      if (demographics.gender) {
-        targetingInfo.gender = demographics.gender.map((d: any) => d.gender);
+      if (genderDemos.length > 0) {
+        targetingInfo.gender = genderDemos.map(d => d.gender!);
       }
     }
     if (apiAd.delivery_by_region) {
-      targetingInfo.locations = apiAd.delivery_by_region.map((r: any) => r.region);
+      targetingInfo.locations = apiAd.delivery_by_region.map((r: MetaApiDeliveryRegion) => r.region);
     }
 
     return this.createBaseAd(competitor, {

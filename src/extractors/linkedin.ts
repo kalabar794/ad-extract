@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BaseExtractor, ExtractorEvents } from './base';
 import { Ad, ExtractionOptions } from '../types/ad';
 import { AppConfig } from '../types/config';
+import { LinkedInSearchApiAd, LinkedInApifyAd } from '../types/api-responses';
 
 const LINKEDIN_AD_LIBRARY_URL = 'https://www.linkedin.com/ad-library/';
 
@@ -654,7 +655,7 @@ export class LinkedInExtractor extends BaseExtractor {
   /**
    * Process SearchAPI.io response into Ad object
    */
-  private processSearchApiAd(apiAd: any, competitor: string): Ad {
+  private processSearchApiAd(apiAd: LinkedInSearchApiAd, competitor: string): Ad {
     const primaryText = apiAd.text || apiAd.body || apiAd.description || '';
     const headline = apiAd.title || apiAd.headline || '';
 
@@ -710,7 +711,7 @@ export class LinkedInExtractor extends BaseExtractor {
   /**
    * Process Apify response into Ad object
    */
-  private processApifyAd(apiAd: any, competitor: string): Ad {
+  private processApifyAd(apiAd: LinkedInApifyAd, competitor: string): Ad {
     const primaryText = apiAd.adText || apiAd.text || apiAd.description || '';
     const headline = apiAd.headline || apiAd.title || '';
 
@@ -720,7 +721,7 @@ export class LinkedInExtractor extends BaseExtractor {
       mediaType = 'video';
     } else if (apiAd.images && apiAd.images.length > 1) {
       mediaType = 'carousel';
-    } else if (apiAd.imageUrl || apiAd.image || apiAd.images?.length > 0) {
+    } else if (apiAd.imageUrl || apiAd.image || (apiAd.images && apiAd.images.length > 0)) {
       mediaType = 'image';
     }
 

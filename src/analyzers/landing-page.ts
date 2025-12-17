@@ -223,7 +223,9 @@ export class LandingPageAnalyzer {
    */
   private async cleanup(): Promise<void> {
     if (this.context) {
-      await this.context.close().catch(() => {});
+      await this.context.close().catch((err) => {
+        logger.debug(`Context close warning: ${err.message}`);
+      });
       this.context = null;
     }
   }
@@ -1248,7 +1250,10 @@ export class LandingPageAnalyzer {
           const href = link.getAttribute('href') || '';
           const linkDomain = new URL(href).hostname;
           if (linkDomain !== currentDomain) exitLinks++;
-        } catch {}
+        } catch {
+          // Intentionally ignored: Invalid URLs (relative paths, javascript:, mailto:, etc.)
+          // are expected and should not count as exit links
+        }
       });
 
       // Check if navigation is minimal (fewer links = more conversion focused)

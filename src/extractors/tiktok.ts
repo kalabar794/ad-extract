@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BaseExtractor, ExtractorEvents } from './base';
 import { Ad, ExtractionOptions } from '../types/ad';
 import { AppConfig } from '../types/config';
+import { TikTokApiAd } from '../types/api-responses';
 
 const TIKTOK_AD_LIBRARY_URL = 'https://library.tiktok.com/ads';
 
@@ -558,7 +559,7 @@ export class TikTokExtractor extends BaseExtractor {
   /**
    * Process TikTok API response into Ad object
    */
-  private processApiAd(apiAd: any, competitor: string): Ad {
+  private processApiAd(apiAd: TikTokApiAd, competitor: string): Ad {
     // Extract primary text
     const primaryText = apiAd.ad_text || '';
 
