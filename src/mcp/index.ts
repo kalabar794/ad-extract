@@ -34,6 +34,7 @@ import { analyzeCompetitor } from '../analyzers';
 import { analyzeLandingPage } from '../analyzers/landing-page';
 import { AdCategorizer } from '../analyzers/categorizer';
 import { CopyAnalyzer } from '../analyzers/copy-analyzer';
+import { SentimentAnalyzer } from '../analyzers/sentiment';
 import { generateStrategicAnalysis } from '../analyzers/strategic-intelligence';
 import { generateStrategicReportHTML, saveStrategicReport } from '../reporters/strategic-report';
 import { SpendEstimator, formatSpend, formatSpendRange, getSpendSummary } from '../analyzers/spend-estimator';
@@ -89,6 +90,13 @@ const EstimateSpendInputSchema = z.object({
   ads: z.array(z.any()).describe('Array of extracted ads to analyze'),
   industry: z.string().optional()
     .describe('Industry vertical for more accurate CPM estimates (e.g., dental, saas, ecommerce, finance)')
+});
+
+const AnalyzeSentimentInputSchema = z.object({
+  ads: z.array(z.any()).describe('Array of extracted ads to analyze'),
+  competitor: z.string().describe('Competitor name for the analysis'),
+  includeIndividualAnalyses: z.boolean().default(false)
+    .describe('Include detailed analysis for each individual ad (can be verbose)')
 });
 
 // Tool definitions
@@ -310,6 +318,47 @@ Note: Estimates are more accurate when ads include impression/reach data from pl
         }
       },
       required: ['ads']
+    }
+  },
+  {
+    name: 'analyze_sentiment',
+    description: `Advanced psychological and emotional analysis of ad copy. Goes far beyond simple positive/negative classification to extract actionable competitive intelligence.
+
+Analysis includes:
+- **Emotional Tone** (Plutchik's Wheel): Joy, Trust, Fear, Surprise, Anticipation, Sadness, Anger, Disgust with intensity scoring
+- **Persuasion Techniques** (Cialdini's Principles): Scarcity, Social Proof, Authority, Reciprocity, Commitment, Liking, Urgency, FOMO
+- **Voice & Tone**: Formality level, voice characteristics (authority, empathy, confidence, warmth), brand personality traits
+- **Framing Analysis**: Positive/negative framing, gain vs loss focus, time orientation
+- **Psychological Triggers**: Identity, Status, Belonging, Achievement, Security, Freedom, Novelty, Nostalgia, Curiosity
+- **Competitive Positioning**: Aggressiveness level, market position claims, comparison mentions
+
+Returns strategic insights including:
+- Emotional strategy summary
+- Persuasion approach assessment
+- Brand voice profile
+- Competitive posture analysis
+- Key strengths and weaknesses
+- Actionable recommendations and opportunities
+
+Use this for deep competitive intelligence on messaging psychology.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ads: {
+          type: 'array',
+          description: 'Array of extracted ads to analyze'
+        },
+        competitor: {
+          type: 'string',
+          description: 'Competitor name for the analysis'
+        },
+        includeIndividualAnalyses: {
+          type: 'boolean',
+          default: false,
+          description: 'Include detailed analysis for each individual ad (can be verbose)'
+        }
+      },
+      required: ['ads', 'competitor']
     }
   }
 ];
@@ -594,6 +643,106 @@ async function handleEstimateSpend(input: z.infer<typeof EstimateSpendInputSchem
   }, null, 2);
 }
 
+async function handleAnalyzeSentiment(input: z.infer<typeof AnalyzeSentimentInputSchema>): Promise<string> {
+  const ads = input.ads as Ad[];
+  const analyzer = new SentimentAnalyzer();
+
+  logger.info(`Analyzing sentiment for ${ads.length} ads from ${input.competitor}`);
+
+  // Run comprehensive analysis
+  const { analyses, summary } = analyzer.analyzeCompetitor(input.competitor, ads);
+
+  // Build response
+  const response: Record<string, unknown> = {
+    competitor: input.competitor,
+    adsAnalyzed: summary.adsAnalyzed,
+
+    // Executive summary
+    executiveSummary: {
+      dominantEmotion: summary.dominantEmotion,
+      avgEmotionalIntensity: summary.avgEmotionalIntensity,
+      emotionalConsistency: `${Math.round(summary.emotionalConsistency * 100)}%`,
+      persuasionStyle: summary.persuasionStyle,
+      avgPressureScore: summary.avgPressureScore,
+      brandVoice: summary.brandVoiceProfile.voiceDescription,
+      competitiveThreatLevel: summary.competitivePosture.threatLevel
+    },
+
+    // Emotional analysis
+    emotionalProfile: {
+      distribution: summary.emotionDistribution,
+      dominantEmotion: summary.dominantEmotion,
+      avgIntensity: summary.avgEmotionalIntensity,
+      consistency: summary.emotionalConsistency
+    },
+
+    // Persuasion profile
+    persuasionProfile: {
+      mostUsedTechniques: summary.mostUsedTechniques,
+      techniqueDistribution: summary.techniqueDistribution,
+      avgPressureScore: summary.avgPressureScore,
+      style: summary.persuasionStyle
+    },
+
+    // Voice profile
+    voiceProfile: {
+      personality: summary.brandVoiceProfile.personality,
+      avgFormality: summary.brandVoiceProfile.avgFormality,
+      consistency: summary.brandVoiceProfile.consistencyScore,
+      description: summary.brandVoiceProfile.voiceDescription,
+      dominantTraits: summary.brandVoiceProfile.dominantTraits
+    },
+
+    // Framing patterns
+    framingPatterns: summary.framingPatterns,
+
+    // Psychological triggers
+    psychologicalTriggers: {
+      dominant: summary.dominantTriggers,
+      distribution: summary.triggerDistribution
+    },
+
+    // Competitive positioning
+    competitivePosture: summary.competitivePosture,
+
+    // Sentiment distribution
+    overallSentiment: {
+      distribution: summary.sentimentDistribution,
+      avgScore: summary.avgSentimentScore
+    },
+
+    // Strategic opportunities
+    opportunities: summary.opportunities,
+
+    // Actionable recommendations
+    recommendations: summary.recommendations,
+
+    // Top insights
+    topInsights: summary.topInsights
+  };
+
+  // Optionally include individual ad analyses
+  if (input.includeIndividualAnalyses) {
+    response.individualAnalyses = analyses.map(a => ({
+      adId: a.adId,
+      text: a.text.substring(0, 200) + (a.text.length > 200 ? '...' : ''),
+      overall: a.overall,
+      primaryEmotion: a.emotions.primary,
+      emotionalIntensity: a.emotions.intensityScore,
+      persuasionTechniques: a.persuasion.techniques,
+      pressureScore: a.persuasion.pressureScore,
+      formality: a.tone.formality,
+      brandPersonality: a.tone.brandPersonality,
+      primaryFrame: a.framing.primaryFrame,
+      psychologicalTriggers: a.triggers.detected,
+      positioningAggressiveness: a.positioning.aggressiveness,
+      strategicInsights: a.strategicInsights
+    }));
+  }
+
+  return JSON.stringify(response, null, 2);
+}
+
 // Register handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools
@@ -643,6 +792,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'estimate_ad_spend': {
         const input = EstimateSpendInputSchema.parse(args);
         result = await handleEstimateSpend(input);
+        break;
+      }
+      case 'analyze_sentiment': {
+        const input = AnalyzeSentimentInputSchema.parse(args);
+        result = await handleAnalyzeSentiment(input);
         break;
       }
       default:

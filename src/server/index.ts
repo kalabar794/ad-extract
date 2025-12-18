@@ -12,6 +12,13 @@ import { generateStrategicAnalysis, StrategicAnalysis } from '../analyzers/strat
 import { generateStrategicReportHTML, saveStrategicReport } from '../reporters/strategic-report';
 import { closeBrowser } from '../utils/browser';
 import { defaultConfig, AppConfig, Platform, Ad } from '../types';
+import {
+  ListReportsQuery,
+  GenerateReportRequest,
+  BatchGenerateRequest,
+  ReportErrorCodes,
+} from '../types/report';
+import { reportService } from './report-service';
 import { createLogger } from '../utils/logger';
 
 const logger = createLogger('server');
@@ -145,35 +152,67 @@ export async function startServer(config: ServerConfig): Promise<void> {
     res.json(Array.from(jobs.values()).reverse());
   });
 
-  // Get reports list
+  // Get reports list (with pagination support)
   app.get('/api/reports', async (req, res) => {
-    const fs = await import('fs');
-    const outputDir = defaultConfig.output.directory;
-
     try {
-      if (!fs.existsSync(outputDir)) {
-        return res.json([]);
-      }
+      const query: ListReportsQuery = {
+        competitor: req.query.competitor as string,
+        format: req.query.format as any,
+        from: req.query.from as string,
+        to: req.query.to as string,
+        page: req.query.page ? parseInt(req.query.page as string) : 1,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
+        sort: (req.query.sort as 'createdAt' | 'competitor') || 'createdAt',
+        order: (req.query.order as 'asc' | 'desc') || 'desc',
+      };
 
-      const files = fs.readdirSync(outputDir)
-        .filter(f => f.endsWith('.json') || f.endsWith('.md'))
-        .map(f => ({
-          name: f,
-          path: path.join(outputDir, f),
-          format: f.endsWith('.json') ? 'json' : 'markdown',
-          modified: fs.statSync(path.join(outputDir, f)).mtime
-        }))
-        .sort((a, b) => b.modified.getTime() - a.modified.getTime());
+      const { files, total } = reportService.listReportFiles(query);
+      const page = query.page || 1;
+      const limit = Math.min(query.limit || 20, 100);
+      const totalPages = Math.ceil(total / limit);
 
-      res.json(files);
+      res.json({
+        data: files,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
+      });
     } catch (error) {
       res.status(500).json({ error: (error as Error).message });
     }
   });
 
+  // Delete a report file
+  app.delete('/api/reports/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const deleted = reportService.deleteReportFile(filename);
+
+    if (!deleted) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    res.status(204).send();
+  });
+
   // Download or view report
   app.get('/api/reports/:filename', async (req, res) => {
-    const filepath = path.resolve(defaultConfig.output.directory, req.params.filename);
+    const filename = req.params.filename;
+    const outputDir = defaultConfig.output.directory;
+    const filepath = path.join(outputDir, filename);
+
+    // Security: Prevent path traversal attacks
+    const resolvedPath = path.resolve(filepath);
+    const resolvedOutputDir = path.resolve(outputDir);
+    if (!resolvedPath.startsWith(resolvedOutputDir + path.sep) && resolvedPath !== resolvedOutputDir) {
+      logger.warn(`Path traversal attempt blocked: ${filename}`);
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
     const fs = await import('fs');
 
     if (!fs.existsSync(filepath)) {
@@ -225,6 +264,278 @@ export async function startServer(config: ServerConfig): Promise<void> {
       res.status(500).json({ error: (error as Error).message });
     }
   });
+
+  // =========================================================================
+  // API v1 - Report Generation API (Enhanced Features)
+  // =========================================================================
+
+  // Setup WebSocket event forwarding for report jobs
+  reportService.on('job:created', (job) => broadcast('report:created', job));
+  reportService.on('job:updated', (job) => broadcast('report:updated', job));
+  reportService.on('job:progress', (data) => broadcast('report:progress', data));
+  reportService.on('job:completed', (job) => broadcast('report:completed', job));
+  reportService.on('job:failed', (job) => broadcast('report:failed', job));
+  reportService.on('job:cancelled', (job) => broadcast('report:cancelled', job));
+
+  // Generate Report (async)
+  app.post('/api/v1/reports/generate', async (req, res) => {
+    try {
+      const request: GenerateReportRequest = req.body;
+
+      // Validate required fields
+      if (!request.competitor) {
+        return res.status(400).json({
+          error: { code: ReportErrorCodes.INVALID_REQUEST, message: 'Competitor is required' },
+        });
+      }
+      if (!request.formats || request.formats.length === 0) {
+        return res.status(400).json({
+          error: { code: ReportErrorCodes.INVALID_REQUEST, message: 'At least one format is required' },
+        });
+      }
+
+      // Check for ads in source data
+      if (!request.sourceData?.ads || request.sourceData.ads.length === 0) {
+        return res.status(400).json({
+          error: { code: ReportErrorCodes.INVALID_SOURCE, message: 'Ads array is required in sourceData' },
+        });
+      }
+
+      const response = await reportService.createReportJob(request);
+      res.status(202).json(response);
+    } catch (error) {
+      logger.error(`Report generation error: ${(error as Error).message}`);
+      res.status(500).json({
+        error: { code: ReportErrorCodes.GENERATION_FAILED, message: (error as Error).message },
+      });
+    }
+  });
+
+  // List Report Jobs
+  app.get('/api/v1/reports', (req, res) => {
+    try {
+      const query: ListReportsQuery = {
+        competitor: req.query.competitor as string,
+        format: req.query.format as any,
+        status: req.query.status as any,
+        from: req.query.from as string,
+        to: req.query.to as string,
+        page: req.query.page ? parseInt(req.query.page as string) : 1,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
+        sort: (req.query.sort as 'createdAt' | 'competitor') || 'createdAt',
+        order: (req.query.order as 'asc' | 'desc') || 'desc',
+      };
+
+      const response = reportService.listJobs(query);
+      res.json(response);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+
+  // Get Report Job Status
+  app.get('/api/v1/reports/:reportId', (req, res) => {
+    const status = reportService.getJobStatus(req.params.reportId);
+
+    if (!status) {
+      return res.status(404).json({
+        error: { code: ReportErrorCodes.REPORT_NOT_FOUND, message: 'Report not found' },
+      });
+    }
+
+    res.json(status);
+  });
+
+  // Cancel Report Job
+  app.post('/api/v1/reports/:reportId/cancel', (req, res) => {
+    const job = reportService.cancelJob(req.params.reportId);
+
+    if (!job) {
+      return res.status(404).json({
+        error: { code: ReportErrorCodes.REPORT_NOT_FOUND, message: 'Report not found or cannot be cancelled' },
+      });
+    }
+
+    res.json({
+      reportJobId: job.id,
+      status: 'cancelled',
+      cancelledAt: job.cancelledAt,
+    });
+  });
+
+  // Delete Report Job
+  app.delete('/api/v1/reports/:reportId', (req, res) => {
+    const deleted = reportService.deleteJob(req.params.reportId);
+
+    if (!deleted) {
+      return res.status(404).json({
+        error: { code: ReportErrorCodes.REPORT_NOT_FOUND, message: 'Report not found' },
+      });
+    }
+
+    res.status(204).send();
+  });
+
+  // Download Report Format
+  app.get('/api/v1/reports/:reportId/download/:format', (req, res) => {
+    const job = reportService.getJob(req.params.reportId);
+
+    if (!job) {
+      return res.status(404).json({
+        error: { code: ReportErrorCodes.REPORT_NOT_FOUND, message: 'Report not found' },
+      });
+    }
+
+    const output = job.outputs?.find(o => o.format === req.params.format);
+    if (!output) {
+      return res.status(404).json({
+        error: { code: ReportErrorCodes.INVALID_FORMAT, message: `Format ${req.params.format} not available` },
+      });
+    }
+
+    const inline = req.query.inline === 'true';
+    const disposition = inline ? 'inline' : 'attachment';
+
+    res.setHeader('Content-Type', output.mimeType);
+    res.setHeader('Content-Disposition', `${disposition}; filename="${output.filename}"`);
+    res.sendFile(output.filepath);
+  });
+
+  // Batch Generate Reports
+  app.post('/api/v1/reports/batch', async (req, res) => {
+    try {
+      const request: BatchGenerateRequest = req.body;
+
+      if (!request.competitors || request.competitors.length === 0) {
+        return res.status(400).json({
+          error: { code: ReportErrorCodes.INVALID_REQUEST, message: 'Competitors array is required' },
+        });
+      }
+      if (!request.formats || request.formats.length === 0) {
+        return res.status(400).json({
+          error: { code: ReportErrorCodes.INVALID_REQUEST, message: 'At least one format is required' },
+        });
+      }
+
+      const response = await reportService.createBatch(request);
+      res.status(202).json(response);
+    } catch (error) {
+      res.status(500).json({
+        error: { code: ReportErrorCodes.GENERATION_FAILED, message: (error as Error).message },
+      });
+    }
+  });
+
+  // Get Batch Status
+  app.get('/api/v1/reports/batch/:batchId', (req, res) => {
+    const batch = reportService.getBatchStatus(req.params.batchId);
+
+    if (!batch) {
+      return res.status(404).json({
+        error: { code: ReportErrorCodes.REPORT_NOT_FOUND, message: 'Batch not found' },
+      });
+    }
+
+    res.json(batch);
+  });
+
+  // List Templates
+  app.get('/api/v1/reports/templates', (req, res) => {
+    res.json({ templates: reportService.getTemplates() });
+  });
+
+  // Get Template Details
+  app.get('/api/v1/reports/templates/:templateId', (req, res) => {
+    const template = reportService.getTemplate(req.params.templateId);
+
+    if (!template) {
+      return res.status(404).json({
+        error: { code: ReportErrorCodes.TEMPLATE_NOT_FOUND, message: 'Template not found' },
+      });
+    }
+
+    res.json(template);
+  });
+
+  // Analysis endpoints
+
+  // Campaign Analysis
+  app.post('/api/v1/analysis/campaigns', async (req, res) => {
+    try {
+      const { competitor, ads, options } = req.body;
+
+      if (!competitor || !ads || ads.length === 0) {
+        return res.status(400).json({
+          error: { code: ReportErrorCodes.INVALID_REQUEST, message: 'Competitor and ads are required' },
+        });
+      }
+
+      const { CampaignAnalyzer } = await import('../analyzers/campaign-analyzer');
+      const analyzer = new CampaignAnalyzer();
+      const analysis = analyzer.analyze(competitor, categorizeAds(ads));
+
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({
+        error: { code: ReportErrorCodes.ANALYSIS_FAILED, message: (error as Error).message },
+      });
+    }
+  });
+
+  // Copy Analysis
+  app.post('/api/v1/analysis/copy', async (req, res) => {
+    try {
+      const { ads } = req.body;
+
+      if (!ads || ads.length === 0) {
+        return res.status(400).json({
+          error: { code: ReportErrorCodes.INVALID_REQUEST, message: 'Ads array is required' },
+        });
+      }
+
+      const { CopyAnalyzer } = await import('../analyzers/copy-analyzer');
+      const analyzer = new CopyAnalyzer();
+      const analysis = analyzer.analyze(ads);
+
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({
+        error: { code: ReportErrorCodes.ANALYSIS_FAILED, message: (error as Error).message },
+      });
+    }
+  });
+
+  // Sentiment Analysis
+  app.post('/api/v1/analysis/sentiment', async (req, res) => {
+    try {
+      const { ads, competitor } = req.body;
+
+      if (!ads || ads.length === 0) {
+        return res.status(400).json({
+          error: { code: ReportErrorCodes.INVALID_REQUEST, message: 'Ads array is required' },
+        });
+      }
+
+      const { SentimentAnalyzer } = await import('../analyzers/sentiment');
+      const analyzer = new SentimentAnalyzer();
+
+      if (competitor) {
+        const result = analyzer.analyzeCompetitor(competitor, ads);
+        res.json(result);
+      } else {
+        const analyses = analyzer.analyzeAds(ads);
+        res.json({ analyses });
+      }
+    } catch (error) {
+      res.status(500).json({
+        error: { code: ReportErrorCodes.ANALYSIS_FAILED, message: (error as Error).message },
+      });
+    }
+  });
+
+  // =========================================================================
+  // End of API v1
+  // =========================================================================
 
   // Serve the main HTML page
   app.get('/', (req, res) => {
