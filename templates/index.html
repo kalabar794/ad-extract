@@ -521,6 +521,7 @@
             <button class="tab" onclick="switchTab('financial-tracker')" style="background: #4caf50; color: white;">💰 Financial Tracker</button>
             <button class="tab" onclick="switchTab('timeline')" style="background: #9c27b0; color: white;">📅 Timeline</button>
             <button class="tab" onclick="window.location.href='/mcp'" style="background: #00acc1; color: white; font-weight: bold;">🔧 MCP TOOLS</button>
+            <button class="tab" onclick="window.location.href='/graph'" style="background: #7c4dff; color: white; font-weight: bold;">🕸️ KNOWLEDGE GRAPH</button>
             <button class="tab" onclick="switchTab('advanced-search')">🔍 Advanced</button>
             <button class="tab" onclick="switchTab('kwic')">📊 KWIC</button>
             <button class="tab" onclick="switchTab('cooccurrence')">🕸️ Matrix</button>
@@ -1209,7 +1210,7 @@
             if (tabName === 'anomalies') loadAnomalies();
             if (tabName === 'geomap') loadGeoMap();
             if (tabName === 'ai-investigation') generateAIReport();
-            if (tabName === 'flight-logs') loadFlightLogs();
+            if (tabName === 'flight-logs') loadFlightStats();
             if (tabName === 'email-intelligence') loadEmailStats();
             if (tabName === 'financial-tracker') loadFinancialStats();
         }
@@ -1567,21 +1568,23 @@
                 const response = await fetch('/stats');
                 const data = await response.json();
 
-                document.getElementById('stat-documents').textContent = data.text_documents;
-                document.getElementById('stat-images').textContent = data.images;
-                document.getElementById('stat-entities').textContent = data.entities;
+                document.getElementById('stat-documents').textContent = data.text_documents.toLocaleString();
+                document.getElementById('stat-images').textContent = data.images.toLocaleString();
+                document.getElementById('stat-entities').textContent = data.entities.toLocaleString();
+                document.getElementById('stat-contradictions').textContent = (data.contradictions || 0).toLocaleString();
             } catch (error) {
                 console.error('Failed to load stats:', error);
             }
 
-            // Load contradiction stats
+            // Load contradiction stats (fallback if not in main stats)
             try {
                 const contradictionResponse = await fetch('/api/contradictions/stats');
                 const contradictionData = await contradictionResponse.json();
-                document.getElementById('stat-contradictions').textContent = contradictionData.total_contradictions || 0;
+                if (contradictionData.total_contradictions) {
+                    document.getElementById('stat-contradictions').textContent = contradictionData.total_contradictions.toLocaleString();
+                }
             } catch (error) {
                 // Silently fail if contradictions haven't been initialized yet
-                document.getElementById('stat-contradictions').textContent = '—';
             }
         }
 
@@ -2375,15 +2378,21 @@
         // Flight Log Functions
         async function loadFlightStats() {
             try {
+                console.log('Loading flight stats...');
                 const response = await fetch('/api/flights/stats');
                 const data = await response.json();
 
-                document.getElementById('flight-count').textContent = data.total_flights || 0;
-                document.getElementById('passenger-count').textContent = data.unique_passengers || 0;
-                document.getElementById('minor-count').textContent = data.minor_passengers || 0;
-                document.getElementById('route-count').textContent = data.unique_routes || 0;
+                console.log('Flight stats data:', data);
+
+                document.getElementById('flight-count').textContent = (data.total_flights || 0).toLocaleString();
+                document.getElementById('passenger-count').textContent = (data.unique_passengers || 0).toLocaleString();
+                document.getElementById('minor-count').textContent = (data.minor_passengers || 0).toLocaleString();
+                document.getElementById('route-count').textContent = (data.unique_routes || 0).toLocaleString();
+
+                console.log('Flight stats updated successfully');
             } catch (error) {
                 console.error('Error loading flight stats:', error);
+                alert('Error loading flight stats: ' + error.message);
             }
         }
 

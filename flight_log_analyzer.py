@@ -9,6 +9,67 @@ from datetime import datetime
 from collections import defaultdict, Counter
 import json
 
+# Noise patterns and entries to filter out during parsing
+NOISE_PATTERNS = [
+    r'^Is [A-Z]',  # "Is Read", "Is Invitation"
+    r'^On [A-Z][a-z]{2}',  # "On Mon", "On Fri", "On Sep"
+    r'^The ',
+    r'^Subject:',
+    r'^From:',
+    r'^To:',
+    r'^Date:',
+    r'@',  # Email addresses
+    r'http',
+    r'www\.',
+    r'^\d{4}$',  # Just years
+    r'^\d{1,2}/\d{1,2}',  # Dates
+]
+
+NOISE_ENTRIES = {
+    # Locations
+    'New York', 'United States', 'Palm Beach', 'Hong Kong', 'White House',
+    'Los Angeles', 'San Francisco', 'Washington', 'London', 'Paris',
+    'Miami', 'Manhattan', 'Brooklyn', 'Queens', 'Bronx',
+    'West Palm Beach', 'West Bank', 'East Coast', 'West Coast',
+    'New Mexico', 'Santa Fe', 'Virgin Islands', 'Middle East',
+    'New York City', 'Saudi Arabia', 'Tel Aviv', 'United Kingdom',
+
+    # Organizations
+    'Merrill Lynch', 'Merrill Lynch Global Research', 'New York Times',
+    'Wall Street Journal', 'Washington Post', 'CNN', 'BBC', 'Reuters',
+    'Goldman Sachs', 'Morgan Stanley', 'JP Morgan', 'Citigroup',
+    'General Partner', 'Managing Partner', 'Senior Partner',
+    'Justice Department', 'Investment Strategy Group', 'Financial Reporter',
+    'Advisory Committee', 'Prime Minister', 'Supreme Court',
+
+    # Generic names/placeholders
+    'Jane Doe', 'John Doe', 'Unknown', 'Unidentified', 'Anonymous',
+
+    # Document/email artifacts
+    'Is Read', 'Is Invitation', 'Is Attachment', 'Is Email',
+    'Google', 'Microsoft', 'Apple', 'Amazon', 'Facebook',
+}
+
+def is_valid_passenger_name(name):
+    """Check if a name is likely a real passenger (not noise)"""
+    if not name or len(name.strip()) <= 2:
+        return False
+
+    # Check regex patterns
+    for pattern in NOISE_PATTERNS:
+        if re.search(pattern, name, re.IGNORECASE):
+            return False
+
+    # Check exact matches (case insensitive)
+    if name in NOISE_ENTRIES or name.lower() in {n.lower() for n in NOISE_ENTRIES}:
+        return False
+
+    # Remove entries that are all caps and more than 2 words (likely headers)
+    if name.isupper() and len(name.split()) > 2:
+        return False
+
+    return True
+
 def get_db():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
@@ -132,7 +193,7 @@ def parse_flight_manifest_text(text):
         name_pattern = r'\b([A-Z][a-z]+(?:\s+[A-Z]\.?)?(?:\s+[A-Z][a-z]+)+)\b'
         name_matches = re.findall(name_pattern, line)
         for name in name_matches:
-            if len(name.split()) >= 2:  # At least first and last name
+            if len(name.split()) >= 2 and is_valid_passenger_name(name):  # At least first and last name, and not noise
                 # Check for age indicators
                 age_match = re.search(r'\((\d{1,2})\)', line)
                 age = int(age_match.group(1)) if age_match else None

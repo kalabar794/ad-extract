@@ -104,6 +104,7 @@ def generate_contradiction_leads() -> List[int]:
     """Generate leads from detected contradictions"""
     conn = get_db()
     c = conn.cursor()
+    lead_ids = []
 
     try:
         c.execute('''SELECT c.*,
@@ -116,7 +117,6 @@ def generate_contradiction_leads() -> List[int]:
                      AND c.confidence_score >= 0.6''')
 
         contradictions = c.fetchall()
-        lead_ids = []
 
         for contra in contradictions:
             # Calculate priority score
@@ -167,7 +167,6 @@ def generate_email_leads() -> List[int]:
     """Generate leads from suspicious emails"""
     conn = get_db()
     c = conn.cursor()
-
     lead_ids = []
 
     try:
@@ -223,7 +222,6 @@ def generate_flight_leads() -> List[int]:
     """Generate leads from flight log anomalies"""
     conn = get_db()
     c = conn.cursor()
-
     lead_ids = []
 
     try:
@@ -279,7 +277,6 @@ def generate_financial_leads() -> List[int]:
     """Generate leads from suspicious financial patterns"""
     conn = get_db()
     c = conn.cursor()
-
     lead_ids = []
 
     try:
@@ -330,7 +327,6 @@ def generate_network_leads() -> List[int]:
     """Generate leads from entity network analysis"""
     conn = get_db()
     c = conn.cursor()
-
     lead_ids = []
 
     try:

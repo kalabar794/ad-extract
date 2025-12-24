@@ -45,3 +45,16 @@ tmp/
 # Large data files
 *.sqlite
 *.sqlite3
+.env
+
+# Large document archives (too big for GitHub)
+VOL00008/
+*.gz
+
+# Test output
+test_screenshots/
+
+# Video/audio files
+*.mp4
+*.m4a
+*.mp3

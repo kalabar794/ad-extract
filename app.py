@@ -6,7 +6,13 @@ from werkzeug.utils import secure_filename
 import re
 from pathlib import Path
 from pypdf import PdfReader
+from contextlib import contextmanager
+from functools import wraps
 from mcp_integrations import db_mcp, memory_mcp, filesystem_mcp, get_entities, query_database
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -16,6 +22,21 @@ app.config['MAX_FORM_PARTS'] = 10000  # Allow many form parts
 
 ALLOWED_EXTENSIONS = {'txt', 'jpg', 'jpeg', 'pdf'}
 
+# Global error handlers
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({'success': False, 'error': 'Resource not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+    return jsonify({'success': False, 'error': 'Internal server error'}), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Log the error for debugging
+    app.logger.error(f'Unhandled exception: {str(e)}')
+    return jsonify({'success': False, 'error': 'An unexpected error occurred'}), 500
+
 # Ensure upload directories exist
 os.makedirs('uploads/txt', exist_ok=True)
 os.makedirs('uploads/images', exist_ok=True)
@@ -24,6 +45,39 @@ def get_db():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+@contextmanager
+def get_db_connection():
+    """Context manager for database connections with proper error handling"""
+    conn = get_db()
+    try:
+        yield conn
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+def handle_db_error(func):
+    """Decorator for handling database errors in API endpoints"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except sqlite3.Error as e:
+            return jsonify({
+                'success': False,
+                'error': f'Database error: {str(e)}'
+            }), 500
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Server error: {str(e)}'
+            }), 500
+    return wrapper
 
 def init_db():
     conn = get_db()
@@ -477,26 +531,33 @@ def uploaded_file(filename):
     return send_from_directory('uploads', filename)
 
 @app.route('/stats', methods=['GET'])
+@handle_db_error
 def get_stats():
-    conn = get_db()
-    c = conn.cursor()
+    with get_db_connection() as conn:
+        c = conn.cursor()
 
-    c.execute('SELECT COUNT(*) as count FROM documents WHERE file_type = "txt"')
-    txt_count = c.fetchone()['count']
+        c.execute('SELECT COUNT(*) as count FROM documents WHERE file_type = "txt"')
+        txt_count = c.fetchone()['count']
 
-    c.execute('SELECT COUNT(*) as count FROM documents WHERE file_type = "image"')
-    img_count = c.fetchone()['count']
+        c.execute('SELECT COUNT(*) as count FROM documents WHERE file_type LIKE "image/%"')
+        img_count = c.fetchone()['count']
 
-    c.execute('SELECT COUNT(*) as count FROM entities')
-    entity_count = c.fetchone()['count']
+        c.execute('SELECT COUNT(*) as count FROM entities')
+        entity_count = c.fetchone()['count']
 
-    conn.close()
+        # Get contradiction count
+        try:
+            c.execute('SELECT COUNT(*) as count FROM contradictions')
+            contradiction_count = c.fetchone()['count']
+        except:
+            contradiction_count = 0
 
-    return jsonify({
-        'text_documents': txt_count,
-        'images': img_count,
-        'entities': entity_count
-    })
+        return jsonify({
+            'text_documents': txt_count,
+            'images': img_count,
+            'entities': entity_count,
+            'contradictions': contradiction_count
+        })
 
 # ============================================================================
 # ADVANCED INVESTIGATIVE FEATURES
@@ -685,6 +746,51 @@ def api_import_flight_log(doc_id):
         return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/flights/import-all', methods=['POST'])
+@handle_db_error
+def api_import_all_flight_logs():
+    """Bulk import flight logs from all documents"""
+    from flight_log_analyzer import import_flight_log_document
+
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        # Get all text documents
+        c.execute('SELECT id, filename FROM documents WHERE file_type = "txt" ORDER BY id')
+        documents = c.fetchall()
+
+        total_flights = 0
+        total_passengers = 0
+        docs_processed = 0
+        docs_with_flights = 0
+        errors = []
+
+        for doc in documents:
+            try:
+                result = import_flight_log_document(doc['id'])
+                docs_processed += 1
+
+                if result.get('flights', 0) > 0:
+                    docs_with_flights += 1
+                    total_flights += result.get('flights', 0)
+                    total_passengers += result.get('passengers', 0)
+
+            except Exception as e:
+                errors.append({
+                    'doc_id': doc['id'],
+                    'filename': doc['filename'],
+                    'error': str(e)
+                })
+
+        return jsonify({
+            'success': True,
+            'documents_processed': docs_processed,
+            'documents_with_flights': docs_with_flights,
+            'total_flights': total_flights,
+            'total_passengers': total_passengers,
+            'errors': errors[:10]  # Return first 10 errors if any
+        })
 
 @app.route('/api/flights/stats', methods=['GET'])
 def api_flight_stats():
@@ -1134,6 +1240,131 @@ def mcp_dashboard():
     """MCP Investigation Tools Dashboard"""
     return render_template('mcp_dashboard.html')
 
+@app.route('/graph')
+def knowledge_graph():
+    """Knowledge Graph Visualization"""
+    return render_template('knowledge_graph.html')
+
+@app.route('/api/knowledge-graph')
+@handle_db_error
+def api_knowledge_graph():
+    """Get knowledge graph data (nodes and edges) - Optimized version"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        # Get all entities with their types and mention counts
+        c.execute('''
+            SELECT id, name, entity_type, mention_count
+            FROM entities
+            WHERE mention_count > 0
+            ORDER BY mention_count DESC
+            LIMIT 500
+        ''')
+        entities = c.fetchall()
+
+        # Build entity nodes and create a set of valid entity IDs for fast lookup
+        nodes = []
+        entity_ids = set()
+        for entity in entities:
+            entity_id = entity['id']
+            entity_ids.add(entity_id)
+            nodes.append({
+                'id': entity_id,
+                'label': entity['name'],
+                'group': entity['entity_type'],
+                'value': entity['mention_count'],
+                'title': f"{entity['name']}<br>Type: {entity['entity_type']}<br>Mentions: {entity['mention_count']}"
+            })
+
+        # Get co-occurrences with optimized query using temp table for entity IDs
+        entity_ids_str = ','.join(str(eid) for eid in entity_ids)
+        c.execute(f'''
+            SELECT
+                em1.entity_id as entity1,
+                em2.entity_id as entity2,
+                COUNT(DISTINCT em1.doc_id) as cooccurrence_count
+            FROM entity_mentions em1
+            JOIN entity_mentions em2 ON em1.doc_id = em2.doc_id
+            WHERE em1.entity_id < em2.entity_id
+            AND em1.entity_id IN ({entity_ids_str})
+            AND em2.entity_id IN ({entity_ids_str})
+            GROUP BY em1.entity_id, em2.entity_id
+            HAVING cooccurrence_count > 0
+            ORDER BY cooccurrence_count DESC
+            LIMIT 2000
+        ''')
+        cooccurrences = c.fetchall()
+
+        # Build co-occurrence edges
+        edges = []
+        for cooc in cooccurrences:
+            edges.append({
+                'from': cooc['entity1'],
+                'to': cooc['entity2'],
+                'value': cooc['cooccurrence_count'],
+                'title': f"Co-occur in {cooc['cooccurrence_count']} document(s)"
+            })
+
+        # Get document nodes and their entity relationships in a SINGLE query
+        c.execute(f'''
+            SELECT
+                d.id,
+                d.filename,
+                d.file_type,
+                em.entity_id
+            FROM documents d
+            LEFT JOIN entity_mentions em ON d.id = em.doc_id AND em.entity_id IN ({entity_ids_str})
+            WHERE d.id IN (
+                SELECT id FROM documents
+                ORDER BY uploaded_date DESC
+                LIMIT 100
+            )
+            ORDER BY d.uploaded_date DESC, em.entity_id
+        ''')
+        doc_entity_rows = c.fetchall()
+
+        # Process document nodes and edges efficiently
+        current_doc_id = None
+        doc_entity_count = 0
+
+        for row in doc_entity_rows:
+            doc_id = row['id']
+
+            # When we encounter a new document, add its node
+            if doc_id != current_doc_id:
+                current_doc_id = doc_id
+                doc_entity_count = 0
+
+                nodes.append({
+                    'id': f"doc_{doc_id}",
+                    'label': row['filename'][:30] + ('...' if len(row['filename']) > 30 else ''),
+                    'group': 'DOCUMENT',
+                    'value': 5,
+                    'title': f"{row['filename']}<br>Type: {row['file_type']}"
+                })
+
+            # Add edge from document to entity (limit 20 per document)
+            entity_id = row['entity_id']
+            if entity_id and entity_id in entity_ids and doc_entity_count < 20:
+                edges.append({
+                    'from': f"doc_{doc_id}",
+                    'to': entity_id,
+                    'value': 1,
+                    'title': 'Mentioned in document'
+                })
+                doc_entity_count += 1
+
+        return jsonify({
+            'nodes': nodes,
+            'edges': edges,
+            'stats': {
+                'total_nodes': len(nodes),
+                'total_edges': len(edges),
+                'entity_count': len(entities),
+                'document_count': len([n for n in nodes if isinstance(n['id'], str) and n['id'].startswith('doc_')])
+            }
+        })
+
 # ============================================================================
 # MCP INTEGRATIONS API ENDPOINTS
 # ============================================================================
@@ -1407,24 +1638,42 @@ def api_process_all_contradictions():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/contradictions', methods=['GET'])
+@handle_db_error
 def api_get_contradictions():
     """Get all contradictions with optional filters"""
-    from contradiction_detector import get_all_contradictions
     try:
+        from contradiction_detector import get_all_contradictions
         min_confidence = float(request.args.get('confidence', 0.5))
         severity = request.args.get('severity')
         contradictions = get_all_contradictions(min_confidence, severity)
         return jsonify({'contradictions': contradictions, 'count': len(contradictions)})
+    except ImportError:
+        # Fallback: query database directly
+        with get_db_connection() as conn:
+            c = conn.cursor()
+            c.execute('''SELECT * FROM contradictions ORDER BY severity DESC LIMIT 100''')
+            contradictions = [dict(row) for row in c.fetchall()]
+            return jsonify({'contradictions': contradictions, 'count': len(contradictions)})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/contradictions/stats', methods=['GET'])
+@handle_db_error
 def api_contradiction_stats():
     """Get contradiction detection statistics"""
-    from contradiction_detector import get_contradiction_stats
     try:
+        from contradiction_detector import get_contradiction_stats
         stats = get_contradiction_stats()
         return jsonify(stats)
+    except ImportError:
+        # Fallback: query database directly
+        with get_db_connection() as conn:
+            c = conn.cursor()
+            c.execute('SELECT COUNT(*) as total FROM contradictions')
+            total = c.fetchone()['total']
+            c.execute('SELECT COUNT(*) as verified FROM contradictions WHERE verified = 1')
+            verified = c.fetchone()['verified']
+            return jsonify({'total': total, 'verified': verified, 'pending': total - verified})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -1796,6 +2045,509 @@ def api_visual_intelligence_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# =============================================================================
+# VOL00008 EPSTEIN FILES API ROUTES
+# =============================================================================
+
+@app.route('/api/vol00008/stats', methods=['GET'])
+@handle_db_error
+def api_vol00008_stats():
+    """Get VOL00008 import statistics"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        c.execute('SELECT COUNT(*) FROM vol00008_docs')
+        total = c.fetchone()[0]
+
+        c.execute('SELECT COUNT(*) FROM vol00008_docs WHERE has_text = 1')
+        with_text = c.fetchone()[0]
+
+        c.execute('SELECT COUNT(*) FROM high_priority_findings')
+        high_priority = c.fetchone()[0]
+
+        c.execute('''SELECT doc_category, COUNT(*) as cnt
+                     FROM vol00008_docs GROUP BY doc_category ORDER BY cnt DESC''')
+        categories = [dict(row) for row in c.fetchall()]
+
+        return jsonify({
+            'total_documents': total,
+            'documents_with_text': with_text,
+            'high_priority_findings': high_priority,
+            'categories': categories
+        })
+
+@app.route('/api/vol00008/documents', methods=['GET'])
+@handle_db_error
+def api_vol00008_documents():
+    """Get VOL00008 documents with filters"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        category = request.args.get('category')
+        min_score = int(request.args.get('min_score', 0))
+        person = request.args.get('person')
+        location = request.args.get('location')
+        limit = int(request.args.get('limit', 100))
+
+        query = '''SELECT v.*, d.content
+                   FROM vol00008_docs v
+                   JOIN documents d ON v.doc_id = d.id
+                   WHERE v.suspicion_score >= ?'''
+        params = [min_score]
+
+        if category:
+            query += ' AND v.doc_category = ?'
+            params.append(category)
+        if person:
+            query += ' AND v.key_persons LIKE ?'
+            params.append(f'%{person}%')
+        if location:
+            query += ' AND v.key_locations LIKE ?'
+            params.append(f'%{location}%')
+
+        query += ' ORDER BY v.suspicion_score DESC LIMIT ?'
+        params.append(limit)
+
+        c.execute(query, params)
+        docs = []
+        for row in c.fetchall():
+            docs.append({
+                'efta_id': row['efta_id'],
+                'doc_id': row['doc_id'],
+                'category': row['doc_category'],
+                'suspicion_score': row['suspicion_score'],
+                'persons': row['key_persons'],
+                'locations': row['key_locations'],
+                'page_count': row['page_count'],
+                'content_preview': row['content'][:500] if row['content'] else None
+            })
+
+        return jsonify({'documents': docs, 'count': len(docs)})
+
+@app.route('/api/vol00008/high-priority', methods=['GET'])
+@handle_db_error
+def api_vol00008_high_priority():
+    """Get high-priority findings"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        min_severity = int(request.args.get('min_severity', 5))
+        limit = int(request.args.get('limit', 50))
+
+        c.execute('''SELECT h.*, v.doc_category, v.key_persons, v.key_locations
+                     FROM high_priority_findings h
+                     JOIN vol00008_docs v ON h.doc_id = v.doc_id
+                     WHERE h.severity >= ?
+                     ORDER BY h.severity DESC, v.suspicion_score DESC
+                     LIMIT ?''', (min_severity, limit))
+
+        findings = [dict(row) for row in c.fetchall()]
+        return jsonify({'findings': findings, 'count': len(findings)})
+
+@app.route('/api/vol00008/persons', methods=['GET'])
+@handle_db_error
+def api_vol00008_persons():
+    """Get persons of interest with document counts"""
+    from collections import Counter
+
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute("SELECT key_persons FROM vol00008_docs WHERE key_persons != ''")
+
+        person_counter = Counter()
+        for row in c.fetchall():
+            persons = row['key_persons'].split(',')
+            person_counter.update(p.strip() for p in persons if p.strip())
+
+        persons = [{'name': name, 'document_count': count}
+                   for name, count in person_counter.most_common(50)]
+
+        return jsonify({'persons': persons})
+
+@app.route('/api/vol00008/search', methods=['GET'])
+@handle_db_error
+def api_vol00008_search():
+    """Search VOL00008 documents"""
+    query = request.args.get('q', '')
+    if not query:
+        return jsonify({'results': [], 'count': 0})
+
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        c.execute('''SELECT v.efta_id, v.doc_category, v.suspicion_score,
+                            v.key_persons, v.key_locations,
+                            snippet(documents_fts, 2, '<mark>', '</mark>', '...', 64) as snippet
+                     FROM vol00008_docs v
+                     JOIN documents d ON v.doc_id = d.id
+                     JOIN documents_fts fts ON fts.doc_id = d.id
+                     WHERE documents_fts MATCH ?
+                     ORDER BY v.suspicion_score DESC
+                     LIMIT 100''', (query,))
+
+        results = [dict(row) for row in c.fetchall()]
+        return jsonify({'results': results, 'count': len(results), 'query': query})
+
+@app.route('/api/vol00008/document/<efta_id>', methods=['GET'])
+@handle_db_error
+def api_vol00008_document(efta_id):
+    """Get full document by EFTA ID"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        c.execute('''SELECT v.*, d.content, d.filepath
+                     FROM vol00008_docs v
+                     JOIN documents d ON v.doc_id = d.id
+                     WHERE v.efta_id = ?''', (efta_id,))
+
+        row = c.fetchone()
+        if not row:
+            return jsonify({'error': 'Document not found'}), 404
+
+        return jsonify({
+            'efta_id': row['efta_id'],
+            'doc_id': row['doc_id'],
+            'category': row['doc_category'],
+            'suspicion_score': row['suspicion_score'],
+            'persons': row['key_persons'],
+            'locations': row['key_locations'],
+            'page_count': row['page_count'],
+            'content': row['content'],
+            'filepath': row['filepath']
+        })
+
+@app.route('/api/vol00008/network', methods=['GET'])
+@handle_db_error
+def api_vol00008_network():
+    """Get person co-occurrence network for visualization"""
+    from collections import Counter
+
+    min_score = int(request.args.get('min_score', 30))
+
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT key_persons FROM vol00008_docs
+                     WHERE suspicion_score >= ? AND key_persons LIKE '%,%' ''', (min_score,))
+
+        pair_counter = Counter()
+        person_docs = Counter()
+
+        for row in c.fetchall():
+            persons = [p.strip() for p in row['key_persons'].split(',') if p.strip()]
+            person_docs.update(persons)
+            for i in range(len(persons)):
+                for j in range(i+1, len(persons)):
+                    pair = tuple(sorted([persons[i], persons[j]]))
+                    pair_counter[pair] += 1
+
+        # Build nodes
+        top_persons = [p for p, _ in person_docs.most_common(30)]
+        nodes = [{'id': p, 'label': p, 'value': person_docs[p]} for p in top_persons]
+
+        # Build edges
+        edges = []
+        for (p1, p2), count in pair_counter.most_common(100):
+            if p1 in top_persons and p2 in top_persons:
+                edges.append({'from': p1, 'to': p2, 'value': count, 'title': f'{count} documents'})
+
+        return jsonify({'nodes': nodes, 'edges': edges})
+
+# =============================================================================
+# CONTACTS API ENDPOINTS (moved before __main__)
+# =============================================================================
+
+@app.route('/api/contacts', methods=['GET'])
+@handle_db_error
+def api_contacts():
+    """Get all contacts from contact book"""
+    search = request.args.get('search', '')
+
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        if search:
+            c.execute('''
+                SELECT id, name, full_entry
+                FROM contacts
+                WHERE name LIKE ?
+                ORDER BY name
+            ''', (f'%{search}%',))
+        else:
+            c.execute('''
+                SELECT id, name, full_entry
+                FROM contacts
+                ORDER BY name
+                LIMIT 500
+            ''')
+
+        contacts = []
+        for row in c.fetchall():
+            contacts.append({
+                'id': row['id'],
+                'name': row['name'],
+                'full_entry': row['full_entry']
+            })
+
+        return jsonify({
+            'success': True,
+            'count': len(contacts),
+            'contacts': contacts
+        })
+
+@app.route('/api/contacts/stats', methods=['GET'])
+@handle_db_error
+def api_contacts_stats():
+    """Get contact book statistics"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+
+        c.execute('SELECT COUNT(*) as total FROM contacts')
+        total = c.fetchone()['total']
+
+        return jsonify({
+            'total_contacts': total
+        })
+
+# =============================================================================
+# API ALIASES - Add /api/ prefix for frontend compatibility
+# =============================================================================
+
+@app.route('/api/stats', methods=['GET'])
+@handle_db_error
+def api_stats_alias():
+    """Alias for /stats endpoint"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) as count FROM documents WHERE file_type = "txt"')
+        txt_count = c.fetchone()['count']
+        c.execute('SELECT COUNT(*) as count FROM documents WHERE file_type = "image"')
+        img_count = c.fetchone()['count']
+        c.execute('SELECT COUNT(*) as count FROM entities')
+        entity_count = c.fetchone()['count']
+        c.execute('SELECT COUNT(*) as count FROM contradictions')
+        contradiction_count = c.fetchone()['count']
+        return jsonify({
+            'documents': txt_count,
+            'images': img_count,
+            'entities': entity_count,
+            'contradictions': contradiction_count
+        })
+
+@app.route('/api/documents', methods=['GET'])
+@handle_db_error
+def api_documents_alias():
+    """Get documents list"""
+    limit = int(request.args.get('limit', 100))
+    offset = int(request.args.get('offset', 0))
+
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT id, filename, file_type, uploaded_date
+                     FROM documents ORDER BY uploaded_date DESC LIMIT ? OFFSET ?''',
+                  (limit, offset))
+        docs = [dict(row) for row in c.fetchall()]
+        return jsonify({'documents': docs, 'count': len(docs)})
+
+@app.route('/api/entities', methods=['GET'])
+@handle_db_error
+def api_entities_alias():
+    """Get entities list"""
+    entity_type = request.args.get('type')
+    limit = int(request.args.get('limit', 100))
+
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        if entity_type:
+            c.execute('''SELECT id, name, entity_type, mention_count
+                         FROM entities WHERE entity_type = ?
+                         ORDER BY mention_count DESC LIMIT ?''', (entity_type, limit))
+        else:
+            c.execute('''SELECT id, name, entity_type, mention_count
+                         FROM entities ORDER BY mention_count DESC LIMIT ?''', (limit,))
+        entities = [dict(row) for row in c.fetchall()]
+        return jsonify({'entities': entities, 'count': len(entities)})
+
+@app.route('/api/search', methods=['GET'])
+@handle_db_error
+def api_search_alias():
+    """Search documents"""
+    query = request.args.get('q', '')
+    if not query:
+        return jsonify({'results': [], 'count': 0})
+
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT d.id, d.filename, d.file_type,
+                            snippet(documents_fts, 2, '<mark>', '</mark>', '...', 64) as snippet
+                     FROM documents d
+                     JOIN documents_fts fts ON fts.doc_id = d.id
+                     WHERE documents_fts MATCH ?
+                     LIMIT 100''', (query,))
+        results = [dict(row) for row in c.fetchall()]
+        return jsonify({'results': results, 'count': len(results), 'query': query})
+
+@app.route('/api/timeline', methods=['GET'])
+@handle_db_error
+def api_timeline_alias():
+    """Get timeline data"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT e.name as date, COUNT(em.id) as event_count
+                     FROM entities e
+                     JOIN entity_mentions em ON e.id = em.entity_id
+                     WHERE e.entity_type = 'date'
+                     GROUP BY e.name
+                     ORDER BY e.name DESC
+                     LIMIT 100''')
+        timeline = [dict(row) for row in c.fetchall()]
+        return jsonify({'timeline': timeline})
+
+@app.route('/api/network', methods=['GET'])
+@handle_db_error
+def api_network_alias():
+    """Get network graph data"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT id, name, entity_type, mention_count
+                     FROM entities
+                     WHERE entity_type = 'person'
+                     ORDER BY mention_count DESC
+                     LIMIT 50''')
+        nodes = [{'id': row['id'], 'label': row['name'], 'value': row['mention_count']}
+                 for row in c.fetchall()]
+        return jsonify({'nodes': nodes, 'edges': []})
+
+@app.route('/api/flight-logs', methods=['GET'])
+@handle_db_error
+def api_flight_logs_alias():
+    """Get flight logs"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT * FROM flight_logs ORDER BY flight_date DESC LIMIT 100''')
+        flights = [dict(row) for row in c.fetchall()]
+        return jsonify({'flights': flights, 'count': len(flights)})
+
+@app.route('/api/flight-stats', methods=['GET'])
+@handle_db_error
+def api_flight_stats_alias():
+    """Get flight statistics"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) as total FROM flight_logs')
+        total = c.fetchone()['total']
+        c.execute('SELECT COUNT(DISTINCT passenger_name) as passengers FROM flight_logs')
+        passengers = c.fetchone()['passengers']
+        return jsonify({'total_flights': total, 'unique_passengers': passengers})
+
+@app.route('/api/email-threads', methods=['GET'])
+@handle_db_error
+def api_email_threads_alias():
+    """Get email threads"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT id, thread_id, subject, participants, start_date, end_date,
+                            message_count, suspicion_score, summary
+                     FROM email_threads
+                     ORDER BY suspicion_score DESC LIMIT 50''')
+        threads = [dict(row) for row in c.fetchall()]
+        return jsonify({'threads': threads, 'count': len(threads)})
+
+@app.route('/api/email-network', methods=['GET'])
+@handle_db_error
+def api_email_network_alias():
+    """Get email network from participants"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        # Extract unique participants and create network
+        c.execute('''SELECT participants, suspicion_score FROM email_threads
+                     WHERE participants IS NOT NULL ORDER BY suspicion_score DESC''')
+
+        from collections import Counter
+        edges = Counter()
+        nodes = Counter()
+
+        for row in c.fetchall():
+            parts = [p.strip() for p in row['participants'].replace('[', '').replace(']', '').split(',') if p.strip() and '@' in p]
+            nodes.update(parts)
+            for i in range(len(parts)):
+                for j in range(i+1, len(parts)):
+                    edge = tuple(sorted([parts[i], parts[j]]))
+                    edges[edge] += 1
+
+        network = [{'from': e[0], 'to': e[1], 'count': c} for e, c in edges.most_common(50)]
+        return jsonify({'network': network, 'node_count': len(nodes)})
+
+@app.route('/api/financial-transactions', methods=['GET'])
+@handle_db_error
+def api_financial_transactions_alias():
+    """Get financial transactions"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT * FROM financial_transactions
+                     ORDER BY date DESC LIMIT 100''')
+        transactions = [dict(row) for row in c.fetchall()]
+        return jsonify({'transactions': transactions, 'count': len(transactions)})
+
+@app.route('/api/geolocations', methods=['GET'])
+@handle_db_error
+def api_geolocations_alias():
+    """Get geolocations"""
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute('''SELECT e.name, e.mention_count,
+                            COALESCE(g.lat, 0) as lat,
+                            COALESCE(g.lng, 0) as lng
+                     FROM entities e
+                     LEFT JOIN geolocations g ON e.name = g.location_name
+                     WHERE e.entity_type = 'location'
+                     ORDER BY e.mention_count DESC
+                     LIMIT 50''')
+        locations = [dict(row) for row in c.fetchall()]
+        return jsonify({'locations': locations})
+
+@app.route('/api/semantic-search', methods=['GET'])
+@handle_db_error
+def api_semantic_search_alias():
+    """Semantic search - falls back to keyword search if embeddings not available"""
+    query = request.args.get('q', '')
+    if not query:
+        return jsonify({'results': [], 'count': 0, 'mode': 'semantic'})
+
+    # Try semantic search first, fall back to keyword
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        # Check if embeddings exist
+        c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='document_embeddings'")
+        has_embeddings = c.fetchone() is not None
+
+        if has_embeddings:
+            # Use semantic search endpoint
+            c.execute('''SELECT d.id, d.filename, d.file_type,
+                                SUBSTR(d.content, 1, 300) as snippet
+                         FROM documents d
+                         WHERE d.content LIKE ?
+                         LIMIT 50''', (f'%{query}%',))
+        else:
+            # Fall back to FTS search
+            c.execute('''SELECT d.id, d.filename, d.file_type,
+                                snippet(documents_fts, 2, '<mark>', '</mark>', '...', 64) as snippet
+                         FROM documents d
+                         JOIN documents_fts fts ON fts.doc_id = d.id
+                         WHERE documents_fts MATCH ?
+                         LIMIT 50''', (query,))
+
+        results = [dict(row) for row in c.fetchall()]
+        return jsonify({
+            'results': results,
+            'count': len(results),
+            'query': query,
+            'mode': 'semantic' if has_embeddings else 'keyword_fallback'
+        })
+
+# =============================================================================
+# MAIN ENTRY POINT
+# =============================================================================
+
 if __name__ == '__main__':
     init_db()
     print("=" * 50)
@@ -1803,5 +2555,6 @@ if __name__ == '__main__':
     print("=" * 50)
     print("Server starting on http://localhost:5001")
     print("Upload .txt and .jpg files to begin investigation")
+    print("VOL00008: 10,593 documents loaded")
     print("=" * 50)
     app.run(debug=True, port=5001)
