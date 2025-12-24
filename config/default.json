@@ -1,0 +1,37 @@
+{
+  "browser": {
+    "headless": true,
+    "slowMo": 100,
+    "timeout": 30000,
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "extraction": {
+    "defaultMaxAds": 50,
+    "screenshots": true,
+    "landingPageAnalysis": false,
+    "retryAttempts": 3,
+    "retryDelay": 2000,
+    "useStealthPlugin": true
+  },
+  "database": {
+    "path": "./data/ads.db"
+  },
+  "output": {
+    "directory": "./output",
+    "screenshotsDirectory": "./screenshots",
+    "formats": ["json", "markdown"],
+    "generateExecutiveSummary": true
+  },
+  "categorization": {
+    "confidenceThreshold": 0.5,
+    "defaultCategory": "other"
+  },
+  "server": {
+    "port": 3000,
+    "host": "localhost"
+  },
+  "enabledPlatforms": ["meta", "tiktok", "google", "linkedin"]
+}

@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdIntel Pro - Competitive Ad Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            dark: {
+              900: '#0a0a0f',
+              800: '#12121a',
+              700: '#1a1a24',
+              600: '#242430',
+              500: '#2e2e3a',
+            },
+            accent: {
+              purple: '#8b5cf6',
+              blue: '#3b82f6',
+              cyan: '#06b6d4',
+              pink: '#ec4899',
+              orange: '#f97316',
+            }
+          },
+          animation: {
+            'gradient': 'gradient 8s linear infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'shimmer': 'shimmer 2s linear infinite',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'fade-in': 'fadeIn 0.3s ease-out',
+          },
+          keyframes: {
+            gradient: {
+              '0%, 100%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
+      min-height: 100vh;
+    }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Glass morphism cards */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-card-hover:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(139, 92, 246, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(139, 92, 246, 0.15);
+    }
+
+    /* Glow effects */
+    .glow-purple {
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+    }
+
+    .glow-blue {
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Gradient border */
+    .gradient-border {
+      position: relative;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+    }
+
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    /* Button styles */
+    .btn-primary {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #9d6eff 0%, #7c7fff 100%);
+      box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Input styles */
+    .input-modern {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .input-modern:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(139, 92, 246, 0.5);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+      outline: none;
+    }
+
+    /* Platform chips */
+    .platform-chip {
+      transition: all 0.3s ease;
+    }
+
+    .platform-chip:hover:not(:disabled) {
+      background: rgba(139, 92, 246, 0.2);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .platform-chip.selected {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3));
+      border-color: rgba(139, 92, 246, 0.6);
+    }
+
+    /* Progress bar */
+    .progress-gradient {
+      background: linear-gradient(90deg, #8b5cf6, #3b82f6, #06b6d4, #8b5cf6);
+      background-size: 300% 100%;
+      animation: shimmer 2s linear infinite;
+    }
+
+    /* Ad card */
+    .ad-card {
+      transition: all 0.3s ease;
+    }
+
+    .ad-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(139, 92, 246, 0.3);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(139, 92, 246, 0.5);
+    }
+
+    /* Toast notifications */
+    .toast {
+      animation: slideUp 0.3s ease-out;
+    }
+
+    /* Stats counter animation */
+    .stat-number {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* Platform icons */
+    .platform-icon {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body class="text-white antialiased">
+  <!-- Background decoration -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-accent-purple/20 rounded-full blur-[100px]"></div>
+    <div class="absolute top-1/2 -left-40 w-80 h-80 bg-accent-blue/20 rounded-full blur-[100px]"></div>
+    <div class="absolute -bottom-40 right-1/3 w-80 h-80 bg-accent-cyan/20 rounded-full blur-[100px]"></div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+  <!-- Main App -->
+  <div class="relative z-10">
+    <!-- Header -->
+    <header class="border-b border-white/5">
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold gradient-text">AdIntel Pro</h1>
+              <p class="text-xs text-gray-500">Competitive Ad Intelligence</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div id="connection-status" class="flex items-center gap-2 px-3 py-1.5 rounded-full glass-card">
+              <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+              <span class="text-xs text-gray-400">Connecting...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+      <div class="grid grid-cols-12 gap-6">
+        <!-- Left Sidebar: Extraction Form -->
+        <aside class="col-span-12 lg:col-span-4 xl:col-span-3 space-y-6">
+          <!-- New Extraction Card -->
+          <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-purple/20 to-accent-blue/20 flex items-center justify-center">
+                <svg class="w-4 h-4 text-accent-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <h2 class="text-lg font-semibold">New Extraction</h2>
+            </div>
+
+            <form id="extraction-form" class="space-y-5">
+              <!-- Competitor Input -->
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Competitor</label>
+                <input
+                  type="text"
+                  id="competitor"
+                  class="input-modern w-full px-4 py-3 rounded-xl text-white placeholder-gray-500"
+                  placeholder="e.g., Nike, apple.com"
+                  required
+                >
+              </div>
+
+              <!-- Platforms -->
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Platforms</label>
+                <div id="platforms-container" class="flex flex-wrap gap-2">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+
+              <!-- Options Grid -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2">Max Ads</label>
+                  <select id="max-ads" class="input-modern w-full px-3 py-2.5 rounded-xl text-white">
+                    <option value="25">25</option>
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2">Country</label>
+                  <select id="country" class="input-modern w-full px-3 py-2.5 rounded-xl text-white">
+                    <option value="US">US</option>
+                    <option value="GB">UK</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="ALL">All</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Include Inactive Toggle -->
+              <label class="flex items-center gap-3 cursor-pointer group">
+                <div class="relative">
+                  <input type="checkbox" id="include-inactive" class="sr-only peer">
+                  <div class="w-10 h-6 bg-dark-500 rounded-full peer-checked:bg-accent-purple transition-colors"></div>
+                  <div class="absolute top-1 left-1 w-4 h-4 bg-gray-400 rounded-full peer-checked:translate-x-4 peer-checked:bg-white transition-all"></div>
+                </div>
+                <span class="text-sm text-gray-400 group-hover:text-gray-300">Include inactive ads</span>
+              </label>
+
+              <!-- Extract Button -->
+              <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Extract Ads
+              </button>
+            </form>
+          </div>
+
+          <!-- Progress Card (Hidden by default) -->
+          <div id="job-progress" class="glass-card rounded-2xl p-6 hidden">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-8 h-8 rounded-lg bg-accent-blue/20 flex items-center justify-center animate-pulse">
+                <svg class="w-4 h-4 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold" id="job-title">Extracting...</h3>
+                <p class="text-xs text-gray-500" id="job-message">Starting...</p>
+              </div>
+            </div>
+            <div class="h-2 bg-dark-600 rounded-full overflow-hidden">
+              <div id="progress-bar" class="h-full progress-gradient rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2 text-right"><span id="progress-percent">0</span>%</p>
+          </div>
+
+          <!-- Recent Jobs -->
+          <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-gray-300">Recent Jobs</h3>
+              <button onclick="loadJobs()" class="text-xs text-accent-purple hover:text-accent-blue transition-colors">Refresh</button>
+            </div>
+            <div id="jobs-list" class="space-y-2 max-h-48 overflow-y-auto">
+              <p class="text-sm text-gray-500">No jobs yet</p>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Content Area: Results -->
+        <section class="col-span-12 lg:col-span-8 xl:col-span-9 space-y-6">
+          <!-- Stats Bar -->
+          <div id="stats-bar" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden">
+            <div class="glass-card rounded-xl p-4">
+              <p class="text-xs text-gray-500 mb-1">Total Ads</p>
+              <p class="text-2xl font-bold stat-number" id="stat-total">0</p>
+            </div>
+            <div class="glass-card rounded-xl p-4">
+              <p class="text-xs text-gray-500 mb-1">Platforms</p>
+              <p class="text-2xl font-bold stat-number" id="stat-platforms">0</p>
+            </div>
+            <div class="glass-card rounded-xl p-4">
+              <p class="text-xs text-gray-500 mb-1">Video Ads</p>
+              <p class="text-2xl font-bold stat-number" id="stat-videos">0</p>
+            </div>
+            <div class="glass-card rounded-xl p-4">
+              <p class="text-xs text-gray-500 mb-1">Active</p>
+              <p class="text-2xl font-bold stat-number text-green-400" id="stat-active">0</p>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div id="empty-state" class="glass-card rounded-2xl p-12 text-center">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-accent-purple/20 to-accent-blue/20 flex items-center justify-center">
+              <svg class="w-10 h-10 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-400 mb-2">No ads extracted yet</h3>
+            <p class="text-gray-500 max-w-md mx-auto">Enter a competitor name and select platforms to start extracting their advertising data.</p>
+          </div>
+
+          <!-- Results Container -->
+          <div id="results-container" class="hidden">
+            <!-- Competitor Header -->
+            <div class="glass-card rounded-2xl p-6 mb-6">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-xl font-bold" id="competitor-avatar">N</div>
+                  <div>
+                    <h2 class="text-xl font-bold" id="competitor-name">Competitor</h2>
+                    <p class="text-sm text-gray-500"><span id="ads-count">0</span> ads found</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="strategic-report-btn" onclick="viewStrategicReport()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white text-sm font-semibold flex items-center gap-2 transition-all hover:opacity-90 hover:scale-105 shadow-lg shadow-purple-500/25">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Strategic Report
+                  </button>
+                  <button onclick="downloadResults('json')" class="px-4 py-2 rounded-lg glass-card glass-card-hover text-sm font-medium flex items-center gap-2 transition-all">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    JSON
+                  </button>
+                  <button onclick="downloadResults('csv')" class="px-4 py-2 rounded-lg glass-card glass-card-hover text-sm font-medium flex items-center gap-2 transition-all">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex items-center gap-2 mb-6">
+              <button onclick="switchTab('all')" class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium transition-all" data-tab="all">All Ads</button>
+              <button onclick="switchTab('videos')" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all" data-tab="videos">Videos</button>
+              <button onclick="switchTab('images')" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all" data-tab="images">Images</button>
+            </div>
+
+            <!-- Ads Grid -->
+            <div id="ads-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Ad Detail Modal -->
+  <div id="ad-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAdModal()"></div>
+    <div class="absolute inset-4 md:inset-10 lg:inset-20 glass-card rounded-2xl overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between p-4 border-b border-white/10">
+        <h3 class="font-semibold">Ad Details</h3>
+        <button onclick="closeAdModal()" class="p-2 rounded-lg hover:bg-white/10 transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div id="modal-content" class="flex-1 overflow-y-auto p-6">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let ws = null;
+    let currentJobId = null;
+    let platforms = { available: [], all: [] };
+    let extractedAds = [];
+    let currentCompetitor = '';
+    let currentStrategicReport = null;
+    let currentJobReports = [];
+
+    // Platform icons
+    const platformIcons = {
+      meta: `<svg viewBox="0 0 24 24" fill="currentColor" class="platform-icon"><path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 008.44-9.9c0-5.53-4.5-10.02-10-10.02z"/></svg>`,
+      tiktok: `<svg viewBox="0 0 24 24" fill="currentColor" class="platform-icon"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>`,
+      google: `<svg viewBox="0 0 24 24" fill="currentColor" class="platform-icon"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>`,
+      linkedin: `<svg viewBox="0 0 24 24" fill="currentColor" class="platform-icon"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`
+    };
+
+    // Platform colors
+    const platformColors = {
+      meta: 'text-blue-400',
+      tiktok: 'text-pink-400',
+      google: 'text-green-400',
+      linkedin: 'text-sky-400'
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      connectWebSocket();
+      loadPlatforms();
+      loadJobs();
+    });
+
+    // WebSocket connection
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+      ws.onopen = () => updateConnectionStatus(true);
+      ws.onclose = () => {
+        updateConnectionStatus(false);
+        setTimeout(connectWebSocket, 3000);
+      };
+      ws.onmessage = (event) => {
+        const { event: eventName, data } = JSON.parse(event.data);
+        handleWebSocketEvent(eventName, data);
+      };
+    }
+
+    function updateConnectionStatus(connected) {
+      const status = document.getElementById('connection-status');
+      status.innerHTML = connected
+        ? `<span class="w-2 h-2 rounded-full bg-green-400"></span><span class="text-xs text-gray-400">Connected</span>`
+        : `<span class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span><span class="text-xs text-gray-400">Reconnecting...</span>`;
+    }
+
+    function handleWebSocketEvent(event, data) {
+      switch (event) {
+        case 'job:created':
+        case 'job:updated':
+          loadJobs();
+          break;
+        case 'job:progress':
+          updateProgress(data);
+          break;
+        case 'job:completed':
+          loadJobs();
+          hideProgressBar();
+          showToast('Extraction complete!', 'success');
+          if (data.result) {
+            fetchJobResults(data.id);
+          }
+          break;
+        case 'job:failed':
+          loadJobs();
+          hideProgressBar();
+          showToast(data.error || 'Extraction failed', 'error');
+          break;
+      }
+    }
+
+    // Load platforms
+    async function loadPlatforms() {
+      try {
+        const res = await fetch('/api/platforms');
+        platforms = await res.json();
+        renderPlatforms();
+      } catch (error) {
+        console.error('Failed to load platforms:', error);
+      }
+    }
+
+    function renderPlatforms() {
+      const container = document.getElementById('platforms-container');
+      container.innerHTML = platforms.all.map(p => {
+        const isAvailable = platforms.available.includes(p);
+        const isSelected = p === 'meta';
+        return `
+          <label class="platform-chip ${isSelected ? 'selected' : ''} flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 cursor-pointer ${!isAvailable ? 'opacity-40 cursor-not-allowed' : ''}">
+            <input type="checkbox" name="platform" value="${p}" ${isSelected ? 'checked' : ''} ${!isAvailable ? 'disabled' : ''} class="sr-only" onchange="this.parentElement.classList.toggle('selected', this.checked)">
+            <span class="${platformColors[p]}">${platformIcons[p]}</span>
+            <span class="text-sm capitalize">${p}</span>
+          </label>
+        `;
+      }).join('');
+    }
+
+    // Load jobs
+    async function loadJobs() {
+      try {
+        const res = await fetch('/api/jobs');
+        const jobs = await res.json();
+        renderJobs(jobs);
+      } catch (error) {
+        console.error('Failed to load jobs:', error);
+      }
+    }
+
+    function renderJobs(jobs) {
+      const container = document.getElementById('jobs-list');
+      if (jobs.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500">No jobs yet</p>';
+        return;
+      }
+
+      const statusConfig = {
+        pending: { color: 'bg-yellow-500/20 text-yellow-400', icon: '...' },
+        running: { color: 'bg-blue-500/20 text-blue-400', icon: '...' },
+        completed: { color: 'bg-green-500/20 text-green-400', icon: '...' },
+        failed: { color: 'bg-red-500/20 text-red-400', icon: '...' }
+      };
+
+      container.innerHTML = jobs.slice(0, 8).map(job => `
+        <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer" onclick="fetchJobResults('${job.id}')">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-medium text-sm truncate">${job.competitor}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full ${statusConfig[job.status].color}">${job.status}</span>
+          </div>
+          <div class="text-xs text-gray-500">
+            ${job.platforms.join(', ')} ${job.result ? `• ${job.result.totalAds} ads` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Progress
+    function showProgressBar(jobId, competitor) {
+      currentJobId = jobId;
+      document.getElementById('job-progress').classList.remove('hidden');
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('progress-percent').textContent = '0';
+      document.getElementById('job-title').textContent = `Extracting ${competitor}...`;
+      document.getElementById('job-message').textContent = 'Starting...';
+    }
+
+    function updateProgress(data) {
+      if (data.jobId !== currentJobId) return;
+      document.getElementById('progress-bar').style.width = `${data.progress}%`;
+      document.getElementById('progress-percent').textContent = data.progress;
+      document.getElementById('job-message').textContent = data.message;
+    }
+
+    function hideProgressBar() {
+      document.getElementById('job-progress').classList.add('hidden');
+      currentJobId = null;
+    }
+
+    // Fetch job results
+    async function fetchJobResults(jobId) {
+      try {
+        const res = await fetch(`/api/jobs/${jobId}`);
+        const job = await res.json();
+
+        if (job.status === 'completed' && job.result?.reports?.length > 0) {
+          // Store all reports
+          currentJobReports = job.result.reports;
+
+          // Find strategic HTML report
+          currentStrategicReport = job.result.reports.find(r => r.includes('strategic') && r.endsWith('.html'));
+
+          // Update strategic report button visibility
+          const btn = document.getElementById('strategic-report-btn');
+          if (currentStrategicReport) {
+            btn.classList.remove('hidden');
+          } else {
+            btn.classList.add('hidden');
+          }
+
+          // Find the JSON report (non-strategic for ad list)
+          const jsonReport = job.result.reports.find(r => r.endsWith('.json') && !r.includes('strategic'));
+          if (jsonReport) {
+            const reportRes = await fetch(`/api/reports/${jsonReport.split('/').pop()}`);
+            const reportData = await reportRes.json();
+            if (reportData.ads) {
+              displayResults(job.competitor, reportData.ads);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch job results:', error);
+      }
+    }
+
+    // View strategic report
+    async function viewStrategicReport() {
+      if (!currentStrategicReport) {
+        // Generate strategic report on demand
+        if (extractedAds.length > 0) {
+          showToast('Generating strategic report...', 'info');
+          try {
+            const res = await fetch('/api/strategic-report', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                competitor: currentCompetitor,
+                ads: extractedAds
+              })
+            });
+            const data = await res.json();
+            if (data.success && data.reports?.html) {
+              currentStrategicReport = data.reports.html;
+              window.open(`/api/reports/${currentStrategicReport.split('/').pop()}`, '_blank');
+              showToast('Strategic report generated!', 'success');
+            }
+          } catch (error) {
+            showToast('Failed to generate report', 'error');
+          }
+        } else {
+          showToast('No ads available for analysis', 'error');
+        }
+        return;
+      }
+
+      // Open the strategic report in new tab
+      window.open(`/api/reports/${currentStrategicReport.split('/').pop()}`, '_blank');
+    }
+
+    // Display results
+    function displayResults(competitor, ads) {
+      extractedAds = ads;
+      currentCompetitor = competitor;
+
+      document.getElementById('empty-state').classList.add('hidden');
+      document.getElementById('results-container').classList.remove('hidden');
+      document.getElementById('stats-bar').classList.remove('hidden');
+
+      // Update competitor header
+      document.getElementById('competitor-avatar').textContent = competitor.charAt(0).toUpperCase();
+      document.getElementById('competitor-name').textContent = competitor;
+      document.getElementById('ads-count').textContent = ads.length;
+
+      // Update stats
+      const videoCount = ads.filter(a => a.mediaType === 'video').length;
+      const activeCount = ads.filter(a => a.rawData?.status === 'Active').length;
+      const platformSet = new Set(ads.map(a => a.platform));
+
+      animateCounter('stat-total', ads.length);
+      animateCounter('stat-platforms', platformSet.size);
+      animateCounter('stat-videos', videoCount);
+      animateCounter('stat-active', activeCount);
+
+      // Render ads
+      renderAds(ads);
+    }
+
+    function animateCounter(id, target) {
+      const el = document.getElementById(id);
+      const duration = 1000;
+      const start = parseInt(el.textContent) || 0;
+      const startTime = performance.now();
+
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(start + (target - start) * eased);
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    function renderAds(ads) {
+      const container = document.getElementById('ads-grid');
+      container.innerHTML = ads.map((ad, index) => `
+        <div class="ad-card glass-card rounded-xl overflow-hidden cursor-pointer animate-fade-in" style="animation-delay: ${index * 50}ms" onclick="showAdModal(${index})">
+          <div class="p-4">
+            <div class="flex items-center justify-between mb-3">
+              <span class="${platformColors[ad.platform]}">${platformIcons[ad.platform]}</span>
+              <span class="text-xs px-2 py-1 rounded-full ${ad.rawData?.status === 'Active' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}">${ad.rawData?.status || 'Unknown'}</span>
+            </div>
+            <p class="text-sm text-gray-300 line-clamp-3 mb-3">${ad.primaryText || 'No text available'}</p>
+            <div class="flex items-center justify-between text-xs text-gray-500">
+              <span>${ad.startDate || 'Unknown date'}</span>
+              <span class="flex items-center gap-1">
+                ${ad.mediaType === 'video' ? '<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>' : '<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"/></svg>'}
+                ${ad.mediaType || 'unknown'}
+              </span>
+            </div>
+          </div>
+          ${ad.cta ? `<div class="px-4 py-2 bg-white/5 border-t border-white/5"><span class="text-xs font-medium text-accent-purple">${ad.cta}</span></div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Tab switching
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+        btn.classList.toggle('bg-white/10', btn.dataset.tab === tab);
+        btn.classList.toggle('text-white', btn.dataset.tab === tab);
+        btn.classList.toggle('text-gray-500', btn.dataset.tab !== tab);
+      });
+
+      let filtered = extractedAds;
+      if (tab === 'videos') filtered = extractedAds.filter(a => a.mediaType === 'video');
+      if (tab === 'images') filtered = extractedAds.filter(a => a.mediaType === 'image');
+      renderAds(filtered);
+    }
+
+    // Ad modal
+    function showAdModal(index) {
+      const ad = extractedAds[index];
+      const modal = document.getElementById('ad-modal');
+      const content = document.getElementById('modal-content');
+
+      content.innerHTML = `
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="text-sm font-medium text-gray-400 mb-2">Ad Copy</h4>
+            <p class="text-gray-200 whitespace-pre-wrap">${ad.primaryText || 'No text available'}</p>
+
+            ${ad.headline ? `<div class="mt-4"><h4 class="text-sm font-medium text-gray-400 mb-2">Headline</h4><p class="font-semibold">${ad.headline}</p></div>` : ''}
+
+            ${ad.cta ? `<div class="mt-4"><h4 class="text-sm font-medium text-gray-400 mb-2">Call to Action</h4><span class="px-3 py-1 rounded-full bg-accent-purple/20 text-accent-purple text-sm">${ad.cta}</span></div>` : ''}
+
+            ${ad.hashtags?.length ? `<div class="mt-4"><h4 class="text-sm font-medium text-gray-400 mb-2">Hashtags</h4><div class="flex flex-wrap gap-2">${ad.hashtags.map(h => `<span class="text-sm text-accent-blue">#${h}</span>`).join('')}</div></div>` : ''}
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="glass-card rounded-lg p-3">
+                <p class="text-xs text-gray-500 mb-1">Platform</p>
+                <div class="flex items-center gap-2">
+                  <span class="${platformColors[ad.platform]}">${platformIcons[ad.platform]}</span>
+                  <span class="capitalize">${ad.platform}</span>
+                </div>
+              </div>
+              <div class="glass-card rounded-lg p-3">
+                <p class="text-xs text-gray-500 mb-1">Status</p>
+                <span class="${ad.rawData?.status === 'Active' ? 'text-green-400' : 'text-gray-400'}">${ad.rawData?.status || 'Unknown'}</span>
+              </div>
+              <div class="glass-card rounded-lg p-3">
+                <p class="text-xs text-gray-500 mb-1">Start Date</p>
+                <span>${ad.startDate || 'Unknown'}</span>
+              </div>
+              <div class="glass-card rounded-lg p-3">
+                <p class="text-xs text-gray-500 mb-1">Media Type</p>
+                <span class="capitalize">${ad.mediaType || 'Unknown'}</span>
+              </div>
+            </div>
+
+            ${ad.destinationUrl ? `<div class="glass-card rounded-lg p-3"><p class="text-xs text-gray-500 mb-1">Destination URL</p><a href="${ad.destinationUrl.startsWith('http') ? ad.destinationUrl : 'https://' + ad.destinationUrl}" target="_blank" class="text-accent-blue hover:underline text-sm break-all">${ad.destinationUrl}</a></div>` : ''}
+
+            ${ad.rawData?.libraryId ? `<div class="glass-card rounded-lg p-3"><p class="text-xs text-gray-500 mb-1">Library ID</p><code class="text-sm text-gray-400">${ad.rawData.libraryId}</code></div>` : ''}
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAdModal() {
+      document.getElementById('ad-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    // Download results
+    function downloadResults(format) {
+      if (!extractedAds.length) return;
+
+      let content, filename, type;
+
+      if (format === 'json') {
+        content = JSON.stringify({ competitor: currentCompetitor, ads: extractedAds }, null, 2);
+        filename = `${currentCompetitor}_ads.json`;
+        type = 'application/json';
+      } else {
+        const headers = ['ID', 'Platform', 'Primary Text', 'Headline', 'CTA', 'Start Date', 'Status', 'Media Type', 'Destination URL'];
+        const rows = extractedAds.map(ad => [
+          ad.id,
+          ad.platform,
+          `"${(ad.primaryText || '').replace(/"/g, '""')}"`,
+          `"${(ad.headline || '').replace(/"/g, '""')}"`,
+          ad.cta || '',
+          ad.startDate || '',
+          ad.rawData?.status || '',
+          ad.mediaType || '',
+          ad.destinationUrl || ''
+        ]);
+        content = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        filename = `${currentCompetitor}_ads.csv`;
+        type = 'text/csv';
+      }
+
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Toast notifications
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-green-500/20 border-green-500/50 text-green-400',
+        error: 'bg-red-500/20 border-red-500/50 text-red-400',
+        info: 'bg-blue-500/20 border-blue-500/50 text-blue-400'
+      };
+      const icons = {
+        success: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
+        error: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>',
+        info: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `toast flex items-center gap-3 px-4 py-3 rounded-xl border ${colors[type]} backdrop-blur-xl`;
+      toast.innerHTML = `${icons[type]}<span class="text-sm font-medium">${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Form submission
+    document.getElementById('extraction-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const competitor = document.getElementById('competitor').value.trim();
+      const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
+      const maxAds = parseInt(document.getElementById('max-ads').value);
+      const country = document.getElementById('country').value;
+      const includeInactive = document.getElementById('include-inactive').checked;
+
+      if (!competitor) {
+        showToast('Please enter a competitor name', 'error');
+        return;
+      }
+
+      if (selectedPlatforms.length === 0) {
+        showToast('Please select at least one platform', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            competitor,
+            platforms: selectedPlatforms,
+            maxAds,
+            country,
+            includeInactive,
+            formats: ['json', 'markdown']
+          })
+        });
+
+        const data = await res.json();
+        if (data.jobId) {
+          showProgressBar(data.jobId, competitor);
+          loadJobs();
+          showToast('Extraction started', 'info');
+        }
+      } catch (error) {
+        showToast('Failed to start extraction', 'error');
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAdModal();
+    });
+  </script>
+</body>
+</html>

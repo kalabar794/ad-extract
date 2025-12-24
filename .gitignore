@@ -3,6 +3,7 @@ database.db
 database.db-journal
 *.db
 *.db-journal
+data/*.db
 
 # PDF files and FBI vault documents
 *.pdf
@@ -19,8 +20,19 @@ env/
 venv/
 ENV/
 
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Generated files
+output/
+screenshots/
+
 # Logs
 *.log
+logs/
 ocr_processing.log
 fbi_ocr_progress.log
 event_extraction.log
@@ -42,10 +54,13 @@ uploads/
 temp/
 tmp/
 
+# Environment
+.env
+.env.local
+
 # Large data files
 *.sqlite
 *.sqlite3
-.env
 
 # Large document archives (too big for GitHub)
 VOL00008/
@@ -53,6 +68,7 @@ VOL00008/
 
 # Test output
 test_screenshots/
+coverage/
 
 # Video/audio files
 *.mp4
