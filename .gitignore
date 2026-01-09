@@ -68,6 +68,7 @@ VOL00008/
 
 # Test output
 test_screenshots/
+test-output/
 coverage/
 
 # Video/audio files
